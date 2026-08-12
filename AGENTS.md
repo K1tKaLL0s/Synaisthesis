@@ -24,6 +24,8 @@ When sources conflict, do not silently choose. Report the conflict and stop befo
 - Short Chinese name: 联科
 - English name: Synaisthesis
 - Repository root on this workstation: `E:\Synaisthesis`
+- 部分工具、依赖与 Codex 数据存放在 N 盘：`N:\CodexData`（含 `caches/lean`、`caches/mathlib`、`caches/pip`、`envs`、`toolchains`、`workspaces`、`artifacts`、`wsl`）。
+- 不允许 Synaisthesis 工程开发修改 `N:\CodexData` 下 Codex 正在工作的理论仓库（与 docs/blueprint/00A §3 一致）。
 
 ## Development mode
 
