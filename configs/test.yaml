@@ -1,0 +1,8 @@
+platform:
+  environment: test
+  workspace_root: /tmp/synaisthesis-test/workspace
+  database_url: sqlite:////tmp/synaisthesis-test/synaisthesis.db
+  artifact_root: /tmp/synaisthesis-test/artifacts
+  log_level: DEBUG
+  api_host: 127.0.0.1
+  api_port: 18000
