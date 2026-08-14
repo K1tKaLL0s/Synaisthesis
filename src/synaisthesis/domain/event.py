@@ -18,12 +18,12 @@ from enum import Enum
 from typing import Any
 
 
-def _canonicalize(value: Any) -> Any:
+def canonicalize(value: Any) -> Any:
     """Recursively convert a value into a canonical, JSON-safe form."""
     if isinstance(value, Mapping):
-        return {key: _canonicalize(item) for key, item in sorted(value.items())}
+        return {key: canonicalize(item) for key, item in sorted(value.items())}
     if isinstance(value, (list, tuple, set, frozenset)):
-        return [_canonicalize(item) for item in value]
+        return [canonicalize(item) for item in value]
     if isinstance(value, Enum):
         return value.value
     if isinstance(value, (datetime, date)):
@@ -33,13 +33,19 @@ def _canonicalize(value: Any) -> Any:
     raise TypeError(f"cannot canonicalize value of type {type(value).__name__}")
 
 
-def _canonical_json(value: Any) -> str:
+def canonical_json(value: Any) -> str:
+    """Return the canonical, deterministically-ordered JSON for a value."""
     return json.dumps(
-        _canonicalize(value),
+        canonicalize(value),
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
     )
+
+
+def sha256_hex(value: Any) -> str:
+    """Return the SHA-256 hex digest of a value's canonical JSON form."""
+    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,8 +73,7 @@ class DomainEvent:
     @property
     def event_hash(self) -> str:
         """Deterministic SHA-256 content hash (excludes event_id)."""
-        digest = hashlib.sha256(_canonical_json(self._content_dict()).encode("utf-8"))
-        return digest.hexdigest()
+        return sha256_hex(self._content_dict())
 
     def to_dict(self) -> dict[str, Any]:
         """Return the full event record as a JSON-safe dict."""
@@ -85,4 +90,4 @@ class DomainEvent:
 
     def to_json(self) -> str:
         """Return the canonical, deterministically-ordered JSON serialization."""
-        return _canonical_json(self.to_dict())
+        return canonical_json(self.to_dict())
