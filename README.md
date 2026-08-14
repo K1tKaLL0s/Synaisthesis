@@ -44,6 +44,8 @@ uv run basedpyright
 uv run synaisthesis --version
 ```
 
+> In a read-only-venv environment (e.g. the DSH workspace sandbox, where `.venv` resolves outside the writable workspace), append `--no-sync` to `uv run` and set `UV_CACHE_DIR` to a writable path. See `CONTRIBUTING.md`.
+
 ## Governance
 
 - 权威文档：`docs/blueprint/`（完整工程蓝图）

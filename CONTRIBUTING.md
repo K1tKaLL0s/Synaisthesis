@@ -25,6 +25,16 @@ uv run ruff format --check .
 uv run basedpyright
 ```
 
+In a read-only-venv environment (e.g. the DSH workspace sandbox, where the `.venv` symlink resolves outside the writable workspace), `uv run` cannot re-sync the editable install. Use `--no-sync` and point `UV_CACHE_DIR` at a writable path:
+
+```bash
+export UV_CACHE_DIR=/tmp/uvcache
+uv run --no-sync pytest
+uv run --no-sync ruff check .
+uv run --no-sync ruff format --check .
+uv run --no-sync basedpyright
+```
+
 ## Rules
 
 - Python `>=3.11`; CI verifies 3.11 and 3.14.
