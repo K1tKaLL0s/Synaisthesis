@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M0`
+`M1`（Stage 1 进行中）
 
 ## Current task
-`M0_COMPLETE_PENDING_HUMAN_REVIEW`
+`M1.1.DOMAIN.PRIMITIVES_COMPLETE`
 
 ## Last verified commit
-`NONE`（M0 代码提交待进行）
+`f2640d0`（M1.1 代码尚未提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。
 
 ## Active work unit
-- Stable Task ID: `M0_COMPLETE_PENDING_HUMAN_REVIEW`
-- Document Task: `DOC-V2.4_DUAL_TRACK_PUBLICATION_BASELINE`
-- 本轮只设计、同步和核验蓝图文档与生成型索引；没有进入任何代码 WorkUnit。
-- External workstation task: `EXTERNAL.WORKSTATION.DSH.2026-08-14`；DSH 安装、服务和 Chrome app 壳已验证；桌面 `.lnk` 改为直接调用 `wsl.exe` 后持久性验证 PASS。
+- Stable Task ID: `M1.1.DOMAIN.PRIMITIVES`
+- Milestone: `M1`（Stage 1：领域模型、Event Store、Artifact Store）
+- 交付：稳定枚举（严格拒绝未知值）、领域错误、`DomainEvent`（稳定序列化 + 内容 hash）、版本/幂等策略；领域层零 Web/数据库/MCP 依赖。
+- Human Gate「M0 人工确认」已于本轮由用户确认通过。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -39,6 +39,7 @@
 - `docs/adr/0001-python-compatibility-311-plus.md`
 - AGENTS.md：新增 N 盘 `N:\CodexData` 记录与不得修改 Codex 理论仓库条款
 - 蓝图文档：`03A` 已升级为路线化可行性/形式化/新颖性合同；`03B` 定义工程转化与机械蓝图；新增 `03C_THEORY_PUBLICATION_AND_DUAL_TRACK_VENUE_PROFILES.md`，定义理论论文固定交付、双路线母稿审计/用户决策、八种期刊 Profile 与两种 arXiv 预印本 Profile，并同步数据、API/CLI/MCP、Gate、实施、测试、配置、路线、参考与机械 Task（不代表功能已实现）
+- M1.1 领域基元：`domain/enums.py`（StageId/ProgressKind/StageGateStatus/ProjectLifecycleStatus/ProvenanceType/EvidenceType/EvidenceStrength/IndependenceStatus，`StrictStrEnum` 严格拒绝未知值）、`domain/errors.py`（DomainError/ConflictError/InvalidEnumValueError，07 §19 统一错误对象）、`domain/event.py`（DomainEvent，确定性 SHA-256 内容 hash + 稳定 JSON 序列化）、`domain/policies.py`（IdempotencyContext + check_expected_version，expected_version 不匹配 → CONFLICT）
 
 ## Verified
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
@@ -53,20 +54,22 @@
 - DeepSeek Harness：E 盘隔离安装 `@deepseek-ai/dsh@0.1.0-rc.6`；Node 24.19.0 官方 SHA-256 PASS；530 个包 registry signature PASS、63 个 attestation PASS；`npm audit --omit=dev` 为 0 vulnerabilities
 - DSH 桌面壳目标命令：systemd user service active、官方默认 `http://127.0.0.1:3080` 返回 HTTP 200（12109 bytes）、Chrome 顶层窗口标题为 `DeepSeek Harness`、单实例 keeper 持锁；桌面快捷方式改为直接调用 `wsl.exe` 后连续 30 秒持久性检查 PASS；未录入或读取 API key，未执行真实模型请求
 - `git diff --check`：通过（仅有仓库既有的 LF→CRLF 提示，无 whitespace error）
+- M1.1：`uv run --no-sync pytest tests/unit/domain/test_primitives.py` 36 passed；全套 `uv run --no-sync pytest` 47 passed；`uv run --no-sync ruff check .` 通过；`uv run --no-sync ruff format --check .` 通过；`uv run --no-sync basedpyright` 0 errors, 0 warnings（只读 venv 沙箱使用 `UV_CACHE_DIR` + `--no-sync`，见 CONTRIBUTING.md）
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
 
 ## Pending Human Gates
-- M0 人工确认。
+- 无（「M0 人工确认」已于本轮由用户确认通过）。
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：仍等待 M0 确认后进入 Stage 1；开始前必须按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
+- 代码方面：`M1.2.DOMAIN.AGGREGATES`（前置 M1.1 已 PASS）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
 - drvfs（`/mnt/e`）上 venv 反复损坏且性能差，venv 实际建在 WSL ext4（`~/.venvs/synaisthesis`），仓库 `.venv` 为符号链接；`uv run` 已验证可用。
 - 仅记录真实执行结果；未执行的内容（如 Lean/Z3 调用）不记录为已验证。
+- 本沙箱 venv 只读，`uv run` 需 `--no-sync` 并把 `UV_CACHE_DIR` 指向可写路径（`/tmp`）；该命令形式已由 CONTRIBUTING.md 与提交 `f2640d0` 记录。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。

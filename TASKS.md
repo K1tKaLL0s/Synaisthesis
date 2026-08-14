@@ -6,10 +6,11 @@
 - [x] DOC-V2.2 — 蓝图机械执行审计与修补：RQ0–RQ4、理论/应用新颖性百分制、机械任务合同、汇编与 manifest 完整性规则（仅文档，不代表功能已实现）
 - [x] DOC-V2.3 — 形式化可行性分流、强制工程路线用户决定、工程/应用新颖性与 ENG0–ENG10 机械蓝图/论文交付设计；已由用户整体采纳（仅文档，不代表功能已实现）
 - [x] DOC-V2.4 — 纯理论论文母稿、双路线母稿审计/正式稿决策、理论四刊、工程四刊及双路线 arXiv Profile；已冻结为正式文档基线（仅文档，不代表功能已实现）
+- [x] M1.1 — 领域基元（Stage 1 第 1 个 Task）：稳定枚举（严格拒绝未知值）、DomainError、DomainEvent（稳定序列化 + 内容 hash）、版本/幂等策略；领域层零 Web/数据库/MCP 依赖
 
 ## Next
 
-- [ ] Stage 1 — 领域模型、Event Store、Artifact Store（等待 M0 人工确认后开始）
+- [ ] Stage 1（M1.2–M1.4）— 领域聚合、Event Store、Artifact Store、Project 纵向切片（M1.1 已完成；M0 已确认）
 
 ## Backlog
 
