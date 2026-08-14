@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import pytest
 
 from synaisthesis.domain.enums import (
+    EvidenceStatus,
     EvidenceStrength,
     EvidenceType,
     ProjectLifecycleStatus,
@@ -254,3 +255,11 @@ def test_revoke_twice_raises_conflict():
     revoked = _evidence().revoke(at=NOW)
     with pytest.raises(ConflictError):
         revoked.revoke(at=NOW)
+
+
+def test_evidence_status_is_derived_from_revoked_at():
+    active = _evidence()
+    assert active.status is EvidenceStatus.ACTIVE
+    revoked = active.revoke(at=NOW)
+    assert revoked.status is EvidenceStatus.REVOKED
+    assert active.status is EvidenceStatus.ACTIVE

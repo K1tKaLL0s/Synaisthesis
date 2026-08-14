@@ -6,6 +6,7 @@ layering invariant.
 """
 
 from synaisthesis.domain.enums import (
+    EvidenceStatus,
     EvidenceStrength,
     EvidenceType,
     IndependenceStatus,
@@ -30,6 +31,7 @@ __all__ = [
     "DomainError",
     "DomainEvent",
     "Evidence",
+    "EvidenceStatus",
     "EvidenceStrength",
     "EvidenceType",
     "IdempotencyContext",

@@ -445,6 +445,8 @@
 - created_at
 - revoked_at
 
+`evidence.status` 的允许值：`ACTIVE`（生效中，`revoked_at` 为空）、`REVOKED`（已撤回，`revoked_at` 非空；撤回不删除记录，见 §10）。
+
 ### `evidence_edges`
 - id
 - evidence_id

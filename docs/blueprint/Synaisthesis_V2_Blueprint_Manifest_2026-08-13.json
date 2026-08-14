@@ -136,8 +136,8 @@
     {
       "name": "06_DATA_MODEL_AND_STATE_MACHINE.md",
       "role": "authoritative_source",
-      "size_bytes": 19564,
-      "sha256": "50e0b0cdd63daac345016589078dcadf1bc20a4cf8972a252f43f158abb63cbe"
+      "size_bytes": 19731,
+      "sha256": "bf5e2bfb697cfcdaacca010f56737b5f2c5206e844af18e579de7ed84438d8ea"
     },
     {
       "name": "07_FUNCTION_API_AND_MCP_CONTRACTS.md",
@@ -226,8 +226,8 @@
     {
       "name": "Synaisthesis_V2_完整工程蓝图_2026-08-13.md",
       "role": "generated_consolidation",
-      "size_bytes": 343433,
-      "sha256": "1f5ea3c37f0d7e615688523f63a7c600df8660e7147158192bae8cd3938da077"
+      "size_bytes": 343600,
+      "sha256": "768edd288e5a58094b963737cc69c1f84461cc17e53d30f919e9153bdeb3ff0c"
     }
   ]
 }

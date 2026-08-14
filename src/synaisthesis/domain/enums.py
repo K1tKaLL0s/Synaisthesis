@@ -165,6 +165,13 @@ class EvidenceType(StrictStrEnum):
     CONSTRUCTION_ARTIFACT = "CONSTRUCTION_ARTIFACT"
 
 
+class EvidenceStatus(StrictStrEnum):
+    """Lifecycle state of evidence (blueprint 06, section 1, evidence.status)."""
+
+    ACTIVE = "ACTIVE"
+    REVOKED = "REVOKED"
+
+
 class EvidenceStrength(StrictStrEnum):
     """Evidence strength tiers E0-E5 (blueprint 06, section 5)."""
 

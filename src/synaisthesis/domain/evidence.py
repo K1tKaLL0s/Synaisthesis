@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import datetime
 
-from synaisthesis.domain.enums import EvidenceStrength, EvidenceType, ProvenanceType
+from synaisthesis.domain.enums import EvidenceStatus, EvidenceStrength, EvidenceType, ProvenanceType
 from synaisthesis.domain.errors import ConflictError
 
 
@@ -31,6 +31,11 @@ class Evidence:
     @property
     def is_revoked(self) -> bool:
         return self.revoked_at is not None
+
+    @property
+    def status(self) -> EvidenceStatus:
+        """Derived lifecycle status; revoked_at is the authoritative marker."""
+        return EvidenceStatus.REVOKED if self.revoked_at is not None else EvidenceStatus.ACTIVE
 
     def revoke(self, *, at: datetime) -> Evidence:
         """Return a revoked copy; the original evidence is preserved."""
