@@ -21,10 +21,11 @@ Windows 本地开发根目录冻结为：
 ## 3. 当前开发工具分工
 
 ### Synaisthesis 工程开发
-- 主客户端：OpenCode
+- 工程客户端：OpenCode 或 DeepSeek 官方 DSH；两者均从工程根目录启动并遵守同一套 `AGENTS.md`、WorkUnitContract、Human Gate 与验证规则
 - 主工程模型：DeepSeek V4 Pro
 - 工作目录：`E:\Synaisthesis`
 - OpenCode 本体建议独立放在：`D:\AI\OpenCode`
+- DeepSeek 官方 DSH 本机安装位置：`E:\CodexData\apps\deepseek-harness`
 - 第三方 Skill 源码缓存建议：`D:\AI\SkillSources`
 
 ### 现有理论验证
@@ -45,7 +46,7 @@ Synaisthesis V2 最终仍必须支持：
 
 ## 5. 当前实现优先级
 
-在 DeepSeek + OpenCode 开发阶段，按以下顺序推进：
+在 DeepSeek + OpenCode / 官方 DSH 开发阶段，按以下顺序推进：
 
 1. 工程骨架与不可变领域状态；
 2. Instruction / Semantic Fidelity 领域模型；

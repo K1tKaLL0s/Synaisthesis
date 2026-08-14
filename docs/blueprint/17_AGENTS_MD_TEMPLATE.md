@@ -30,11 +30,13 @@ When sources conflict, do not silently choose. Report the conflict and stop befo
 Implement incrementally. Never implement the whole blueprint in one task.
 
 Before modifying code:
-1. identify the exact Task / Milestone;
-2. read only the relevant blueprint sections;
-3. list the files expected to change;
-4. state acceptance tests;
+1. identify the exact stable Task ID / Milestone from `docs/blueprint/19_MECHANICAL_EXECUTION_CONTRACT.md`;
+2. read only the authoritative sections listed for that Task;
+3. write a complete `WorkUnitContract` including allowed/forbidden files, symbols, I/O, state/events, invariants, errors, commands, acceptance and stop conditions;
+4. confirm all Task preconditions and Human Gates;
 5. state architectural risks.
+
+If the Task has no complete contract, sources conflict, or a required field is undefined, report `BLUEPRINT_GAP` or `BLUEPRINT_CONFLICT` and stop before code changes.
 
 After modifying code:
 1. run the required real checks;
@@ -42,6 +44,8 @@ After modifying code:
 3. show a diff summary;
 4. update `IMPLEMENTATION_STATUS.md` when appropriate;
 5. do not start the next Task automatically.
+
+The modular files in `docs/blueprint/` are authoritative. The consolidated blueprint is generated and must not be edited independently. Any blueprint change must follow the synchronization and integrity checks in document 19.
 
 ## Research verification boundaries
 

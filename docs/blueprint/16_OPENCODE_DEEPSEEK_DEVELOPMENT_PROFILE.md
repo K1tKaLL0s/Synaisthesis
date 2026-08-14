@@ -1,19 +1,19 @@
-# 16 — OpenCode + DeepSeek 工程开发 Profile
+# 16 — OpenCode / 官方 DSH + DeepSeek 工程开发 Profile
 
 ## 1. 本文档定位
 
-本文档只规定“使用 OpenCode + DeepSeek 开发 Synaisthesis 时的工程行为”，不替代产品架构规范，也不把 OpenCode 或 DeepSeek写入 Synaisthesis Core 的不可替换依赖。
+本文档只规定“使用 OpenCode 或 DeepSeek 官方 DSH，并以 DeepSeek 作为主要工程模型开发 Synaisthesis 时的工程行为”，不替代产品架构规范，也不把 OpenCode、DSH 或 DeepSeek 写入 Synaisthesis Core 的不可替换依赖。
 
 ## 2. 工作区
 
 - 工程根目录：`E:\Synaisthesis`
-- OpenCode 应从工程根目录启动。
+- OpenCode 与 DeepSeek 官方 DSH 均应从工程根目录启动；一次 WorkUnit 只由一个主客户端持有写权限，避免两个客户端并发修改同一工作树。
 - `AGENTS.md` 为工程行为规则入口。
 - `docs/blueprint/` 保存本 V2 全套蓝图。
 - `IMPLEMENTATION_STATUS.md` 保存真实当前实现状态。
 - `TASKS.md` 保存待执行的机械任务。
 
-## 3. 推荐 OpenCode 角色
+## 3. 推荐工程客户端角色
 
 ### Architect
 - 只读为主。

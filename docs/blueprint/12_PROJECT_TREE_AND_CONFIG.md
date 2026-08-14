@@ -1,6 +1,6 @@
 # 12 — 完整项目目录与配置设计
 
-本文件给出可直接照着建立仓库的目录结构。目录名可以调整，但模块边界不应随意合并。
+本文件给出可直接照着建立仓库的目录结构。v0.1–v1.0 默认按此路径实现；目录改名或模块移动必须先写 ADR，并在同一文档任务中更新 `07`、`09`、`19` 与 manifest，代码执行者不得临场自行调整。
 
 ## 1. 推荐仓库结构
 
@@ -33,8 +33,29 @@ synaisthesis/
 │  └─ policies/
 │     ├─ semantic_delta.yaml
 │     ├─ evidence_status.yaml
+│     ├─ research_qualification.yaml
+│     ├─ novelty_scoring_v1.yaml
+│     ├─ engineering_novelty_scoring_v1.yaml
+│     ├─ engineering_workflow.yaml
+│     ├─ blueprint_completeness.yaml
+│     ├─ publication.yaml
 │     ├─ action_authorization.yaml
 │     └─ isolation.yaml
+│
+├─ configs/publication_profiles/
+│  ├─ theory/
+│  │  ├─ annals_of_mathematics.yaml
+│  │  ├─ jams.yaml
+│  │  ├─ inventiones_mathematicae.yaml
+│  │  └─ acta_mathematica.yaml
+│  ├─ engineering/
+│  │  ├─ ieee_tse.yaml
+│  │  ├─ acm_tosem.yaml
+│  │  ├─ empirical_software_engineering.yaml
+│  │  └─ journal_of_systems_and_software.yaml
+│  └─ shared/
+│     ├─ math_arxiv_preprint.yaml
+│     └─ engineering_arxiv_preprint.yaml
 │
 ├─ src/synaisthesis/
 │  ├─ __init__.py
@@ -49,6 +70,13 @@ synaisthesis/
 │  │  ├─ project.py
 │  │  ├─ research_spec.py
 │  │  ├─ stage.py
+│  │  ├─ qualification.py
+│  │  ├─ novelty.py
+│  │  ├─ engineering.py
+│  │  ├─ requirements.py
+│  │  ├─ architecture.py
+│  │  ├─ traceability.py
+│  │  ├─ publication.py
 │  │  ├─ claim.py
 │  │  ├─ claim_contract.py
 │  │  ├─ revision.py
@@ -65,6 +93,13 @@ synaisthesis/
 │  │
 │  ├─ application/
 │  │  ├─ incubation_service.py
+│  │  ├─ qualification_service.py
+│  │  ├─ novelty_service.py
+│  │  ├─ engineering_design_service.py
+│  │  ├─ engineering_traceability_service.py
+│  │  ├─ publication_service.py
+│  │  ├─ theory_publication_service.py
+│  │  ├─ engineering_delivery_audit_service.py
 │  │  ├─ claim_compiler_service.py
 │  │  ├─ council_service.py
 │  │  ├─ verification_service.py
@@ -81,6 +116,9 @@ synaisthesis/
 │  │  ├─ graph_builder.py
 │  │  ├─ nodes/
 │  │  │  ├─ incubator_nodes.py
+│  │  │  ├─ qualification_nodes.py
+│  │  │  ├─ engineering_nodes.py
+│  │  │  ├─ publication_nodes.py
 │  │  │  ├─ council_nodes.py
 │  │  │  ├─ verification_nodes.py
 │  │  │  ├─ repair_nodes.py
@@ -101,6 +139,12 @@ synaisthesis/
 │  │  ├─ opponent.py
 │  │  ├─ independent_reviewer.py
 │  │  ├─ formalizer.py
+│  │  ├─ early_formalizer.py
+│  │  ├─ engineering_feasibility_assessor.py
+│  │  ├─ novelty_reviewer.py
+│  │  ├─ theory_manuscript_auditor.py
+│  │  ├─ engineering_manuscript_auditor.py
+│  │  ├─ engineering_delivery_auditor.py
 │  │  ├─ repairer.py
 │  │  ├─ semantic_auditor.py
 │  │  ├─ literature_reviewer.py
@@ -115,14 +159,38 @@ synaisthesis/
 │  │  │  ├─ retry.py
 │  │  │  ├─ usage.py
 │  │  │  └─ structured_output.py
-│  │  └─ literature/
+│  │  └─ prior_art/
 │  │     ├─ base.py
+│  │     ├─ fake.py
 │  │     ├─ openalex.py
 │  │     ├─ crossref.py
 │  │     ├─ arxiv.py
 │  │     ├─ semantic_scholar.py
+│  │     ├─ engineering_base.py
+│  │     ├─ repository_registry.py
+│  │     ├─ package_registry.py
+│  │     ├─ official_docs.py
+│  │     ├─ standards.py
+│  │     ├─ maturity.py
 │  │     ├─ normalization.py
 │  │     └─ deduplication.py
+│  ├─ renderers/
+│  │  ├─ base.py
+│  │  ├─ mermaid.py
+│  │  ├─ plantuml.py
+│  │  ├─ c4_plantuml.py
+│  │  └─ fake.py
+│  ├─ publication/
+│  │  ├─ profile_registry.py
+│  │  ├─ profile_provider.py
+│  │  ├─ official_guide_fetcher.py
+│  │  ├─ theory_master_manuscript.py
+│  │  ├─ engineering_master_manuscript.py
+│  │  ├─ venue_adapter.py
+│  │  ├─ arxiv_adapter.py
+│  │  ├─ tex_compiler.py
+│  │  ├─ compliance.py
+│  │  └─ fake.py
 │  │
 │  ├─ verifiers/
 │  │  ├─ base.py
@@ -174,6 +242,9 @@ synaisthesis/
 │  │  │  ├─ claim_repository.py
 │  │  │  ├─ event_repository.py
 │  │  │  ├─ evidence_repository.py
+│  │  │  ├─ engineering_repository.py
+│  │  │  ├─ traceability_repository.py
+│  │  │  ├─ publication_repository.py
 │  │  │  └─ run_repository.py
 │  │  ├─ artifact_store.py
 │  │  ├─ hashing.py
@@ -210,6 +281,9 @@ synaisthesis/
 │  │  ├─ incubator/
 │  │  ├─ council/
 │  │  ├─ formalization/
+│  │  ├─ novelty/
+│  │  ├─ engineering/
+│  │  ├─ publication/
 │  │  ├─ semantic_audit/
 │  │  ├─ literature/
 │  │  └─ codex_worker/
@@ -234,6 +308,8 @@ synaisthesis/
 │  │  ├─ synaisthesis-incubator-operator/
 │  │  │  └─ SKILL.md
 │  │  ├─ synaisthesis-council-operator/
+│  │  │  └─ SKILL.md
+│  │  ├─ synaisthesis-engineering-operator/
 │  │  │  └─ SKILL.md
 │  │  └─ synaisthesis-admin/
 │  │     └─ SKILL.md
@@ -329,6 +405,13 @@ synaisthesis/
 - `utility`
 - `synthesis`
 - `fallbacks`
+- `early_formalizer`
+- `engineering_feasibility_assessor`
+- `novelty_primary`
+- `novelty_auditor`
+- `theory_manuscript_auditor`
+- `engineering_manuscript_auditor`
+- `engineering_delivery_auditor`
 - `require_model_diversity`
 - `allow_same_family_with_warning`
 - `structured_output_retries`
@@ -345,6 +428,11 @@ synaisthesis/
 - temperature 或等效参数
 - cost metadata
 - allowed_roles
+- capability_tier
+- formalization_eval_score
+- math_schema_valid_rate
+- capability_evaluated_at
+- capability_valid_days
 
 ### `budget`
 - `max_total_model_calls`
@@ -406,15 +494,100 @@ synaisthesis/
 - `cost_budget`
 - `allowed_task_types`
 
-### `literature`
-- providers
-- request rate
-- result count
-- full-text policy
-- metadata verification
-- deduplication strategy
-- query budget
-- novelty wording policy
+### `prior_art`
+- `academic_providers`
+- `engineering_providers`
+- `patent_providers`
+- `standards_providers`
+- `request_rate`
+- `result_count`
+- `full_text_policy`
+- `metadata_verification`
+- `deduplication_strategy`
+- `query_budget`
+- `min_academic_source_types = 3`
+- `min_engineering_source_types = 2`
+- `min_academic_neighbors = 5`
+- `min_engineering_neighbors = 3`
+- `external_content_trust = untrusted`
+
+### `research_qualification`
+- `required_after_stage = S4`
+- `block_s5_until_complete = true`
+- `block_eng0_until_complete = true`
+- `allowed_routes = [platform_advanced_formalizer, external_advanced_model_import]`
+- `minimum_capability_tier = advanced`
+- `minimum_formalization_eval_score = 80`
+- `minimum_math_schema_valid_rate = 0.95`
+- `capability_valid_days = 90`
+- `require_formula_core = true`
+- `require_user_formula_hash_approval = true`
+- `feasibility_policy_version = formalization_feasibility_v1`
+- `require_independent_theory_and_engineering_assessments = true`
+- `engineering_route_requires_human_decision = true`
+- `require_engineering_concept_hash_approval = true`
+
+### `novelty`
+- `policy_version = novelty_scoring_v1`
+- `engineering_policy_version = engineering_novelty_scoring_v1`
+- `require_two_isolated_reviewers = true`
+- `require_model_diversity_in_research_profile = true`
+- `aggregation = per_item_min`
+- `theory_max = 50`
+- `application_max = 50`
+- `engineering_max = 60`
+- `engineering_application_max = 40`
+- `auto_continue_threshold = 70`
+- `below_threshold_action = human_gate`
+- `inconclusive_action = human_gate`
+- `allow_user_override_with_audit = true`
+
+### `engineering_workflow`
+- `entry_status = engineering_novelty_qualified`
+- `stages = [ENG0, ENG1, ENG2, ENG3, ENG4, ENG5, ENG6, ENG7, ENG8, ENG9, ENG10]`
+- `default_delivery_mode = blueprint_only`
+- `build_requires_human_gate = true`
+- `architecture_review_required = true`
+- `require_bidirectional_traceability = true`
+- `require_text_diagram_sources = true`
+- `diagram_render_formats = [svg, png]`
+- `require_independent_delivery_auditor = true`
+- `max_directed_rework_rounds = 1`
+
+### `blueprint_completeness`
+- `requirement_to_design_coverage = 1.0`
+- `requirement_to_task_coverage = 1.0`
+- `critical_requirement_to_test_coverage = 1.0`
+- `public_interface_schema_coverage = 1.0`
+- `task_stop_condition_coverage = 1.0`
+- `max_unresolved_product_decisions = 0`
+- `max_unresolved_architecture_decisions = 0`
+- `max_broken_diagram_references = 0`
+- `forbidden_ambiguous_phrases = [适当修改, 酌情优化, 根据情况处理, 完善相关代码, 视情况测试]`
+
+### `publication`
+- `theory_builtin_profiles = [MATH_ANNALS_OF_MATHEMATICS, MATH_JAMS, MATH_INVENTIONES, MATH_ACTA_MATHEMATICA]`
+- `engineering_builtin_profiles = [ENG_IEEE_TSE, ENG_ACM_TOSEM, ENG_EMSE, ENG_JSS]`
+- `preprint_profiles = [MATH_ARXIV_PREPRINT, ENG_ARXIV_PREPRINT]`
+- `optional_extension_profiles = [ENG_JOSS, ENG_NATURE_PORTFOLIO_METHODS_OR_SOFTWARE]`
+- `custom_venue_allowed = true`
+- `guide_freshness_days = 30`
+- `master_manuscript_required = true`
+- `master_audit_required = true`
+- `master_delivery_before_profile_selection = true`
+- `formal_manuscript_decision_required = true`
+- `formal_manuscript_default_decision = null`
+- `venue_adapter_required_when_selected = true`
+- `venue_kind_required = true`
+- `arxiv_venue_kind = PREPRINT_REPOSITORY`
+- `reject_arxiv_as_journal = true`
+- `reject_route_profile_mismatch = true`
+- `reject_scope_mismatch = true`
+- `claim_evidence_mapping_required = true`
+- `forbid_unsupported_results = true`
+- `ai_use_disclosure_required = true`
+- `author_responsibility_fields_require_human = true`
+- `reproducibility_artifact_required = true`
 
 ### `security`
 - `manual_approval_default = true`
@@ -496,10 +669,10 @@ synaisthesis/
 
 ## v2.1 新增目录：Codex Fidelity
 
-建议增加：
+在主项目树中增加以下固定路径：
 
 ```text
-app/
+src/synaisthesis/
   fidelity/
     instruction_capsule.py
     instruction_token.py
@@ -511,15 +684,15 @@ app/
     display_contract.py
     session_binding.py
 
-integrations/
-  codex_bridge/
-    sidecar.py
-    local_spool.py
-    hook_ingress.py
-    token_client.py
-    healthcheck.py
+  integrations/
+    codex_bridge/
+      sidecar.py
+      local_spool.py
+      hook_ingress.py
+      token_client.py
+      healthcheck.py
 
-codex-plugin/
+plugin/
   hooks/
     hooks.json
     user_prompt_submit.py

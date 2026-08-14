@@ -261,6 +261,17 @@ Support/Oppose/Independent 至少要求：
 ## 15. Human Gate 类型
 
 - SPEC_CONFIRMATION
+- ENGINEERING_ROUTE_DECISION
+- FORMALIZATION_FEASIBILITY_DECISION
+- EARLY_FORMALIZATION_REVIEW
+- EARLY_ENGINEERING_CONCEPT_REVIEW
+- LOW_NOVELTY_RESEARCH_DECISION
+- ENGINEERING_SCOPE_CHANGE
+- ENGINEERING_ARCHITECTURE_REVIEW
+- PROTOTYPE_EXECUTION_AUTHORIZATION
+- FORMAL_MANUSCRIPT_DECISION
+- PUBLICATION_PROFILE_SELECTION
+- ENGINEERING_DELIVERY_ACCEPTANCE
 - SCOPE_CHANGE
 - SEMANTIC_DELTA_S2
 - SEMANTIC_DELTA_S3
@@ -273,6 +284,20 @@ Support/Oppose/Independent 至少要求：
 - CLAIM_ACCEPTANCE
 - CONTINUE_AFTER_ROUND_20
 - OVERRIDE_INDEPENDENCE_DEGRADATION
+
+`ENGINEERING_ROUTE_DECISION` 必须绑定 `assessment_id + version + assessment_hash + input_spec_hash`，展示失败的理论谓词、通过的工程谓词、最近工程近邻、风险和所有合法决定。只有真实用户 actor 可以选择 `TRY_ENGINEERING_PROJECT`；模型、工作流、管理员或默认超时动作不得代选。
+
+`EARLY_FORMALIZATION_REVIEW` 必须绑定 `formalization_id + version + formula_hash + input_spec_hash`；`EARLY_ENGINEERING_CONCEPT_REVIEW` 必须绑定 `concept_id + version + concept_hash + route_selection_id + input_spec_hash`。
+
+`LOW_NOVELTY_RESEARCH_DECISION` 必须按 route 展示理论/应用分或工程/应用分、总分、最近重合项、检索限制和所有可选决定；模型不得替用户选择重新研究或低分继续。
+
+`ENGINEERING_ARCHITECTURE_REVIEW` 必须绑定 requirements、trade study 与 architecture 三个 hash。`PROTOTYPE_EXECUTION_AUTHORIZATION` 必须展示代码/实验范围、环境、预算、数据、安全、外部动作和停止条件；拒绝或未解决时工作流保持 `BLUEPRINT_ONLY`。
+
+`FORMAL_MANUSCRIPT_DECISION` 只能在理论或工程母稿完成独立审计并先交付用户后打开，必须绑定 `route + master_manuscript_id + version + master_hash + evidence_or_delivery_hash`。合法决定只有 `KEEP_MASTER_ONLY | WRITE_FORMAL_MANUSCRIPT | REVISE_MASTER | PAUSE`；模型、管理员、默认值或超时动作不得代选 WRITE。
+
+`PUBLICATION_PROFILE_SELECTION` 只有当前绑定的 `FORMAL_MANUSCRIPT_DECISION = WRITE_FORMAL_MANUSCRIPT` 才可打开。必须展示 venue kind、scope-fit、官方指南 freshness、模板 checksum、主要合规差异、预印本/独家投稿政策和作者输入项；不得由模型确认作者、作者顺序、机构、ORCID、伦理、利益冲突、资助、许可证、版权或投稿。arXiv 必须显示为 `PREPRINT_REPOSITORY`，不得暗示同行评审。
+
+`ENGINEERING_DELIVERY_ACCEPTANCE` 绑定最终 manifest hash，任何文件或 checksum 变化都会使旧验收失效。
 
 ## 16. Codex 指令传输安全边界
 

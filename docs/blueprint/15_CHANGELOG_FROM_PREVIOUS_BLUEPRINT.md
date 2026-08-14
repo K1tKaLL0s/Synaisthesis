@@ -204,11 +204,12 @@ v2 新增：
 1. 冻结为 baseline；
 2. 导入 golden/failure cases；
 3. 平台先存状态；
-4. 迁 S0–S5；
-5. 迁 S6–S10；
-6. 迁 Council；
-7. 关闭旧插件执行逻辑；
-8. 加平台调 Codex Worker。
+4. 迁 S0–S4；
+5. 加 RQ0–RQ4 后迁 S5；
+6. 迁 S6–S10；
+7. 迁 Council；
+8. 关闭旧插件执行逻辑；
+9. 加平台调 Codex Worker。
 
 ## 16. 增加工程可实施性
 
@@ -233,7 +234,7 @@ v2 更准确地定位为：
 
 这个定位更加具体，也更适合作为可复用开源项目和工程作品集。
 
-## 16. v2.1：Codex 指令忠实传递层
+## 18. v2.1：Codex 指令忠实传递层
 
 新增：
 
@@ -258,3 +259,54 @@ v2 更准确地定位为：
 重大原则变化：
 
 > Codex Skill 不再被视为忠实传递保证。只有 Hook 捕获、签名 token、服务端 diff、状态版本和回执审计共同通过，平台才标记 `FIDELITY_VERIFIED`。
+
+## 19. v2.2：早期形式化、新颖性资格与机械执行合同
+
+新增：
+
+- S4 后、S5 前的强制 RQ0–RQ4 子流程；
+- 高能力 Early Formalizer Profile 或标准化外部模型导入；
+- 学术研究与成熟工程项目的双类最近邻检索；
+- 以数学公式为核心的 EarlyFormalizationBundle；
+- 绑定具体 formula/spec hash 的用户审查；
+- 理论 50 + 应用 50 的百分制新颖性规则；
+- 两个隔离 Reviewer 逐项取较小值；
+- 有效总分 70 自动继续，69 及以下或 INCONCLUSIVE 交还用户；
+- `19_MECHANICAL_EXECUTION_CONTRACT.md` 的稳定 Task ID、文件/符号/命令/停止条件；
+- 分册、汇编版与 manifest 的同步和完整性规则；
+- 修正重复章节编号与 manifest 自引用 hash 缺陷。
+
+## 20. v2.3-draft：形式化可行性分流与工程转化/论文工作流
+
+新增：
+
+- RQ2F 理论/工程适配的确定性谓词、双评估和保守聚合；
+- 纯数学理论不适配但工程可尝试时的强制 `ENGINEERING_ROUTE_DECISION`；
+- 用户选择工程路线后，以 I/O、状态、要求、质量阈值、架构图和追踪关系为核心的 `EngineeringConceptBundle`；
+- 理论 50 + 应用 50 与工程 60 + 应用 40 两套不可混用的新颖性 policy；
+- 工程新颖性达到 70 后自动进入 ENG0，而不是进入理论型 S5；
+- ENG0–ENG10：Mission/ConOps、Requirements、Trade Study、Architecture、Mechanical Blueprint、V&V、应用/扩展路线、PublicationProfile、MasterManuscript、独立审计与工程交付包；
+- 文本图源 + 渲染图 + 稳定 ID 回链；
+- `BLUEPRINT_ONLY` 与需显式授权的 `BUILD_AND_EVALUATE` 分流；
+- “期刊中立母稿 + 目标期刊官方 Profile + 适配稿 + 合规矩阵”，替代不可能验证的“单稿天然符合所有期刊”；
+- 每个论文主张到真实 Evidence Receipt 的追踪，禁止虚构实现与实验结果；
+- 与上述对象对应的数据、API/CLI/MCP、Gate、配置、测试、路线和机械 Task 合同。
+
+该设计已由用户于 2026-08-14 明确整体采纳，并由 v2.4 的双路线论文交付补丁一并冻结。它仍只代表蓝图语义，不代表任何 ENG 功能已经实现。
+
+## 21. v2.4：双路线论文母稿、正式稿决策与内置 Profile
+
+在已采纳的 v2.3 基础上新增并冻结：
+
+- 纯数学理论路线的固定最终交付物 `TheoryMasterManuscript`、证明依赖图及 theorem/claim→statement/proof/evidence/citation 追踪矩阵；
+- 工程与理论路线统一采用“母稿生成 → 独立审计 → 先交付用户 → `FORMAL_MANUSCRIPT_DECISION`”顺序；
+- 用户可选择 `KEEP_MASTER_ONLY`、`WRITE_FORMAL_MANUSCRIPT`、`REVISE_MASTER` 或 `PAUSE`，且无响应不得默认为编写正式稿；
+- 只有选择 WRITE 后才开放 `PUBLICATION_PROFILE_SELECTION`，期刊适配不得反向改变理论陈述、工程要求、证据范围或失败记录；
+- 理论路线内置 Annals of Mathematics、JAMS、Inventiones mathematicae、Acta Mathematica 四种期刊 Profile；
+- 软件/系统工程路线内置 IEEE TSE、ACM TOSEM、Empirical Software Engineering、Journal of Systems and Software 四种期刊 Profile；
+- 数学与工程各有独立 arXiv Profile，并将 arXiv 明确定义为 `PREPRINT_REPOSITORY` 而非期刊；
+- 非软件工程项目与四种工程 Profile 不匹配时返回 `SCOPE_MISMATCH`，改用 `CUSTOM_VENUE`；
+- 官方指南、模板 hash、访问时间、freshness、机器检查与作者确认字段被纳入可刷新 `PublicationProfile`；
+- 投稿、上传、版权、作者排序和对外通信仍需独立 Human Gate，不因生成正式稿而自动授权。
+
+v2.4 是 2026-08-14 起的正式文档基线；它不表示这些产品能力已经实现。

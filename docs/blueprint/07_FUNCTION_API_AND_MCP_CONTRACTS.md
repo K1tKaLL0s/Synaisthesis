@@ -50,7 +50,151 @@
 ### `evaluate_mature_idea_ready`
 计算成熟门。
 
-## 3. Claim Compiler
+## 3. Early Research Qualification
+
+### `evaluate_formalizer_capability`
+按能力 Profile 计算 RQ0，不接受供应商名称作为能力证明。
+
+### `select_early_formalization_route`
+选择 `PLATFORM_ADVANCED_FORMALIZER` 或 `EXTERNAL_ADVANCED_MODEL_IMPORT`。
+
+### `run_prior_art_search`
+执行学术与成熟工程项目检索，返回 `NeighborEvidenceSet`。
+
+### `validate_prior_art_coverage`
+检查来源类别、数量、元数据、成熟度证据、未检索区域和外部内容隔离。
+
+### `import_external_formalization`
+验证外部模型身份、输入 spec hash、检索集引用、可行性矩阵、FormulaBundle/EngineeringConceptBundle Schema 与来源。
+
+### `assess_formalization_feasibility`
+建立隔离的理论与工程评估 Session，逐项计算 `03A` 的 TFO–TFP 与 EFS–EFF，保守聚合为 route classification。
+
+### `open_formalization_feasibility_gate`
+仅对 `ENGINEERING_PROJECT_CANDIDATE` 或 `NEITHER_CURRENTLY_FIT/INCONCLUSIVE` 打开对应 Gate，绑定 assessment/spec hash。
+
+### `resolve_engineering_route_decision`
+只接受 `REVISE_FOR_THEORY | TRY_ENGINEERING_PROJECT | PAUSE | ARCHIVE`；必须验证真实用户 actor。
+
+### `build_early_formula_bundle`
+生成符号表、数学公式、依赖、语义映射、近邻差异与简明解释。
+
+### `validate_early_formula_bundle`
+检查符号闭合、公式覆盖、语义对齐、失败公式、引用与 hash。
+
+### `open_early_formalization_review`
+打开 `EARLY_FORMALIZATION_REVIEW`，绑定 formula/spec hash。
+
+### `resolve_early_formalization_review`
+只接受 APPROVE / REQUEST_REVISION / RESEARCH_MORE / REVISE_DESIGN / REJECT / PAUSE。
+
+### `build_engineering_concept_bundle`
+在用户明确选择工程路线后生成 I/O、状态转移、要求谓词、质量阈值、架构图候选和追踪关系。
+
+### `validate_engineering_concept_bundle`
+检查符号/单位、功能覆盖、阈值、失败与恢复、安全义务、来源和 hash；禁止写入 implemented/validated/novel。
+
+### `open_early_engineering_concept_review`
+打开 `EARLY_ENGINEERING_CONCEPT_REVIEW`，绑定 concept/spec/route hash。
+
+### `start_novelty_review`
+在用户批准且检索 COMPLETE 后建立两个隔离 Reviewer Session。
+
+### `calculate_conservative_novelty_score`
+按 route 和 `03A` policy 逐项取较小评分：理论路线计算理论 50 + 应用 50，工程路线计算工程 60 + 应用 40。
+
+### `route_novelty_decision`
+有效总分 `>=70` 时理论路线自动转 S5、工程路线自动转 ENG0；`<70` 或 INCONCLUSIVE 打开用户 Gate。
+
+## 3A. Engineering Translation & Publication
+
+### `initialize_engineering_workflow`
+验证 route selection、concept approval、novelty status/override 和输入 hash，创建 ENG0 run。
+
+### `build_engineering_mission_charter`
+只从冻结 Artifact 导入 problem、stakeholder、boundary、objectives、constraints 和 success metrics；新增建议进入 proposed additions。
+
+### `build_operational_concept`
+生成 stakeholder map、主要/替代/失败/恢复场景、外部系统、信任边界和运行约束。
+
+### `baseline_engineering_requirements`
+创建稳定 Requirement ID、测量阈值、verification method、acceptance criterion 与 100% source trace。
+
+### `run_engineering_trade_study`
+检索公开工程证据，验证候选路线对 Critical requirements 的硬门并使用冻结权重计算方案分数。
+
+### `build_architecture_baseline`
+生成 context/container/component/runtime/data/state/deployment/security 机器对象、ADR 和接口/数据 Schema。
+
+### `render_engineering_diagrams`
+从机器对象生成版本化文本图源和 SVG/PNG/PDF，保存渲染回执及稳定 ID 映射。
+
+### `open_engineering_architecture_review`
+绑定 requirements/trade-study/architecture hashes，展示重大影响和不可逆决策。
+
+### `build_mechanical_engineering_blueprint`
+生成项目树、文件/模块/符号计划、依赖/迁移/错误/测试/回滚合同及原子 `EngineeringWorkUnitContract[]`。
+
+### `validate_blueprint_completeness`
+计算 requirement→design→task→test 覆盖、Schema、停止条件、断链和未决产品/架构决策；失败返回 `BLUEPRINT_GAP`。
+
+### `select_engineering_delivery_mode`
+选择 `BLUEPRINT_ONLY` 或请求 `BUILD_AND_EVALUATE`；后者只打开授权 Gate，不直接执行。
+
+### `record_engineering_verification`
+只接受真实 test/analysis/inspection/demonstration receipt；验证与确认分别存储。
+
+### `build_application_and_extension_roadmaps`
+为每个应用/扩展记录条件、指标、证据等级、影响、风险和时间层级。
+
+### `build_engineering_master_manuscript`
+按 evidence tier 生成期刊中立母稿和 claim-evidence matrix；无回执结果只能标 planned 或删除。
+
+### `audit_master_manuscript`
+由未参与初稿的 route-specific Auditor 检查语义、证据、引用、Scope、作者输入和真实编译；只有通过后才能交付母稿。
+
+### `open_formal_manuscript_decision`
+母稿交付后打开 `FORMAL_MANUSCRIPT_DECISION`，绑定 master/delivery-or-evidence hash。
+
+### `resolve_formal_manuscript_decision`
+只接受 `KEEP_MASTER_ONLY | WRITE_FORMAL_MANUSCRIPT | REVISE_MASTER | PAUSE`；无响应不得默认 WRITE。
+
+### `select_publication_profile`
+只有 decision 为 WRITE 时创建或选择 Profile；验证 route、`venue_kind`、官方指南时间、模板 checksum 和 scope-fit。作者责任字段只允许用户确认。
+
+### `refresh_publication_profile`
+从官方 author guide/policy/template URL 更新内置 Profile snapshot；超过 freshness window 或 hash 改变时使旧 Compliance 失效。
+
+### `adapt_manuscript_to_venue`
+从 Master + PublicationProfile 机械派生适配稿与 `VenueComplianceMatrix`，不得覆盖母稿。
+
+### `audit_engineering_delivery`
+由未参与初稿生成的 Auditor 检查追踪、机械性、图示、回执、引用、许可证、论文与敏感信息。
+
+### `export_engineering_delivery`
+按 `03B` 固定目录生成 manifest、checksums 和全部工件；只有最终条件满足才标 READY。
+
+## 3B. Theory Publication
+
+### `baseline_theory_publication_evidence`
+验证理论 route，冻结 ResearchSpec、Formalization、FrozenClaim statement hash、Proof/Evidence、Semantic Audit、Citation 和未解决义务，确定 evidence tier。
+
+### `build_theory_master_manuscript`
+按 `03C` 生成期刊中立 TeX 母稿、`MathematicalManuscriptClaim[]`、Proof Dependency Graph 和 claim-evidence matrix。
+
+### `validate_mathematical_manuscript_claims`
+逐项检查对象域、量词、假设、结论、statement hash、proof/evidence status 与稿件类型；禁止把 conjecture/partial/solver-scope 结果升格为 theorem。
+
+### `audit_theory_master_manuscript`
+由隔离 Theory Manuscript Auditor 检查语义、证明依赖、引用、失败/限制、AI/作者字段和真实 TeX 编译。
+
+### `deliver_theory_master_manuscript`
+交付母稿、evidence tier、主 theorem/claim、未解决义务、审计报告和四刊/arXiv scope-fit；随后打开 `FORMAL_MANUSCRIPT_DECISION`。
+
+### `export_theory_publication_delivery`
+按 `03C` 固定目录导出母稿、proof/reproducibility artifact、决定、可选适配稿、Compliance 和 checksums。
+
+## 4. Claim Compiler
 
 ### `extract_candidate_claims`
 从 S6/S7 提取候选主张。
@@ -79,7 +223,7 @@
 ### `verify_claim_contract_hash`
 每轮开始检查。
 
-## 4. Role Isolation
+## 5. Role Isolation
 
 ### `create_role_session`
 创建独立会话。
@@ -105,7 +249,7 @@
 ### `run_independent_phase_b`
 去角色复核。
 
-## 5. Model Provider
+## 6. Model Provider
 
 ### `call_model`
 统一异步入口。
@@ -134,7 +278,7 @@
 ### `enforce_budget_before_model_call`
 调用前验证剩余预算。
 
-## 6. Council
+## 7. Council
 
 ### `start_council_run`
 创建 Run。
@@ -187,7 +331,7 @@ S0–S4。
 ### `cancel_run`
 终止但保留历史。
 
-## 7. ActionBroker
+## 8. ActionBroker
 
 ### `create_action_request`
 创建请求。
@@ -210,7 +354,7 @@ READ / WRITE / NETWORK / COST / SECRET / DESTRUCTIVE。
 ### `verify_execution_receipt`
 检查完整性。
 
-## 8. Lean
+## 9. Lean
 
 ### `prepare_lean_workspace`
 建立独立环境。
@@ -236,7 +380,7 @@ Proof Loop 保护。
 ### `request_codex_lean_repair`
 将受控修复任务交给 Codex。
 
-## 9. Z3
+## 10. Z3
 
 ### `build_constraint_spec`
 模型输出结构化约束，不能直接注入任意 Python。
@@ -256,7 +400,7 @@ Proof Loop 保护。
 ### `record_z3_evidence`
 区分 SAT/UNSAT/UNKNOWN。
 
-## 10. Python Sandbox
+## 11. Python Sandbox
 
 ### `create_sandbox_job`
 定义输入与资源。
@@ -273,7 +417,7 @@ Docker 执行。
 ### `terminate_sandbox_job`
 超时停止。
 
-## 11. Codex Worker
+## 12. Codex Worker
 
 ### `route_task_to_codex`
 判断是否工程型。
@@ -302,7 +446,7 @@ Docker 执行。
 ### `close_codex_session`
 结束。
 
-## 12. Evidence
+## 13. Evidence
 
 ### `create_evidence`
 保存 Evidence。
@@ -322,7 +466,7 @@ Docker 执行。
 ### `build_claim_evidence_view`
 形成账本视图。
 
-## 13. Human Gate
+## 14. Human Gate
 
 ### `open_gate`
 创建。
@@ -336,7 +480,7 @@ Docker 执行。
 ### `resume_after_gate`
 继续。
 
-## 14. FastAPI 端点
+## 15. FastAPI 端点
 
 - POST `/projects`
 - GET `/projects`
@@ -344,6 +488,40 @@ Docker 执行。
 - POST `/projects/{id}/seed`
 - POST `/projects/{id}/stages/{stage_id}/run`
 - POST `/specs/{id}/confirm`
+- POST `/projects/{id}/qualification/capability`
+- POST `/projects/{id}/qualification/prior-art-searches`
+- POST `/projects/{id}/qualification/feasibility-assessments`
+- GET `/feasibility-assessments/{id}`
+- POST `/feasibility-assessments/{id}/route-decision`
+- POST `/projects/{id}/qualification/formalizations/generate`
+- POST `/projects/{id}/qualification/formalizations/import`
+- GET `/formalizations/{id}`
+- POST `/formalizations/{id}/review`
+- POST `/projects/{id}/qualification/engineering-concepts/generate`
+- GET `/engineering-concepts/{id}`
+- POST `/engineering-concepts/{id}/review`
+- POST `/qualification-subjects/{type}/{id}/novelty-reviews`
+- GET `/novelty-reviews/{id}`
+- POST `/projects/{id}/engineering-workflows`
+- POST `/engineering-workflows/{id}/stages/{stage_id}/run`
+- GET `/engineering-workflows/{id}`
+- POST `/engineering-workflows/{id}/architecture-review`
+- POST `/engineering-workflows/{id}/delivery-mode`
+- POST `/engineering-workflows/{id}/master-manuscript`
+- POST `/manuscripts/{type}/{id}/audit`
+- POST `/manuscripts/{type}/{id}/formal-manuscript-decision`
+- POST `/manuscripts/{type}/{id}/publication-profile`
+- POST `/manuscripts/{type}/{id}/adapt`
+- GET `/engineering-workflows/{id}/traceability`
+- POST `/engineering-workflows/{id}/audit`
+- POST `/engineering-workflows/{id}/export`
+- POST `/projects/{id}/theory-publications`
+- POST `/theory-publications/{id}/evidence-baseline`
+- POST `/theory-publications/{id}/master-manuscript`
+- GET `/theory-publications/{id}`
+- POST `/theory-publications/{id}/export`
+- GET `/publication-profiles`
+- POST `/publication-profiles/{profile_id}/refresh`
 - POST `/projects/{id}/claims/compile`
 - POST `/claims/{id}/freeze`
 - POST `/claims/{id}/council-runs`
@@ -359,7 +537,7 @@ Docker 执行。
 - POST `/projects/{id}/export`
 - GET `/events`
 
-## 15. CLI 命令
+## 16. CLI 命令
 
 - `synaisthesis init`
 - `synaisthesis serve`
@@ -368,6 +546,33 @@ Docker 执行。
 - `synaisthesis seed import`
 - `synaisthesis stage run`
 - `synaisthesis spec confirm`
+- `synaisthesis qualification capability`
+- `synaisthesis qualification search`
+- `synaisthesis qualification feasibility`
+- `synaisthesis qualification route-decision`
+- `synaisthesis formalization generate`
+- `synaisthesis formalization import`
+- `synaisthesis formalization review`
+- `synaisthesis engineering concept generate`
+- `synaisthesis engineering concept review`
+- `synaisthesis engineering workflow start`
+- `synaisthesis engineering stage run`
+- `synaisthesis engineering trace show`
+- `synaisthesis engineering blueprint validate`
+- `synaisthesis engineering manuscript master`
+- `synaisthesis manuscript audit`
+- `synaisthesis manuscript formal-decision`
+- `synaisthesis engineering publication select`
+- `synaisthesis manuscript adapt`
+- `synaisthesis engineering audit`
+- `synaisthesis engineering export`
+- `synaisthesis theory publication start`
+- `synaisthesis theory manuscript master`
+- `synaisthesis theory publication export`
+- `synaisthesis publication profiles list`
+- `synaisthesis publication profile refresh`
+- `synaisthesis novelty start`
+- `synaisthesis novelty show`
 - `synaisthesis claim compile`
 - `synaisthesis claim freeze`
 - `synaisthesis council start`
@@ -378,7 +583,7 @@ Docker 执行。
 - `synaisthesis gate resolve`
 - `synaisthesis export`
 
-## 16. MCP Tools
+## 17. MCP Tools
 
 保持粗粒度。禁止暴露：
 - 直接写数据库；
@@ -393,6 +598,33 @@ Docker 执行。
 - `research_get_project_state`
 - `research_advance_stage`
 - `research_confirm_spec`
+- `research_prepare_early_formalization`
+- `research_get_formalization_feasibility`
+- `research_submit_engineering_route_decision`
+- `research_get_early_formalization`
+- `research_submit_early_formalization_review`
+- `research_prepare_engineering_concept`
+- `research_get_engineering_concept`
+- `research_submit_engineering_concept_review`
+- `research_start_novelty_review`
+- `research_get_novelty_review`
+- `research_resolve_novelty_gate`
+- `research_start_engineering_workflow`
+- `research_advance_engineering_stage`
+- `research_get_engineering_traceability`
+- `research_validate_engineering_blueprint`
+- `research_build_engineering_master_manuscript`
+- `research_get_master_manuscript`
+- `research_submit_formal_manuscript_decision`
+- `research_select_publication_profile`
+- `research_adapt_manuscript_to_profile`
+- `research_get_engineering_delivery_status`
+- `research_export_engineering_delivery`
+- `research_start_theory_publication`
+- `research_build_theory_master_manuscript`
+- `research_get_theory_publication_status`
+- `research_export_theory_publication_delivery`
+- `research_list_publication_profiles`
 - `research_compile_claims`
 - `research_freeze_claim`
 - `research_start_council`
@@ -404,7 +636,9 @@ Docker 执行。
 - `research_cancel_run`
 - `research_export_bundle`
 
-## 17. 幂等性
+外部 Codex 使用时，上述 mutation 名称只表示 `research_prepare_command` 支持的业务意图，不得绕过 Fidelity Gateway 暴露为直接 mutation。
+
+## 18. 幂等性
 
 所有 mutation 接口接受：
 - `idempotency_key`
@@ -416,7 +650,7 @@ Docker 执行。
 - 不自动覆盖；
 - 要求重新读取状态。
 
-## 18. 错误对象
+## 19. 错误对象
 
 统一错误：
 
@@ -431,7 +665,39 @@ Docker 执行。
 
 不得只返回自然语言“失败了”。
 
-## 17. Codex Instruction Fidelity Layer
+早期资格固定错误码：
+
+- `EARLY_QUALIFICATION_REQUIRED`
+- `FORMALIZER_CAPABILITY_UNAVAILABLE`
+- `PRIOR_ART_COVERAGE_INCOMPLETE`
+- `FORMALIZATION_FEASIBILITY_INCONCLUSIVE`
+- `ENGINEERING_ROUTE_DECISION_REQUIRED`
+- `FORMALIZATION_FEASIBILITY_USER_DECISION_REQUIRED`
+- `FORMULA_BUNDLE_INVALID`
+- `ENGINEERING_CONCEPT_BUNDLE_INVALID`
+- `FORMALIZATION_USER_APPROVAL_REQUIRED`
+- `ENGINEERING_CONCEPT_USER_APPROVAL_REQUIRED`
+- `NOVELTY_REVIEW_INCONCLUSIVE`
+- `LOW_NOVELTY_USER_DECISION_REQUIRED`
+- `ENGINEERING_NOVELTY_REQUIRED`
+- `REQUIREMENTS_BASELINE_BLOCKED`
+- `ENGINEERING_ARCHITECTURE_REVIEW_REQUIRED`
+- `ENGINEERING_BLUEPRINT_GAP`
+- `PROTOTYPE_EXECUTION_AUTHORIZATION_REQUIRED`
+- `PUBLICATION_PROFILE_REQUIRED`
+- `MASTER_MANUSCRIPT_REQUIRED`
+- `MASTER_MANUSCRIPT_AUDIT_FAILED`
+- `FORMAL_MANUSCRIPT_DECISION_REQUIRED`
+- `THEORY_ROUTE_REQUIRED`
+- `THEOREM_CLAIM_UNSUPPORTED`
+- `PUBLICATION_PROFILE_ROUTE_MISMATCH`
+- `VENUE_SCOPE_MISMATCH`
+- `ARXIV_PACKAGE_INVALID`
+- `MANUSCRIPT_CLAIM_UNSUPPORTED`
+- `STALE_PUBLICATION_GUIDANCE`
+- `BLOCKED_ENGINEERING_DELIVERY`
+
+## 20. Codex Instruction Fidelity Layer
 
 ### Sidecar / Hook 函数
 

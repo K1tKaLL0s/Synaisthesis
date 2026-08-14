@@ -5,6 +5,12 @@
 ```text
 Idea / Spec
     ↓
+Adjacent Research · Mature Engineering Neighbors
+    ↓
+Formula-First Early Formalization · User Review
+    ↓
+Theory Novelty + Application Novelty (>=70 auto-continue)
+    ↓
 Claim Compiler
     ↓
 Frozen ClaimContract
@@ -21,6 +27,8 @@ Versioned Research Bundle
 ## Status
 
 `M0` — repository skeleton and quality base. No research functionality yet.
+
+Blueprint baseline: `V2.4` (2026-08-14) — freezes route-aware formalization feasibility, the mandatory engineering-route decision, ENG0–ENG10 mechanical-blueprint delivery, and dual-track audited paper masters with optional journal/arXiv adaptation after a user decision. This is documentation only; the corresponding product functionality is not implemented yet.
 
 ## Development
 

@@ -177,7 +177,7 @@ Skill 中不保存：
 旧 Skill 负责对话，平台只存状态。
 
 ### Phase 2
-平台执行 S0–S5，Codex 只调用 MCP。
+平台执行 S0–S4、带理论/工程可行性分流的 RQ0–RQ4、S5 与 ENG0–ENG10 BLUEPRINT_ONLY 纵向切片，Codex 只调用 MCP；RQ、双路线论文母稿审计和发布 Profile 首先使用 Fake Provider、冻结官方指南 fixture 或标准化外部导入，真实检索/模型随后接入。Profile 选择必须晚于母稿交付和 `FORMAL_MANUSCRIPT_DECISION`。
 
 ### Phase 3
 平台执行 S6–S10，旧 Skill 只做兼容。
@@ -192,7 +192,11 @@ Skill 中不保存：
 
 满足以下条件后停止旧工作流：
 
-- S0–S5 平台输出不低于旧 Skill；
+- S0–S4、S5 与 ENG0–ENG10 BLUEPRINT_ONLY 平台输出不低于旧 Skill/文档合同；
+- RQ0–RQ4 的能力、检索、可行性分流、理论/工程概念、用户审查与 route-aware 70 分路由可恢复且不可绕过；
+- 工程路线只有真实用户可选择，Mechanical Blueprint 无未决产品/架构决策；
+- 理论路线交付 `TheoryMasterManuscript`，工程路线交付 `EngineeringMasterManuscript`；两者均先独立审计并交给用户，再由用户决定是否生成期刊/arXiv 正式适配稿；
+- 无实现/实验时工程论文保持 Design/Protocol Master 且无虚构结果；
 - S6–S10 状态可恢复；
 - FrozenClaim 有 hash；
 - Council 真实运行；
@@ -203,7 +207,7 @@ Skill 中不保存：
 - 用户确认流程保留；
 - 原流程图中的每个控制点有明确平台对象对应。
 
-## 13. v2.1：把 Codex Operator 从 Prompt 客户端迁移为受控客户端
+## 14. v2.1：把 Codex Operator 从 Prompt 客户端迁移为受控客户端
 
 迁移顺序：
 

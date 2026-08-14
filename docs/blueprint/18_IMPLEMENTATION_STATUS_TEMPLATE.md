@@ -11,9 +11,16 @@
 ## Last verified commit
 `NONE`
 
+## Blueprint baseline
+`<manifest.version>` / manifest verification timestamp（候选基线必须显式标记 pending；只有完成所需 Human Gate 后才能标记 frozen）
+
+## Active work unit
+- Stable Task ID: `NOT_STARTED`
+- WorkUnitContract: `NONE`
+
 ## Environment
 - Project root: `E:\Synaisthesis`
-- Primary engineering client: OpenCode
+- Primary engineering client: OpenCode or official DeepSeek DSH
 - Primary engineering model: DeepSeek V4 Pro
 - Python: NOT_CHECKED
 - uv: NOT_CHECKED
@@ -28,6 +35,7 @@
 
 ## Verified
 - None.
+- When blueprint files change: verify manifest size/hash and consolidated SOURCE order.
 
 ## Known failures
 - None.

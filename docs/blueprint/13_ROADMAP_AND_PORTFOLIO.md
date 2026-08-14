@@ -4,12 +4,19 @@
 
 整个项目按“先证明治理闭环，再增加自动化强度”推进。
 
-### v0.1 — Durable Incubator
-目标：把现有唯一有效的 S0–S5 从 Skill 迁入平台。
+### v0.1 — Durable Incubator and Early Research Qualification
+目标：把 S0–S4、自然语言设计完成门、带形式化可行性分流的 RQ0–RQ4 与 S5/ENG0 入口迁入平台；第一阶段使用 Fake Provider 和标准化外部高能力模型导入。
 
 必须完成：
 - Project / ResearchSpec / StageRecord；
-- S0–S5 阶段契约；
+- S0–S4、S5 与 ENG0 入口契约；
+- RQ0 能力/导入路线；
+- Fake 学术/工程近邻检索；
+- 理论/工程适配谓词、双评估和强制用户工程路线决定；
+- 数学公式化 EarlyFormalizationBundle；
+- 工程公式化 EngineeringConceptBundle；
+- 用户 Artifact hash 审查；
+- 理论 50 + 应用 50、工程 60 + 应用 40 的 route-aware 70 分确定性路由；
 - 用户确认与回退；
 - Event Log；
 - Artifact Store；
@@ -18,6 +25,24 @@
 - 旧 Skill 输出导入。
 
 作品集价值：证明你能把 Prompt 流程转成耐久状态机。
+
+### v0.1.1 — Engineering Translation and Publication Blueprint
+必须完成：
+- ENG0–ENG10 Durable Workflow；
+- mission/ConOps、Requirement Schema、Acceptance Catalog 与双向 Traceability；
+- Fake 工程参考方案与冻结权重 Trade Study；
+- architecture/interface/data/state/security/deployment 机器对象和 ADR；
+- 文本图源 → SVG 的可复算渲染；
+- MechanicalEngineeringBlueprint 与原子 WorkUnitContract；
+- `BLUEPRINT_ONLY` 与授权后 `BUILD_AND_EVALUATE` 的隔离；
+- Verification/Validation 分离；
+- 应用方向与未来扩展 Portfolio；
+- EngineeringMasterManuscript → 独立审计 → 用户正式稿决策 → PublicationProfile/Venue Adapter/Compliance Matrix；
+- 四种软件/系统工程主要期刊 Profile 与工程 arXiv 预印本 Profile；非软件工程使用 CUSTOM_VENUE，不强行套用；
+- ClaimEvidenceMatrix、ReproducibilityArtifact、manifest/checksums；
+- Independent Engineering Delivery Audit。
+
+作品集价值：证明系统不仅能孵化理论命题，也能在不让模型补产品决策、不虚构实验结果的前提下交付可机械执行的工程设计与证据约束论文。
 
 ### v0.2 — Claim Compiler and S6–S10
 必须完成：
@@ -28,6 +53,10 @@
 - MATURE_IDEA_READY；
 - S6–S10；
 - 研究交接包。
+- TheoryMasterManuscript、theorem/proof/evidence/citation 追踪矩阵与证明依赖图；
+- 理论母稿独立审计、母稿交付和 `FORMAL_MANUSCRIPT_DECISION`；
+- Annals、JAMS、Inventiones、Acta 四种数学期刊 Profile 与数学 arXiv 预印本 Profile；
+- 只有用户选择 `WRITE_FORMAL_MANUSCRIPT` 才生成目标 Profile 的正式适配稿与合规矩阵。
 
 作品集价值：展示领域建模、类型化研究资产和状态边界。
 
@@ -84,11 +113,14 @@
 ### v0.7 — Literature and Evidence Graph
 必须完成：
 - OpenAlex/Crossref/arXiv；
+- 成熟工程项目官方仓库、包注册表和官方文档 Provider；
 - 最近邻分类；
 - 文献元数据核验；
 - Claim–Evidence Graph；
 - `POSSIBLY_ORIGINAL` 语言边界；
-- Bundle Export。
+- Bundle Export；
+- RQ0–RQ4 生产 Provider 端到端验证。
+- ENG3 生产级工程参考/标准检索与 PublicationProfile 官方指南刷新。
 
 ### v0.8 — Web UI and First Real Case Study
 必须完成：
@@ -142,19 +174,34 @@
 
 案例应展示：
 1. Codex Operator 创建项目；
-2. S0–S5；
-3. Claim 编译；
-4. Council Round 2 找到 Z3 反例；
-5. Repair A 将对象域缩小，被判 S3；
-6. 用户拒绝；
-7. Repair B 保留原语义；
-8. 平台调 Codex Worker 构造 Lean 文件；
-9. Lean Adapter 独立验证；
-10. Auditor 反译；
-11. 用户确认；
-12. 导出 Evidence Bundle。
+2. S0–S4 与自然语言设计确认；
+3. RQ1 检索学术与成熟工程近邻；
+4. RQ2F 判定理论路线适配，RQ2M 生成数学公式化候选，用户在 RQ3M 批准；
+5. RQ4M 有效总分达到 70 后自动进入 S5；
+6. Claim 编译；
+7. Council Round 2 找到 Z3 反例；
+8. Repair A 将对象域缩小，被判 S3；
+9. 用户拒绝；
+10. Repair B 保留原语义；
+11. 平台调 Codex Worker 构造 Lean 文件；
+12. Lean Adapter 独立验证；
+13. Auditor 反译；
+14. 用户确认；
+15. 导出 Evidence Bundle。
 
 这段演示比“多个 Agent 在终端里聊天”有说服力得多。
+
+另设一个工程分流案例，必须展示：
+1. RQ2F 的理论谓词 FAIL、工程谓词 PASS；
+2. 平台只打开 `ENGINEERING_ROUTE_DECISION`，用户明确选择 `TRY_ENGINEERING_PROJECT`；
+3. RQ2E/RQ3E 固定 I/O、状态、要求、阈值和追踪；
+4. RQ4E 有效总分达到 70 后自动进入 ENG0；
+5. ENG1–ENG4 从 ConOps、Requirements 和 Trade Study 形成用户批准的 Architecture Baseline；
+6. ENG5 输出无未决产品/架构选择的机械 WorkUnit；
+7. 项目保持 BLUEPRINT_ONLY，未授权任何代码或实验；
+8. ENG7 输出有指标/风险/条件的应用和扩展路线；
+9. ENG8 输出经独立审计的 Design/Protocol EngineeringMasterManuscript 并先交给用户；只有用户选择 WRITE_FORMAL_MANUSCRIPT，ENG9 才输出目标期刊或 arXiv 适配稿与合规矩阵，结果章节不含虚构数据；
+10. ENG10 重算图、追踪、manifest 和 checksums，用户验收当前交付 hash。
 
 ## 4. README 第一屏
 
@@ -166,6 +213,10 @@
 
 ```text
 Idea / Spec
+    ↓
+Neighbor Search · Formula-First Early Formalization
+    ↓
+User Review · Theory/Application Novelty >= 70
     ↓
 Claim Compiler
     ↓
@@ -219,6 +270,14 @@ Versioned Research Bundle
 - 修复候选被拒绝比例；
 - 平均达到稳定轮数；
 - Human Gate 次数。
+- 早期形式化用户修订次数；
+- 理论/应用新颖性分布；
+- 理论/工程适配判定与用户分流选择分布；
+- 工程/应用新颖性分布；
+- 70 分自动继续与低分研究回流比例；
+- Requirement→Design→Task→Test 追踪覆盖率；
+- Blueprint Gap 数与未决决策数；
+- 双路线论文 Claim Evidence 覆盖率、母稿审计状态、正式稿决策分布与 Venue Compliance 状态；
 
 ### 成本
 - 每轮模型调用；

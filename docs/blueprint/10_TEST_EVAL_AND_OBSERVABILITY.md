@@ -19,6 +19,9 @@
 - FakeLean；
 - FakeZ3；
 - FakeCodex；
+- FakeEngineeringReferenceProvider；
+- FakeDiagramRenderer；
+- FakePublicationProfileProvider；
 - 文献 API mock。
 
 ### Integration
@@ -71,6 +74,66 @@
 28. 模型结构化输出修复不得改变 Claim 内容。
 29. 外部文献元数据不一致时 novelty 为 INCONCLUSIVE。
 30. Python Sandbox 试图读取密钥时失败。
+31. S4 后绕过 RQ 直接运行 S5，返回 EARLY_QUALIFICATION_REQUIRED。
+32. 不合格模型 Profile 不能承担 Early Formalizer。
+33. 外部 FormulaBundle 的 input spec hash 不匹配时拒绝导入。
+34. 只检索学术来源、不检索成熟工程项目时 coverage 不为 COMPLETE。
+35. 核心主张仅用自然语言时 RQ2M 失败。
+36. 用户批准旧 formula hash 后产生新版本，旧批准自动失效。
+37. 两个 Novelty Reviewer 的每项最终分取较小值。
+38. 有效 novelty total 70 自动进入 S5，不打开普通确认 Gate。
+39. 有效 novelty total 69 打开 LOW_NOVELTY_RESEARCH_DECISION。
+40. coverage PARTIAL 时即使模型给高分也只能 INCONCLUSIVE。
+41. 用户选择 RERUN_RESEARCH 后保留旧检索、公式和评分版本。
+42. 新发现最近邻后旧 Novelty Review 进入 NEEDS_REGRESSION。
+43. 理论适配 PASS 时进入 RQ2M，不打开工程路线 Gate。
+44. 理论适配 FAIL、工程适配 PASS 时只打开 ENGINEERING_ROUTE_DECISION，不自动选择工程路线。
+45. 用户选 REVISE_FOR_THEORY 后创建新 S1/S4 Revision，旧 RQ hash 全部失效但历史保留。
+46. 用户选 TRY_ENGINEERING_PROJECT 后进入 RQ2E，不能直接进入 ENG0。
+47. 理论与工程适配均 FAIL 时只提供修订/补研究/暂停/归档。
+48. RQ2E 的 success metric 无阈值且无 UNRESOLVED_THRESHOLD 时失败。
+49. 工程路线 novelty total 70 自动进入 ENG0，69 打开 LOW_NOVELTY_RESEARCH_DECISION。
+50. 理论 scorecard 不能被工程 route 消费，反之亦然。
+51. 未经用户选择工程路线直接创建 ENG0 run，返回 ENGINEERING_ROUTE_DECISION_REQUIRED。
+52. ENG0 静默新增核心功能时触发 ENGINEERING_SCOPE_CHANGE。
+53. Requirement 使用不可测形容词或 Critical 阈值未决时，Requirements Baseline 失败。
+54. 候选技术路线缺任一 Critical requirement 时，即使加权总分最高也被淘汰。
+55. 图示只有图片、无文本源或稳定 ID 映射时，Architecture Baseline 失败。
+56. Architecture hash 变化后旧用户批准失效。
+57. WorkUnit 含“适当修改”或缺文件/符号/验证/停止条件时，Blueprint Completeness Gate 失败。
+58. requirement→design→task→test 任何 Critical 断链时，蓝图不得 READY。
+59. BLUEPRINT_ONLY 模式不得执行 Codex Worker、代码、实验或写入完成态结果。
+60. BUILD_AND_EVALUATE 无 PROTOTYPE_EXECUTION_AUTHORIZATION 时不得启动。
+61. 单元测试回执不能使 Validation 自动 PASS。
+62. 论文结果 claim 无真实 receipt 时标 MANUSCRIPT_CLAIM_UNSUPPORTED。
+63. 目标期刊指南超 freshness window 时标 STALE_GUIDANCE。
+64. JOSS Profile 下缺代码、测试或许可证时不得到 SUBMISSION_CANDIDATE。
+65. 文本图源重渲染结果与 manifest checksum 不一致时交付失败。
+66. 应用/扩展项缺指标、条件、风险或证据等级时 ENG7 失败。
+67. Engineering Delivery Auditor 参与过被审初稿时标 Independence Degraded。
+68. 最终工程包的 manifest、SOURCE/trace links、图示与 checksums 可重算一致。
+69. 理论 ResearchBundle 没有 TheoryMasterManuscript 时不得完成交付。
+70. 工程 route 尝试启动 TP0，返回 THEORY_ROUTE_REQUIRED。
+71. 稿件 theorem 的 statement hash 与 FrozenClaim 不同，母稿审计失败。
+72. PARTIAL_THEORY 被写成已证明定理，标 THEOREM_CLAIM_UNSUPPORTED。
+73. Z3 UNSAT 或 Lean PASS 超出其冻结 Scope 被写成一般结论，母稿审计失败。
+74. Proof Dependency Graph 有未声明循环或外部定理适用条件缺失，母稿不得 READY。
+75. 理论/工程母稿未先独立审计并交付用户时，不能打开 PublicationProfile Selection。
+76. 用户选择 KEEP_MASTER_ONLY 时，最终交付 PASS 且不要求适配稿。
+77. 用户选择 WRITE_FORMAL_MANUSCRIPT 后才可选择内置 Profile。
+78. 用户无响应或 Gate 超时不得派生 WRITE。
+79. 理论路线只列出理论四刊、数学 arXiv 与 CUSTOM；工程路线只列出工程四刊、工程 arXiv 与明确扩展 Profile。
+80. 工程 Profile 用于理论路线或反向使用，返回 PUBLICATION_PROFILE_ROUTE_MISMATCH。
+81. 非软件工程项目选择工程四刊且 scope-fit mismatch 时不得静默继续。
+82. arXiv 的 venue_kind 不是 PREPRINT_REPOSITORY 时配置校验失败。
+83. UI、API 或导出把 arXiv 表示为期刊/同行评审/录用时测试失败。
+84. arXiv 源缺图、BibTeX、自定义宏或文件名大小写不一致时不得 PACKAGE_READY。
+85. arXiv TeX 未真实编译或编译失败时不得 PACKAGE_READY。
+86. 官方 author guide 超 freshness window 或模板 hash 改变时旧 Compliance 进入 STALE_GUIDANCE。
+87. 期刊适配修改 theorem statement、工程 requirement、V&V 结果或 Evidence Scope 时立即阻断。
+88. 作者、ORCID、机构、伦理、利益冲突、版权或 license 未由用户提供时保持 NEEDS_AUTHOR_INPUT。
+89. 仅生成正式适配稿不得触发上传、投稿或发送编辑邮件。
+90. 理论论文包的 manifest、TeX/PDF、proof graph、claim-evidence、Profile、Compliance 与 checksums 可复算一致。
 
 ## 3. 研究质量指标
 
@@ -86,6 +149,30 @@
 - Independence degradation rate；
 - Literature metadata verification rate；
 - Claim atomicity rejection rate。
+- RQ capability block rate；
+- prior-art academic/engineering coverage rate；
+- formula schema and semantic-alignment pass rate；
+- early formalization user revision rate；
+- theory/application novelty score distribution；
+- formalization theory/engineering fit distribution；
+- engineering-route selection/revision/pause rate；
+- engineering/application novelty score distribution；
+- novelty threshold auto-continue rate；
+- low-novelty research rerun/override/archive rate；
+- requirement source/design/task/test trace coverage；
+- blueprint gap rate and unresolved decision count；
+- architecture diagram render/trace pass rate；
+- verification/validation separation violation rate；
+- manuscript claim evidence coverage；
+- theory theorem/statement/proof trace coverage；
+- proof dependency graph closure rate；
+- master manuscript audit/revision rate；
+- formal manuscript WRITE/KEEP_MASTER_ONLY rate；
+- publication profile route/scope mismatch rate；
+- arXiv source compile/package pass rate；
+- arXiv misclassification violation count；
+- publication guidance freshness failure rate；
+- venue compliance PASS/FAIL/NEEDS_AUTHOR_INPUT distribution；
 
 ## 4. 工程指标
 
@@ -140,6 +227,8 @@
 - Semantic Auditor 是否发现量词变化；
 - Repairer 是否过度增加假设；
 - Literature Agent 是否把“未找到”说成“不存在”；
+- Early Formalizer 是否把核心命题全部写成公式并保持 S1/S4 语义；
+- Novelty Reviewer 是否逐项引用最近邻并区分理论/应用；
 - SynthesisAgent 是否把模型共识说成工具证明。
 
 ## 7. Cost Guard

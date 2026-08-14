@@ -2,143 +2,232 @@
   "project": "Synaisthesis",
   "project_cn": "联觉科研",
   "short_name_cn": "联科",
-  "version": "V2 consolidated",
-  "date": "2026-08-13",
+  "version": "V2.4 dual-track publication baseline",
+  "date": "2026-08-14",
   "project_root_windows": "E:\\Synaisthesis",
-  "development_client": "OpenCode",
+  "development_client": "OpenCode or official DeepSeek DSH",
   "development_model": "DeepSeek V4 Pro",
   "historical_codename": "ResearchLoop",
+  "authority": {
+    "editable_source": "modular files in docs/blueprint",
+    "consolidated_blueprint": "generated_read_only",
+    "manifest": "generated_index"
+  },
+  "integrity_policy": {
+    "algorithm": "SHA-256",
+    "manifest_self_integrity": "EXCLUDED_SELF_REFERENCE",
+    "consolidated_source_order_must_match": true
+  },
+  "authoritative_order": [
+    "00_README.md",
+    "00A_PROJECT_IDENTITY_AND_CURRENT_ENVIRONMENT.md",
+    "CURRENT_DECISIONS.md",
+    "01_WORKFLOW_AUDIT_AND_REUSE_MAP.md",
+    "02_TARGET_ARCHITECTURE.md",
+    "03_INCUBATOR_STAGE_CONTRACTS.md",
+    "03A_EARLY_FORMALIZATION_AND_NOVELTY_GATE.md",
+    "03B_ENGINEERING_TRANSLATION_AND_PUBLICATION_WORKFLOW.md",
+    "03C_THEORY_PUBLICATION_AND_DUAL_TRACK_VENUE_PROFILES.md",
+    "04_COUNCIL_AND_LOOP_PROTOCOL.md",
+    "05_BIDIRECTIONAL_CODEX_INTEGRATION.md",
+    "05A_CODEX_INSTRUCTION_FIDELITY_PROTOCOL.md",
+    "06_DATA_MODEL_AND_STATE_MACHINE.md",
+    "07_FUNCTION_API_AND_MCP_CONTRACTS.md",
+    "08_SECURITY_AUTHORIZATION_ISOLATION.md",
+    "09_MECHANICAL_IMPLEMENTATION_PLAN.md",
+    "10_TEST_EVAL_AND_OBSERVABILITY.md",
+    "11_MIGRATION_FROM_CURRENT_SKILLS.md",
+    "12_PROJECT_TREE_AND_CONFIG.md",
+    "13_ROADMAP_AND_PORTFOLIO.md",
+    "14_REFERENCES.md",
+    "15_CHANGELOG_FROM_PREVIOUS_BLUEPRINT.md",
+    "16_OPENCODE_DEEPSEEK_DEVELOPMENT_PROFILE.md",
+    "17_AGENTS_MD_TEMPLATE.md",
+    "18_IMPLEMENTATION_STATUS_TEMPLATE.md",
+    "19_MECHANICAL_EXECUTION_CONTRACT.md"
+  ],
+  "generated_artifacts": [
+    "Synaisthesis_V2_完整工程蓝图_2026-08-13.md",
+    "Synaisthesis_V2_Blueprint_Manifest_2026-08-13.json"
+  ],
   "notes": [
-    "Consolidates the V2 blueprint and the Codex instruction fidelity addendum.",
-    "Renamed to Synaisthesis / 联觉科研.",
-    "Current engineering root is E:\\Synaisthesis.",
-    "Codex remains a product integration target but is not required to develop the platform."
+    "Freezes the user-approved route-aware formalization feasibility and mandatory human engineering-route decision.",
+    "Freezes ENG0-ENG10 mechanical engineering blueprint, verification/validation, application/extension, and evidence-bound master delivery.",
+    "Adds mandatory TheoryMasterManuscript delivery and a common audited-master-before-profile workflow for both routes.",
+    "Adds four built-in theory journal profiles, four built-in software/systems engineering journal profiles, and route-specific arXiv preprint profiles.",
+    "arXiv is modeled as PREPRINT_REPOSITORY, never as a peer-reviewed journal.",
+    "V2.4 is a documentation baseline and does not represent implemented functionality.",
+    "The manifest intentionally does not hash itself because a self-hash cannot be stable.",
+    "Allows OpenCode or the official DeepSeek DSH as engineering clients under the same WorkUnitContract and verification rules."
   ],
   "files": [
     {
-      "name": "00A_PROJECT_IDENTITY_AND_CURRENT_ENVIRONMENT.md",
-      "size_bytes": 2900,
-      "sha256": "5992168eaf2e50c163a107643ef768a5690d3f67f3fb3a27969c2a61ec17a826"
+      "name": "00_README.md",
+      "role": "authoritative_source",
+      "size_bytes": 9822,
+      "sha256": "7a44e871a39db9ae550ec27a8a41d60b4d3b2f10059592f2613683917b090fa7"
     },
     {
-      "name": "00_README.md",
-      "size_bytes": 6982,
-      "sha256": "6e1f175182298fd5ebeb57543fe361221308f722d9fd9ef4ea9ab96e91c8272f"
+      "name": "00A_PROJECT_IDENTITY_AND_CURRENT_ENVIRONMENT.md",
+      "role": "authoritative_source",
+      "size_bytes": 3134,
+      "sha256": "4cfc3010cc0e15eb46b944931bcb16e4ce619aa6ae00da1199a3c5fd35df9511"
+    },
+    {
+      "name": "CURRENT_DECISIONS.md",
+      "role": "authoritative_source",
+      "size_bytes": 3549,
+      "sha256": "b8466a629a0bee3503f7695876fadc2f9c14a379888afbe47f7dfeceab354f93"
     },
     {
       "name": "01_WORKFLOW_AUDIT_AND_REUSE_MAP.md",
+      "role": "authoritative_source",
       "size_bytes": 6054,
       "sha256": "3996963ed8d7b28599405a78469ea0a6a2f20bb9d0bbf4f2272ac7edf7ce6858"
     },
     {
       "name": "02_TARGET_ARCHITECTURE.md",
-      "size_bytes": 8006,
-      "sha256": "c3bb3a925a6478a9d9680a3cc10e36bb4ce9d31ab93fdedaf71b6dc4d565aa2a"
+      "role": "authoritative_source",
+      "size_bytes": 10992,
+      "sha256": "a67160d9b5846bc4efc8a47551356477f039fbf90c8674bf6182c43e6c21f2e4"
     },
     {
       "name": "03_INCUBATOR_STAGE_CONTRACTS.md",
-      "size_bytes": 7322,
-      "sha256": "8cb47781cea576172c05b896f191bf1fa904cfcb3152dd85860f5db72bd6912e"
+      "role": "authoritative_source",
+      "size_bytes": 8546,
+      "sha256": "93240563b531117404bd2200be1450684b4040152a64bd29b96cec5c29d3ea8e"
+    },
+    {
+      "name": "03A_EARLY_FORMALIZATION_AND_NOVELTY_GATE.md",
+      "role": "authoritative_source",
+      "size_bytes": 29965,
+      "sha256": "8428a9db33cb53d1289d0974e112c6d6886fafe93b82ca15d57feaecc07042e1"
+    },
+    {
+      "name": "03B_ENGINEERING_TRANSLATION_AND_PUBLICATION_WORKFLOW.md",
+      "role": "authoritative_source",
+      "size_bytes": 27815,
+      "sha256": "689ae3c804df950815e937329f4b7d6f25802f5e38611e2c1558c8a441182379"
+    },
+    {
+      "name": "03C_THEORY_PUBLICATION_AND_DUAL_TRACK_VENUE_PROFILES.md",
+      "role": "authoritative_source",
+      "size_bytes": 19390,
+      "sha256": "3b3589a2e5421418c0906b53ef013b7cd8bbc3d3e576033d3547b17f0ee180b8"
     },
     {
       "name": "04_COUNCIL_AND_LOOP_PROTOCOL.md",
-      "size_bytes": 7362,
-      "sha256": "62ccbe37e97b13aff7ae7413d85d9da9acbc8271ff9ae9409d6141fedf9872b4"
-    },
-    {
-      "name": "05A_CODEX_INSTRUCTION_FIDELITY_PROTOCOL.md",
-      "size_bytes": 20376,
-      "sha256": "f105c71cf3f0a5a869f161d880105d3f30099e4cd5d1d23d5f7eb02ec33771c3"
+      "role": "authoritative_source",
+      "size_bytes": 8377,
+      "sha256": "eff3ce8eaa4a3fd90ee9bb35295fdcbce90e8a9a491c01c0810a4641137ad036"
     },
     {
       "name": "05_BIDIRECTIONAL_CODEX_INTEGRATION.md",
+      "role": "authoritative_source",
       "size_bytes": 8823,
       "sha256": "fb53bc8eddd34961b860985fd4b916e8b647b2f751a1376afe8ab5abf6fa7df3"
     },
     {
+      "name": "05A_CODEX_INSTRUCTION_FIDELITY_PROTOCOL.md",
+      "role": "authoritative_source",
+      "size_bytes": 20376,
+      "sha256": "f105c71cf3f0a5a869f161d880105d3f30099e4cd5d1d23d5f7eb02ec33771c3"
+    },
+    {
       "name": "06_DATA_MODEL_AND_STATE_MACHINE.md",
-      "size_bytes": 9063,
-      "sha256": "ad963916ff11c04f045965289e2b780fbcb5a1f7124aa897e792c68511b6e822"
+      "role": "authoritative_source",
+      "size_bytes": 19564,
+      "sha256": "50e0b0cdd63daac345016589078dcadf1bc20a4cf8972a252f43f158abb63cbe"
     },
     {
       "name": "07_FUNCTION_API_AND_MCP_CONTRACTS.md",
-      "size_bytes": 9825,
-      "sha256": "95601807d4a6ab869151336ea40094a4864dcaf4029be0d0796e08eb8039315f"
+      "role": "authoritative_source",
+      "size_bytes": 22164,
+      "sha256": "a4f241a9a675df30f84c325952415e5b9b52c2373951e26e52714ec570e52765"
     },
     {
       "name": "08_SECURITY_AUTHORIZATION_ISOLATION.md",
-      "size_bytes": 6782,
-      "sha256": "af62aba9e78e1498caa21833991a16842c24240e5e87f634ce4196860a4838f9"
+      "role": "authoritative_source",
+      "size_bytes": 9190,
+      "sha256": "68b42b9ea012a9299b45a0c46dba56fc3bf202927fe65dfd498ce25b2386d992"
     },
     {
       "name": "09_MECHANICAL_IMPLEMENTATION_PLAN.md",
-      "size_bytes": 8597,
-      "sha256": "315ccc56962d40b2a31f72b24c5daa9a333cd82213db7d643027f3d5fed203c0"
+      "role": "authoritative_source",
+      "size_bytes": 15397,
+      "sha256": "2755f191faa79ffa90c1974319a0e0991cb595cfb11b5cd453301396689d2228"
     },
     {
       "name": "10_TEST_EVAL_AND_OBSERVABILITY.md",
-      "size_bytes": 6408,
-      "sha256": "00cd4c482565ebbcb28dda9d3b75b9625914d5a4a5e4212848c15213396ad319"
+      "role": "authoritative_source",
+      "size_bytes": 12988,
+      "sha256": "2957dd9291b97a873a75b21d2a3c543b346a97443caac0302960969694df0b95"
     },
     {
       "name": "11_MIGRATION_FROM_CURRENT_SKILLS.md",
-      "size_bytes": 4990,
-      "sha256": "32a21d785dfb937b150312367cf791864a32e6c91b1ada34b6407d596d9ab782"
+      "role": "authoritative_source",
+      "size_bytes": 5903,
+      "sha256": "22bbfb00256f8adf9f09b62d80f80e2ed0d673aa6055352683af876a3a109019"
     },
     {
       "name": "12_PROJECT_TREE_AND_CONFIG.md",
-      "size_bytes": 14060,
-      "sha256": "c2d5a2055ceb5c494bebe9dcc53aa298c624689e8534ad9022d1a832d882a6e7"
+      "role": "authoritative_source",
+      "size_bytes": 20899,
+      "sha256": "f81d65d67517873645e5b40ea849d3c6ca4fd73559ce71e94617ad01fb7c30e1"
     },
     {
       "name": "13_ROADMAP_AND_PORTFOLIO.md",
-      "size_bytes": 9139,
-      "sha256": "102095572473df7087de4c079a8c631e28a5b86d6429edf908b6098e8ae25bb0"
+      "role": "authoritative_source",
+      "size_bytes": 13150,
+      "sha256": "41e920a72bbf1b77c74f1210e0c21dbf9c47d300a135ed42b4dd9e9ff09e83a1"
     },
     {
       "name": "14_REFERENCES.md",
-      "size_bytes": 6165,
-      "sha256": "508aea494094de6793383ce226f59381cff289104e03b3290b6abc8f82ed7927"
+      "role": "authoritative_source",
+      "size_bytes": 14509,
+      "sha256": "56c1e56994e0edcfdb2500a5154825ffcb64a5a74921eb12a731e86a7a9d8eba"
     },
     {
       "name": "15_CHANGELOG_FROM_PREVIOUS_BLUEPRINT.md",
-      "size_bytes": 7302,
-      "sha256": "5a1c3951b3881ecad95f6345ea67d1ccdf19664c137cc94c5987f8bef3a7a716"
+      "role": "authoritative_source",
+      "size_bytes": 11096,
+      "sha256": "77f33269db0011f512bb4cdc207f1e0e8da22ffe762d0fa477d4fb464fd498a0"
     },
     {
       "name": "16_OPENCODE_DEEPSEEK_DEVELOPMENT_PROFILE.md",
-      "size_bytes": 2599,
-      "sha256": "1ac41b544176c01dcfc51edf517dc118b1502d41f61207dc9242cb3f882a20ad"
+      "role": "authoritative_source",
+      "size_bytes": 2815,
+      "sha256": "3e53333591458753f6496bdc729fa3ecafffd37cea2501d3f4e13feba49e930b"
     },
     {
       "name": "17_AGENTS_MD_TEMPLATE.md",
-      "size_bytes": 2260,
-      "sha256": "cda4be72fd10f5fecc2c920ce34866179b4562016bda48636b515dfae95cbdae"
+      "role": "authoritative_source",
+      "size_bytes": 2889,
+      "sha256": "d0f82ac19fe0931a92981ffba7936ac06c5ddd1ce108abbefe8a929703a2e1cd"
     },
     {
       "name": "18_IMPLEMENTATION_STATUS_TEMPLATE.md",
-      "size_bytes": 758,
-      "sha256": "c6cc86ef04ca4b7d0defbaddac4a966f0da7f0470840d6b4012f9363cdb5617b"
+      "role": "authoritative_source",
+      "size_bytes": 1128,
+      "sha256": "2f58c175f0fea7cdfd79c0be1b752eba6d8fba2b3781e4f04552eceeabff4f1d"
     },
     {
-      "name": "CURRENT_DECISIONS.md",
-      "size_bytes": 632,
-      "sha256": "3a4edfa55be2ff947386abdb9202e9b1dab6b030888d2d47e4c85e031e32c4fe"
+      "name": "19_MECHANICAL_EXECUTION_CONTRACT.md",
+      "role": "authoritative_source",
+      "size_bytes": 32885,
+      "sha256": "9e0e51f92ca3bffea5bb6fdbd647068910f1a33a605569f8e5aa936467ccb6eb"
     },
     {
       "name": "SOURCE_WORKFLOW_BASELINE.png",
+      "role": "reference_asset",
       "size_bytes": 1031370,
       "sha256": "d7d115dcd3293dae510c3dfd69faaf81048664bca8014c938bbf9fe354822b13"
     },
     {
-      "name": "Synaisthesis_V2_Blueprint_Manifest_2026-08-13.json",
-      "size_bytes": 4770,
-      "sha256": "9a4d1c400060ec90aab5d4df8187a7f3b80c022c799d4baae24a945259a7a0c4"
-    },
-    {
       "name": "Synaisthesis_V2_完整工程蓝图_2026-08-13.md",
-      "size_bytes": 157279,
-      "sha256": "e0a291b64166c6031c11bd9a8b80ec14fc11e25d4f5925d1a50e53c0e80e4a1c"
+      "role": "generated_consolidation",
+      "size_bytes": 343433,
+      "sha256": "1f5ea3c37f0d7e615688523f63a7c600df8660e7147158192bae8cd3938da077"
     }
   ]
 }

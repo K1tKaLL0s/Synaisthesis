@@ -2,6 +2,10 @@
 
 原则：每个阶段都能运行、测试和提交 Git。不要同时开发 UI、Lean、MCP 和多模型。
 
+本文件规定 Stage 目标；`19_MECHANICAL_EXECUTION_CONTRACT.md` 规定稳定 Task ID、允许文件、关键符号、前置条件、验证命令、通过/停止条件。没有完整 `WorkUnitContract` 时不得开始实现。
+
+Stage 0.5 的编号表示安全优先级。实际硬依赖是 Stage 1 的领域/Event/Artifact 基础，其完成门位于 Stage 10 开放任何外部 Codex mutation 之前；它不阻断 Stage 1–9 的内部实现。
+
 ---
 
 ## Stage 0：仓库与质量底座
@@ -68,7 +72,7 @@
 
 ---
 
-## Stage 2：搬运当前有效的 S0–S5
+## Stage 2：搬运 S0–S4 并形成自然语言设计完成门
 
 ### 任务
 将当前 Skill 中表现良好的内容变成：
@@ -79,7 +83,7 @@
 
 ### 函数
 - `capture_seed`
-- `execute_s0` 至 `execute_s5`
+- `execute_s0` 至 `execute_s4`
 - `validate_stage_output`
 - `evaluate_stage_gate`
 - `advance_stage`
@@ -88,11 +92,77 @@
 把现有成功对话作为 golden cases。
 
 ### 完成标准
-不依赖 Codex 会话历史，也能复现原本有效的灵感孵化。
+不依赖 Codex 会话历史，也能从输入形成用户确认的 S1/S4 与 `NATURAL_LANGUAGE_DESIGN_READY`。
 
 ---
 
-## Stage 3：S6–S10 与 MATURE_IDEA_READY
+## Stage 2.5：RQ0–RQ4 早期形式化与新颖性资格
+
+### 实现顺序
+1. RQ Domain、状态、Gate、Event 与 migration；
+2. Fake academic/engineering prior-art provider；
+3. 高能力 Profile 检查与外部导入合同；
+4. RQ2F 理论/工程适配谓词、双评估与保守聚合；
+5. `ENGINEERING_ROUTE_DECISION` 和 `FORMALIZATION_FEASIBILITY_DECISION`；
+6. RQ2M FormulaBundle Schema、符号/语义/失败公式验证；
+7. RQ2E EngineeringConceptBundle、单位/阈值/I/O/状态/追踪验证；
+8. 路线化用户审查 Gate；
+9. 两个隔离 Reviewer 与理论 50 + 应用 50、工程 60 + 应用 40 的保守聚合；
+10. route-aware 70/69 路由；
+11. S5、ENG0 及后续成熟门的强制前置检查。
+
+### 完成标准
+- 无资格能力路线时阻断；
+- 检索同时覆盖学术与成熟工程近邻；
+- 理论不适配、工程适配时只打开用户 Gate，不自动转工程；
+- 理论路线核心形式化全部为数学公式；工程路线概念以公式化 I/O、状态、要求、阈值和追踪关系表达；
+- 用户批准绑定具体 hash；
+- 理论路线有效总分 70 自动进入 S5，工程路线有效总分 70 自动进入 ENG0；
+- 69、INCONCLUSIVE 或覆盖不足交还用户；
+- Fake 路径在 CI 中可重复，真实 Provider 在 Stage 6/13 接入。
+
+---
+
+## Stage 2.6：ENG0–ENG10 工程转化、机械蓝图与论文交付
+
+### 实现顺序
+1. Engineering workflow Domain、Artifact、状态、事件、Gate 与 migration；
+2. ENG0 mission charter 和 ENG1 ConOps；
+3. ENG2 Requirement Schema、验收目录和双向追踪；
+4. ENG3 Fake reference/trade study 与冻结权重策略；
+5. ENG4 architecture/interface/data/state/security 机器对象、ADR 和文本图源渲染；
+6. `ENGINEERING_ARCHITECTURE_REVIEW`；
+7. ENG5 `MechanicalEngineeringBlueprint` 与原子 `EngineeringWorkUnitContract`；
+8. Blueprint Completeness Gate；
+9. ENG6 `BLUEPRINT_ONLY` 与需要独立授权的 `BUILD_AND_EVALUATE` 分流；
+10. ENG7 应用/扩展 Portfolio；
+11. ENG8 EngineeringMasterManuscript、ClaimEvidenceMatrix、独立母稿审计与母稿交付；
+12. `FORMAL_MANUSCRIPT_DECISION`：KEEP_MASTER_ONLY 或用户选择 WRITE；
+13. ENG9 双路线 Profile Registry、工程四刊/arXiv/扩展 Profile、freshness、Venue adapter、Compliance 与 ReproducibilityArtifact；
+14. ENG10 独立 Auditor、manifest/checksum 和最终用户验收；
+15. API/CLI/MCP/Fake E2E 纵向切片。
+
+### 确定技术路线
+- 系统工程主线采用 stakeholder/ConOps → requirements → logical decomposition/trade study → architecture → implementation tasks → verification/validation；
+- 需求、设计、任务、测试与论文主张通过稳定 ID 双向追踪；
+- 图示以机器对象为权威，使用 Mermaid/PlantUML/C4-PlantUML 等文本源生成 SVG；
+- 软件质量按适用 ISO/IEC 25010 特性转成项目阈值，安全开发按 NIST SSDF 映射活动和证据；
+- 论文先交付期刊中立母稿；只有用户选择 WRITE 后才按工程四刊、工程 arXiv 或扩展 Profile 生成适配稿 + 合规矩阵；
+- 没有真实实现/实验时只允许 Design/Protocol Draft，禁止虚构结果。
+
+### 完成标准
+- 只有已确认工程路线且通过 RQ4E 的项目可进入 ENG0；
+- Critical requirements 100% 具有来源、验收、设计、任务和验证映射；
+- 机械任务无未决产品/架构选择、无模糊动词，均有验证与停止条件；
+- 所有图源可重渲染、稳定 ID 可回链；
+- 未授权时不执行代码/实验，工作流仍能输出 `BLUEPRINT_ONLY` 交付候选；
+- 每个论文结果 claim 都有真实 receipt，或被标为 planned/删除；
+- 用户选择 KEEP_MASTER_ONLY 时不生成适配稿仍属于完整交付；arXiv 始终标为预印本平台；
+- 最终工程包、manifest 和 checksum 可复算。
+
+---
+
+## Stage 3：S5–S10 与 MATURE_IDEA_READY
 
 ### 实现
 - TheoryKernel；
@@ -101,6 +171,7 @@
 - OpenQuestionRegistry；
 - HandoffBundle；
 - computed maturity gate。
+- S5 的 RQ 前置检查；
 
 ### 特别处理
 旧 S8 的十轮攻击改为一至两轮 readiness attack。
@@ -246,6 +317,38 @@ Docker，无网络，无 secrets。
 
 ---
 
+## Stage 9.5：纯数学理论论文母稿与正式发布适配
+
+### 实现顺序
+1. TP0 `TheoryPublicationEvidenceBaseline`，冻结 statement/proof/evidence/semantic/citation Scope；
+2. TP1 `TheoryMasterManuscript`、`MathematicalManuscriptClaim[]`、Proof Dependency Graph 与 TeX/PDF 真实编译；
+3. TP2 隔离 Theory Manuscript Auditor、母稿交付和 `FORMAL_MANUSCRIPT_DECISION`；
+4. 用户选择 KEEP_MASTER_ONLY 时直接形成论文交付；
+5. 用户选择 WRITE 时，TP3 从理论四刊、数学 arXiv 或 CUSTOM Profile 中选择；
+6. TP4 Venue Adapter、ComplianceMatrix、作者输入登记和独立审计；
+7. TP5 manifest/checksum、proof/reproducibility artifact 和导出；
+8. API/CLI/MCP/Fake E2E。
+
+### 内置 Profile
+- Annals of Mathematics；
+- Journal of the American Mathematical Society；
+- Inventiones mathematicae；
+- Acta Mathematica；
+- arXiv Mathematics Preprint（不是期刊）；
+- CUSTOM_VENUE。
+
+工程方向同时内置 IEEE TSE、ACM TOSEM、Empirical Software Engineering、Journal of Systems and Software 与工程/计算 arXiv；JOSS/Nature Profile 保留为扩展。
+
+### 完成标准
+- 理论最终 ResearchBundle 必含独立审计通过的母稿；
+- 定理 statement hash、对象域、量词、假设、proof status 和证据 100% 可追踪；
+- conjecture/partial/solver-scope 结果不能升格为 theorem；
+- 母稿先交付，用户明确 WRITE 后才生成正式适配稿；
+- arXiv Profile 校验 TeX 源、图、BibTeX、metadata、license、category 与真实编译，且不产生同行评审状态；
+- 指南过期、作者输入缺失或适配改变 statement 时不能 READY。
+
+---
+
 ## Stage 10：Codex 入站——让 Codex 调平台
 
 ### 实现
@@ -313,13 +416,14 @@ Docker，无网络，无 secrets。
 
 ---
 
-## Stage 13：文献与原创性
+## Stage 13：生产级相邻工作检索与新颖性
 
 ### 数据源
 - OpenAlex；
 - Crossref；
 - arXiv；
 - 可选 Semantic Scholar。
+- 工程来源按领域使用官方仓库、包注册表、官方项目/产品文档与标准资料；
 
 ### 实现
 - 查询扩展；
@@ -327,10 +431,13 @@ Docker，无网络，无 secrets。
 - 去重；
 - 最近邻分类；
 - novelty status；
+- 工程成熟度证据；
+- RQ1 真实检索回执；
+- RQ4 两 Reviewer 生产评分；
 - 外部内容隔离。
 
 ### 完成标准
-已知经典结果被识别为重合；冷门结果只给 POSSIBLY_ORIGINAL。
+已知经典结果被识别为重合；工程近邻按功能/应用排序；覆盖不足只能 INCONCLUSIVE；理论/工程可行性分流、用户工程路线决定和两种新颖性 policy 的 70/69 路由可复现；生产 Provider 可支撑 ENG3 的参考方案检索。
 
 ---
 
@@ -400,6 +507,9 @@ Docker，无网络，无 secrets。
 禁止：
 - 未完成状态层就写 UI；
 - 未有 FakeModel 就接付费模型；
+- 未通过 RQ0 能力门就生成早期形式化；
+- 未批准当前 FormulaBundle hash 就启动新颖性审查；
+- 新颖性总分低于 70 时自动重做研究或自动继续；
 - 未有 ActionBroker 就让 Codex 写主仓库；
 - 未锁定 statement 就做 Proof Loop；
 - 未有 Recursion Guard 就开启双向 Codex。
@@ -408,15 +518,18 @@ Docker，无网络，无 secrets。
 
 为了尽快获得可用成果，建议优先完成：
 
-1. S0–S5 持久化；
-2. Synaisthesis MCP；
-3. Codex Operator Skill；
-4. ClaimContract；
-5. Fake 十轮；
-6. 双模型；
-7. Z3；
-8. Lean；
-9. Codex Worker。
+1. S0–S4 持久化；
+2. RQ0–RQ4 Fake/外部导入与理论/工程分流纵向切片；
+3. ENG0–ENG10 `BLUEPRINT_ONLY` Fake 纵向切片；
+4. S5 持久化；
+5. Synaisthesis MCP；
+6. Codex Operator Skill；
+7. ClaimContract；
+8. Fake 十轮；
+8. 双模型；
+9. Z3；
+10. Lean；
+11. Codex Worker。
 
 这比先做完整 Web UI 更快证明项目价值。
 

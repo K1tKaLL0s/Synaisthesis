@@ -19,12 +19,12 @@
                     │ Evidence / Action / ACL│
                     └───────────┬────────────┘
                                 │
-       ┌────────────────────────┼─────────────────────────┐
-       │                        │                         │
-   Incubator                Claim Compiler       Adversarial Council
-   S0–S10                   Atomic ClaimUnit      bounded 10-round loop
-       │                        │                         │
-       └────────────────────────┴──────────────┬──────────┘
+       ┌────────────────┬───────────────────────┼─────────────────────────┐
+       │                │                       │                         │
+ Incubator + RQ   Engineering Translation   Claim Compiler       Adversarial Council
+ S0–S4→RQ0–RQ4   ENG0–ENG10 Blueprint       Atomic ClaimUnit      bounded 10-round loop
+       │                │                       │                         │
+       └────────────────┴───────────────────────┴──────────────┬──────────┘
                                                │
                                       Verification Lab
                       ┌───────────┬──────────┬───────────┬─────────┐
@@ -32,6 +32,10 @@
                    Lean        Z3/cvc5     Python     Literature  Codex Worker
                       │           │          │           │         │
                       └───────────┴──────────┴───────────┴─────────┘
+                                               │
+                             Dual-track Publication Pipeline
+                       Theory/Engineering Master → User Decision
+                       → 4 Journals or arXiv Venue Adapter
                                                │
                                       Artifact / Event Store
 ```
@@ -73,6 +77,12 @@ MVP 可以单进程运行，但模块必须分离，避免以后无法拆成 wor
 - Project；
 - ResearchSpec；
 - Stage；
+- FormalizationFeasibilityAssessment；
+- EngineeringConceptBundle；
+- EngineeringMissionCharter；
+- EngineeringRequirement / ArchitectureBaseline / EngineeringWorkUnitContract；
+- PublicationProfile / ManuscriptClaim / VenueComplianceItem；
+- TheoryPublicationEvidenceBaseline / TheoryMasterManuscript；
 - ClaimUnit；
 - ClaimContract；
 - Evidence；
@@ -87,6 +97,13 @@ MVP 可以单进程运行，但模块必须分离，避免以后无法拆成 wor
 ### Application Layer
 编排领域服务：
 - IncubationService；
+- QualificationService；
+- NoveltyService；
+- EngineeringDesignService；
+- EngineeringTraceabilityService；
+- PublicationService；
+- TheoryPublicationService；
+- EngineeringDeliveryAuditService；
 - ClaimCompilerService；
 - CouncilService；
 - VerificationService；
@@ -186,6 +203,41 @@ MVP 可使用 SQLite-backed 本地 JobQueue；后期再迁移 Redis/队列系统
 - 修复；
 - 证明尝试。
 
+### Early Formalizer
+负责：
+- 基于 S1/S4 与最近邻证据集参与理论适配分析并生成数学公式化候选；
+- 输出符号、公式依赖、语义映射与不确定性；
+- 只能使用通过 RQ0 能力门的 Profile；
+- 不得写入证明、新颖性或工具 PASS。
+
+### Engineering Feasibility Assessor
+负责：
+- 在隔离 Session 中评估 system boundary、I/O、可分解架构、验收指标与约束可调查性；
+- 与 Early Formalizer 的谓词矩阵保守聚合；
+- 只能产生 `ENGINEERING_PROJECT_CANDIDATE`，不能替用户选择工程路线；
+- 不得把缺少理论对象自动等同于工程可行。
+
+### Novelty Reviewers
+负责：
+- 按 route 分别对理论 50 + 应用 50，或工程 60 + 应用 40 给出证据化评分；
+- 正式科研 Profile 使用两个异构、隔离 Session；
+- 平台逐项取较小评分并确定 70 分路由；
+- 不得宣称绝对原创、论文可录用或可授予专利。
+
+### Engineering Delivery Auditor
+负责：
+- 独立检查 requirement → design → task → test → manuscript 双向追踪；
+- 检查机械蓝图是否仍把产品或架构决策留给实施者；
+- 检查图示、接口、状态、单位、真实回执和论文主张一致性；
+- 不得参与被审版本的初稿生成。
+
+### Theory Manuscript Auditor
+负责：
+- 检查稿件定义、假设、对象域、量词、定理 statement hash 与 FrozenClaim 一致；
+- 检查 Proof Dependency Graph、形式/计算 Scope、引用、反例和未解决义务；
+- 检查模型没有把 conjecture、partial proof 或 solver 范围结果升格成 theorem；
+- 不得参与被审母稿或适配稿的初稿生成。
+
 ### Auditor Model
 负责：
 - 独立解释；
@@ -269,6 +321,11 @@ Lean/Z3/Python 负责：
 Human 负责：
 - 语义；
 -目标；
+- 早期形式化审查；
+- 纯理论不适配时选择修改设计、尝试工程路线、暂停或归档；
+- 工程概念、重大架构、原型执行、目标期刊和工程交付验收；
+- 理论/工程母稿交付后是否生成正式论文、选择哪个期刊/arXiv Profile，以及所有作者责任和投稿动作；
+- 低于 70 分或检索不确定时是否重新研究；
 -价值判断；
 -高风险授权；
 -最终接受。

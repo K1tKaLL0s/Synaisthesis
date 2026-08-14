@@ -10,7 +10,7 @@
 
 Synaisthesis V2 是一个**人类治理、双模型异构审计、验证优先、可与 Codex 双向调用**的半自动科研平台。它不把科研理解为一次长 Prompt，也不把多 Agent 理解为同一模型在同一上下文中轮流扮演角色，而是把研究过程拆成可执行、可暂停、可回归、可撤回、可审计的状态机：
 
-> 灵感孵化 → 研究规范化 → 原子命题编译 → 冻结命题 → 对抗式研究议会 → 工具验证 → 理论修正 → 语义回归 → 人类确认 → 研究交接与导出
+> 灵感孵化 → 自然语言设计冻结 → 相邻研究/成熟工程检索 → 形式化可行性分流 →〔数学早期形式化 → 理论/应用新颖性 → 原子命题研究 → 理论论文母稿〕或〔用户确认工程路线 → 工程概念形式化 → 工程/应用新颖性 → 机械工程蓝图、验证与工程论文母稿〕→ 用户决定是否按内置四刊/arXiv Profile 生成正式适配稿 → 研究交接与导出
 
 第一优先适用领域：
 
@@ -57,27 +57,35 @@ S0–S5 主要依赖自然语言整理和用户即时纠正，不要求真实角
 
 > **Skill 只负责让 Codex 正确调用平台；研究逻辑全部迁入 Synaisthesis Core。**
 
-## 六个核心子系统
+## 八个核心子系统
 
 ### 1. Incubator
 把现有 S0–S10 变成可执行阶段状态机。
 
-### 2. Claim Compiler
+### 2. Early Research Qualification
+在 S4 后执行 RQ0–RQ4：选择高能力形式化路线、检索学术和成熟工程近邻，先以确定性谓词审查纯数学理论与工程构造的适配性。纯理论不适配但工程可尝试时，必须由用户选择修改设计或转工程路线；理论路线采用理论 50 + 应用 50，工程路线采用工程 60 + 应用 40，新颖性有效总分达到 70 自动进入各自后续流程。完整合同见 `03A_EARLY_FORMALIZATION_AND_NOVELTY_GATE.md`。
+
+### 3. Engineering Translation & Publication
+把通过工程新颖性门的概念转化为利益相关者/ConOps、可追踪要求、方案权衡、架构与接口、可机械执行 WorkUnit、源文件与渲染图、验证—确认计划、应用/扩展路线和期刊中立母稿。母稿先交付用户；用户选择后才按工程四刊、工程 arXiv 或扩展 Profile 生成正式适配稿、合规矩阵和可复现工件。完整合同见 `03B_ENGINEERING_TRANSLATION_AND_PUBLICATION_WORKFLOW.md`。
+
+### 4. Claim Compiler
 把宏观研究目标拆成可独立验证的 ClaimUnit，并为每个命题指定对象域、量词、证据标准、证伪见证与工具路径。
 
-### 3. Adversarial Council
+### 5. Adversarial Council
 运行 Support、Oppose、Independent 三条隔离研究轨道，并执行默认最多 10 轮、用户可配置的验证—修正 Loop。
 
-### 4. Verification Lab
+### 6. Verification Lab
 统一调用 Lean、Z3、Python、文献源和 Codex 工程代理。
 
-### 5. Governance Control Plane
+### 7. Governance Control Plane
 管理状态、Evidence Ledger、Human Gate、ActionBroker、预算、隔离、回归和撤回。
 
-### 6. Integration Plane
+### 8. Integration Plane
 实现两个方向：
 - **Codex → Synaisthesis**：Codex 通过 MCP/插件调用平台；
 - **Synaisthesis → Codex**：平台通过 Codex Python SDK、Codex MCP Server 或 `codex exec` 调起 Codex。
+
+理论路线完成研究交付时同样必须生成 `TheoryMasterManuscript`。理论母稿先交付用户，用户选择后才按 Annals of Mathematics、JAMS、Inventiones mathematicae、Acta Mathematica、数学 arXiv 或自定义 Profile 生成正式适配稿。双路线 PublicationProfile 合同见 `03C_THEORY_PUBLICATION_AND_DUAL_TRACK_VENUE_PROFILES.md`。
 
 ## 推荐技术栈
 
@@ -85,7 +93,7 @@ S0–S5 主要依赖自然语言整理和用户即时纠正，不要求真实角
 - Python 3.11；
 - `uv` + `pyproject.toml`；
 - Pydantic v2；
-- SQLModel 或 SQLAlchemy 2；
+- SQLAlchemy 2（不使用 SQLModel 作为领域模型层）；
 - SQLite 起步，后期 PostgreSQL；
 - Alembic；
 - FastAPI；
@@ -94,7 +102,7 @@ S0–S5 主要依赖自然语言整理和用户即时纠正，不要求真实角
 - 自建领域状态机作为状态转移权威；
 - pytest、pytest-asyncio；
 - Ruff；
-- Pyright 或 mypy；
+- basedpyright（Pyright 兼容类型检查器，与当前 M0 CI 一致）；
 - structlog；
 - httpx；
 - tenacity。
@@ -142,22 +150,30 @@ S0–S5 主要依赖自然语言整理和用户即时纠正，不要求真实角
 MVP 应完整跑通：
 
 1. 用户在 Codex 中输入自然语言研究目标；
-2. Codex 调 Synaisthesis MCP 创建项目并推进 S0–S5；
-3. 用户确认 S1；
-4. 平台完成 S6–S7，编译一个 ClaimUnit；
-5. 冻结 ClaimContract；
-6. 两个不同模型独立支持与攻击；
-7. Z3 找到反例；
-8. Primary 提出修复；
-9. Auditor 发现某修复缩小对象域并判为 S3；
-10. 平台暂停；
-11. 用户拒绝；
-12. 平台采用另一修复；
-13. Lean 对冻结形式命题验证通过；
-14. Auditor 反译 Lean statement；
-15. 用户确认语义对齐；
-16. 平台导出包含 Revision、Attack、Evidence、Receipt 和 Hash 的 ResearchBundle；
-17. 其中一个工程步骤由平台调起隔离的 Codex Worker 完成，并保存 CodexExecutionReceipt。
+2. Codex 调 Synaisthesis MCP 创建项目并推进 S0–S4；
+3. 用户确认 S1 与 S4，项目进入 `NATURAL_LANGUAGE_DESIGN_READY`；
+4. 平台执行 RQ0–RQ2F，检索相邻研究与成熟工程项目并完成理论/工程适配分析；本主场景得到 `PURE_THEORY_FIT`；
+5. 平台执行 RQ2M，生成数学公式化早期形式化；
+6. 用户审查并批准当前 EarlyFormalizationBundle；
+7. 两个隔离 Reviewer 完成理论/应用新颖性评分，保守总分达到 70 后自动进入 S5；
+8. 平台完成 S5–S7，编译一个 ClaimUnit；
+9. 冻结 ClaimContract；
+10. 两个不同模型独立支持与攻击；
+11. Z3 找到反例；
+12. Primary 提出修复；
+13. Auditor 发现某修复缩小对象域并判为 S3；
+14. 平台暂停；
+15. 用户拒绝；
+16. 平台采用另一修复；
+17. Lean 对冻结形式命题验证通过；
+18. Auditor 反译 Lean statement；
+19. 用户确认语义对齐；
+20. 平台生成、独立审计并交付 TheoryMasterManuscript；
+21. 用户选择保留母稿，或选择理论四刊/arXiv Profile 生成正式适配稿；
+22. 平台导出包含 RQ Artifact、Revision、Attack、Evidence、Receipt、论文与 Hash 的 ResearchBundle；
+23. 其中一个工程步骤由平台调起隔离的 Codex Worker 完成，并保存 CodexExecutionReceipt。
+
+工程分支另有强制 MVP 场景：RQ2F 判断 `ENGINEERING_PROJECT_CANDIDATE` 后只打开用户 Gate；用户选择 `TRY_ENGINEERING_PROJECT`，RQ2E/RQ3E/RQ4E 通过并达到 70 后自动进入 ENG0；平台至少以 `BLUEPRINT_ONLY` 模式导出可机械执行蓝图、图示源及渲染件、应用/扩展路线和 Design/Protocol 母稿。母稿交付后，用户选择是否按工程四刊/arXiv Profile 生成正式适配稿；任何路径均不得虚构实现或实验结果。
 
 ## v2.1：Codex 指令忠实传递成为 P0
 

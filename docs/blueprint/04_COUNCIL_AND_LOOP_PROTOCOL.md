@@ -306,6 +306,9 @@ MVP 使用固定规则选出第一名，再由 Auditor 复核；不把唯一选�
 - 必需工具验证通过或 NOT_APPLICABLE；
 - 无未解决 Human Gate；
 - Artifact 完整。
+- 早期新颖性资格为理论 route 的 `NOVELTY_QUALIFIED`，或存在绑定理论 route 的可审计用户低分继续决定。`ENGINEERING_NOVELTY_QUALIFIED` 只允许进入 03B 的 ENG0，不得直接进入本 Council。
+
+`CANDIDATE_STABLE` 是研究状态，不是最终交付完成状态。理论 route 的最终 ResearchBundle 必须继续执行 `03C` TP0–TP2，至少交付经独立审计的 `TheoryMasterManuscript`。用户选择 `KEEP_MASTER_ONLY` 即可完成论文交付；只有用户选择 `WRITE_FORMAL_MANUSCRIPT` 才执行 TP3–TP5 的期刊/arXiv 适配。
 
 ### 其他
 - MAX_ROUNDS_REACHED
@@ -345,12 +348,18 @@ MVP 使用固定规则选出第一名，再由 Auditor 复核；不把唯一选�
 
 ### novelty_status
 - UNCHECKED
+- QUALIFICATION_PENDING
+- NOVELTY_QUALIFIED
+- NOVELTY_RESEARCH_REQUIRED
+- USER_OVERRIDDEN_BELOW_THRESHOLD
 - SEARCHED
 - POSSIBLY_ORIGINAL
 - PARTIAL_OVERLAP
 - STRONG_OVERLAP
 - KNOWN_RESULT
 - INCONCLUSIVE
+
+早期资格使用 `03A` 的 100 分制：理论最高 50、应用最高 50，两个隔离 Reviewer 逐项取较小值；有效总分达到 70 自动继续，低于 70 或 INCONCLUSIVE 打开用户研究决定 Gate。后期 Council/文献回归可以更新或撤回该状态，但不得把分数表述为“绝对原创”。
 
 只有 `formal_status=LEAN_PASS` 且 `semantic_status=USER_CONFIRMED` 时，UI 才显示：
 

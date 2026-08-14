@@ -64,6 +64,11 @@
 - object_candidates
 - ambiguous_terms
 - explicit_non_goals
+- expected_functions
+- target_applications
+- intended_users
+- operational_constraints
+- success_metrics
 - assistant_proposed
 - user_confirmed
 
@@ -113,6 +118,9 @@ S1 是后续数学化工作的最高自然语言语义权威。
 - retrieval_scope
 - unsearched_areas
 - literature_hits
+- mature_engineering_projects
+- engineering_maturity_evidence
+- function_application_neighbors
 - metadata_verified
 
 ### PASS 条件
@@ -158,6 +166,14 @@ S1 是后续数学化工作的最高自然语言语义权威。
 
 ---
 
+## NATURAL_LANGUAGE_DESIGN_READY — 自然语言设计完成门
+
+由 S0–S4 PASS、S1/S4 用户确认、预期功能/应用/用户/约束/指标齐全且无 Critical 歧义计算。一次性导入的完整设计也必须规范化为 S0–S4 Artifact。
+
+该状态的唯一下一步是 RQ0，不允许直接进入 S5 或 ENG0。RQ0–RQ4 的输入输出、可行性分流、公式要求、用户审查、路线化新颖性百分制与路由见 `03A_EARLY_FORMALIZATION_AND_NOVELTY_GATE.md`；工程路线通过后进入 `03B`，不计算本文件的理论型 `MATURE_IDEA_READY`。
+
+---
+
 ## S5 — 最小范例
 
 ### 输出：`MinimalCaseBundle`
@@ -190,6 +206,8 @@ S1 是后续数学化工作的最高自然语言语义权威。
 - S0–S4 PASS；
 - S5 至少 DEMONSTRATED；
 - S1 与 S4 有用户确认；
+- 当前 S1/S4 hash 已完成 RQ0–RQ4；
+- novelty status 为 `NOVELTY_QUALIFIED`，或用户以 `CONTINUE_WITH_RECORDED_OVERRIDE` 明确继续；
 - 关键术语无未解决歧义；
 - 存在可执行研究计划；
 - 存在至少一个可构造 ClaimUnit；
@@ -369,6 +387,8 @@ AI 生成问题必须保留 AI_GENERATED 标记。
 8. 写 Artifact 与 DomainEvent；
 9. 返回用户可读摘要；
 10. 不自动删除旧产物。
+
+S4 之后的 `execute_stage` 必须先检查 `NATURAL_LANGUAGE_DESIGN_READY` 和 RQ 前置；S5 只接受理论 route 的有效 RQ4M，ENG0 只接受用户已选择的工程 route 与有效 RQ4E。检查失败统一返回 `EARLY_QUALIFICATION_REQUIRED`，不得隐式补跑或绕过。
 
 ## 4. 对话与平台的边界
 
