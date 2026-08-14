@@ -73,3 +73,8 @@ Do not run without explicit user request:
 DeepSeek is the current engineering model, but Synaisthesis Core must remain provider-agnostic.
 
 Do not hard-code product logic to a single LLM vendor.
+
+## Agent tool discipline
+
+- Every Bash tool call must include the required `description` field (5–10 words, active voice). Omitting it fails schema validation with `missing required property "description"` and wastes a turn.
+- This applies to the top-level agent and to every subagent or workflow worker it spawns; pass the requirement along in any delegation prompt.
