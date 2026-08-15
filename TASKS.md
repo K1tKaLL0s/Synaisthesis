@@ -9,10 +9,11 @@
 - [x] M1.1 — 领域基元（Stage 1 第 1 个 Task）：稳定枚举（严格拒绝未知值）、DomainError、DomainEvent（稳定序列化 + 内容 hash）、版本/幂等策略；领域层零 Web/数据库/MCP 依赖
 - [x] M1.2 — 领域聚合：Project、ResearchSpec（确认后不可原地覆盖）、StageRun、Revision（不可变链）、Evidence（撤回保留历史）
 - [x] M1.3 — 持久化底座：init_database、append_domain_event（稳定顺序）、save_artifact（内容寻址）、verify_artifact_hash（缺失/篡改可检测）、首个 Alembic migration（可升级/降级）；新增 sqlalchemy + alembic 生产依赖
+- [x] M1.4 — Project 纵向切片（Stage 1 最后一个 Task）：CLI `project create` 产生 Project、Artifact、DomainEvent，`project show`/服务可从有序事件流完整重读；payload 缺失/篡改可检测并 fail closed（8 个集成测试，全套 81 passed）
 
 ## Next
 
-- [ ] Stage 1（M1.4）— Project 纵向切片（M1.1、M1.2、M1.3 已完成；M0 已确认）
+- [ ] Stage 2（M2.1）— S0–S1 合同（前置 M1.4 已 PASS；开始前确认 M1.4 变更已提交）
 
 ## Backlog
 

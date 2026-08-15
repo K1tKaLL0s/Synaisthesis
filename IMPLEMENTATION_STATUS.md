@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M1`（Stage 1 进行中）
+`M1`（Stage 1 已全部完成：M1.1–M1.4 PASS）
 
 ## Current task
-`M1.3.STORAGE.EVENT_ARTIFACT_COMPLETE`
+`M1.4.PROJECT.VERTICAL_SLICE_COMPLETE`
 
 ## Last verified commit
-`f88ef0d`（M1.4 尚未开始）
+`f5ce77f`（M1.4 变更已通过全部检查，尚未提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M1.3.STORAGE.EVENT_ARTIFACT`
+- Stable Task ID: `M1.4.PROJECT.VERTICAL_SLICE`
 - Milestone: `M1`（Stage 1：领域模型、Event Store、Artifact Store）
-- 交付：SQLAlchemy 2 + Alembic 持久化底座：init_database、append_domain_event（稳定顺序）、save_artifact（内容寻址）、verify_artifact_hash（缺失/篡改可检测）、首个 migration（可 upgrade/downgrade）。
-- 新增生产依赖：sqlalchemy>=2.0,<3.0、alembic>=1.13,<2.0（已单独获准）。
+- WorkUnitContract: `workspace/workunit-contracts/M1.4.PROJECT.VERTICAL_SLICE.md`（含 GAP-1/GAP-2/SCOPE-1 三处已解决记录）
+- 交付：CLI `synaisthesis project create` 创建项目后持久化产生 Project、Artifact、DomainEvent，`project show`/服务可从有序事件流完整重读（replay）；payload 缺失/篡改可检测并 fail closed。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -44,6 +44,7 @@
 - M1.2 领域聚合：`domain/project.py`（Project，frozen + change_lifecycle）、`domain/research_spec.py`（ResearchSpec，确认后不可原地覆盖、改动必须 new_version）、`domain/stage.py`（StageRun，complete 一次性）、`domain/revision.py`（Revision，不可变链 + immutable_hash + create_child）、`domain/evidence.py`（Evidence，revoke 保留历史）；`domain/event.py` 公开 `canonicalize/canonical_json/sha256_hex` 供聚合复用
 - 蓝图补丁（evidence.status 缺口）：06 §1 定义 `EvidenceStatus = ACTIVE | REVOKED`，同步 `domain/enums.py::EvidenceStatus` 与 `domain/evidence.py::Evidence.status`（派生属性，`revoked_at` 为权威标记）
 - M1.3 持久化底座：`storage/database.py`（Base + init_database，不静默建表）、`storage/hashing.py`（sha256_bytes/sha256_file/verify_artifact_hash）、`storage/artifact_store.py`（ArtifactRecord + save_artifact 内容寻址）、`storage/repositories/event_repository.py`（DomainEventRecord + append_domain_event）、首个 Alembic migration（`storage/migrations/`，可 upgrade/downgrade）
+- M1.4 Project 纵向切片：`storage/repositories/project_repository.py`（事件溯源 save_project/load_project、ProjectCreated/ProjectLifecycleChanged、project_state_dict/project_from_state）、`application/project_service.py`（create_project/get_project）、`interfaces/cli/commands/project.py`（`project create`/`project show`，schema 自动 upgrade，DomainError → exit 1）、`interfaces/cli/main.py` 注册 project 子命令
 
 ## Verified
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
@@ -62,6 +63,8 @@
 - M1.2：`uv run --no-sync pytest tests/unit/domain/test_aggregates.py` 20 passed；全套 `uv run --no-sync pytest` 67 passed；`uv run --no-sync ruff check .` 通过；`uv run --no-sync ruff format --check .` 通过；`uv run --no-sync basedpyright` 0 errors, 0 warnings
 - 蓝图补丁（evidence.status）：重建汇编版后 manifest 全量完整性校验 `integrity ok: True`；代码侧全套 pytest 68 passed、ruff/basedpyright 通过
 - M1.3：`pytest tests/integration/storage/test_event_artifact_store.py` 5 passed；全套 `pytest` 73 passed；`ruff check .` 通过；`ruff format --check .` 通过（72 files）；`basedpyright` 0 errors, 0 warnings（沙箱只读 venv 无法安装新依赖，改用 `workspace/.venv-m13` 独立 venv 运行，basedpyright 以 `--pythonpath` 指向该 venv）
+- M1.4：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_project_vertical_slice.py` 8 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 81 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（78 files）；`UV_CACHE_DIR=/tmp basedpyright --pythonpath workspace/.venv-m13/bin/python` 0 errors, 0 warnings
+- M1.4 CLI 真实 smoke：`workspace/.venv-m13/bin/synaisthesis --version` 输出 `0.1.0.dev0`；在 `/tmp` 独立目录真实执行 `project create --name "联觉纵向切片 smoke" --description "M1.4 real CLI"` 后：输出单行 canonical JSON、payload Artifact 落盘（`events/{id}/{event_id}.json`）、`project show` 输出与 create 逐字节一致（ROUNDTRIP OK）、不存在的 project 输出 `PROJECT_NOT_FOUND` 且 exit=1；测试目录随后已清理
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -71,13 +74,14 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M1.4.PROJECT.VERTICAL_SLICE`（前置 M1.3 已 PASS）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
+- 代码方面：`M2.1.S0_S1.CONTRACTS`（前置 M1.4 已 PASS）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract，并先确认 M1.4 变更已提交。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
 - drvfs（`/mnt/e`）上 venv 反复损坏且性能差，venv 实际建在 WSL ext4（`~/.venvs/synaisthesis`），仓库 `.venv` 为符号链接；`uv run` 已验证可用。
 - 仅记录真实执行结果；未执行的内容（如 Lean/Z3 调用）不记录为已验证。
 - 本沙箱 venv 只读，`uv run` 需 `--no-sync` 并把 `UV_CACHE_DIR` 指向可写路径（`/tmp`）；该命令形式已由 CONTRIBUTING.md 与提交 `f2640d0` 记录。
-- M1.3 因只读 venv 无法新增 sqlalchemy/alembic，故在 `workspace/.venv-m13`（gitignored）另建独立 venv 运行集成测试与检查；`/tmp` 跨命令会被清空，venv 必须落在 workspace 内才持久。
+- M1.3/M1.4 因只读 venv 无法新增 sqlalchemy/alembic，故在 `workspace/.venv-m13`（gitignored）另建独立 venv 运行集成测试与检查；`/tmp` 跨命令会被清空，venv 必须落在 workspace 内才持久。
+- M1.4 采用事件溯源持久化（Project 状态 = canonical JSON payload Artifact + 有序 DomainEvent 流），未新建 `projects` 表；三处蓝图缺口记录见 `workspace/workunit-contracts/M1.4.PROJECT.VERTICAL_SLICE.md`（GAP-1 注册点、GAP-2 无 projects migration、SCOPE-1 幂等 envelope 延后）。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。
