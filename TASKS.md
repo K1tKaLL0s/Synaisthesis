@@ -14,7 +14,7 @@
 
 ## Next
 
-- [ ] Stage 2（M2.2）— S2–S4 合同与 NATURAL_LANGUAGE_DESIGN_READY 派生（前置 M2.1 已 PASS；开始前确认 M2.1 变更已提交）
+- [ ] Stage 2（M2.2）— S2–S4 合同与 NATURAL_LANGUAGE_DESIGN_READY 派生（前置 M2.1 已 PASS 且已提交）
 
 ## Backlog
 
