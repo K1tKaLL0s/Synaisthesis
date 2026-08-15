@@ -13,7 +13,7 @@
 
 ## Next
 
-- [ ] Stage 2（M2.1）— S0–S1 合同（前置 M1.4 已 PASS；开始前确认 M1.4 变更已提交）
+- [ ] Stage 2（M2.1）— S0–S1 合同（前置 M1.4 已 PASS 且已提交）
 
 ## Backlog
 
