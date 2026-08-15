@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M1`（Stage 1 已全部完成：M1.1–M1.4 PASS）
+`M2`（Stage 2 进行中：M2.1 已 PASS）
 
 ## Current task
-`M1.4.PROJECT.VERTICAL_SLICE_COMPLETE`
+`M2.1.S0_S1.CONTRACTS_COMPLETE`
 
 ## Last verified commit
-`856b69a`（M1.4 已提交）
+`6bca079`（M2.1 变更已通过全部检查，尚未提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M1.4.PROJECT.VERTICAL_SLICE`
-- Milestone: `M1`（Stage 1：领域模型、Event Store、Artifact Store）
-- WorkUnitContract: `workspace/workunit-contracts/M1.4.PROJECT.VERTICAL_SLICE.md`（含 GAP-1/GAP-2/SCOPE-1 三处已解决记录）
-- 交付：CLI `synaisthesis project create` 创建项目后持久化产生 Project、Artifact、DomainEvent，`project show`/服务可从有序事件流完整重读（replay）；payload 缺失/篡改可检测并 fail closed。
+- Stable Task ID: `M2.1.S0_S1.CONTRACTS`
+- Milestone: `M2`（Stage 2：搬运 S0–S4 并形成自然语言设计完成门；本 Task 只做 S0–S1）
+- WorkUnitContract: `workspace/workunit-contracts/M2.1.S0_S1.CONTRACTS.md`（含 GAP-1/GAP-2/GAP-3 三处已解决记录）
+- 交付：S0 SeedRecord 原文逐字节保留 + raw_hash 可复算校验；S1 NaturalLanguageSpec 13 必填字段 Schema 强制、验证器判定，确认只接受真实用户事件并落库 provenance；evaluate_stage_gate 按 Schema + 验证器 + 用户确认计算状态；s0/s1 Prompt Asset。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -45,6 +45,7 @@
 - 蓝图补丁（evidence.status 缺口）：06 §1 定义 `EvidenceStatus = ACTIVE | REVOKED`，同步 `domain/enums.py::EvidenceStatus` 与 `domain/evidence.py::Evidence.status`（派生属性，`revoked_at` 为权威标记）
 - M1.3 持久化底座：`storage/database.py`（Base + init_database，不静默建表）、`storage/hashing.py`（sha256_bytes/sha256_file/verify_artifact_hash）、`storage/artifact_store.py`（ArtifactRecord + save_artifact 内容寻址）、`storage/repositories/event_repository.py`（DomainEventRecord + append_domain_event）、首个 Alembic migration（`storage/migrations/`，可 upgrade/downgrade）
 - M1.4 Project 纵向切片：`storage/repositories/project_repository.py`（事件溯源 save_project/load_project、ProjectCreated/ProjectLifecycleChanged、project_state_dict/project_from_state）、`application/project_service.py`（create_project/get_project）、`interfaces/cli/commands/project.py`（`project create`/`project show`，schema 自动 upgrade，DomainError → exit 1）、`interfaces/cli/main.py` 注册 project 子命令
+- M2.1 S0–S1 合同：`domain/stage.py` 新增 StageContract 15 字段合同 + `S0_STAGE_CONTRACT`/`S1_STAGE_CONTRACT` + `validate_seed_record`/`validate_natural_language_spec`（duck-typed，领域层零框架依赖）；`agents/schemas.py`（SeedRecord、NaturalLanguageSpec，Pydantic v2，extra="forbid"，13 必填字段强制）；`application/incubation_service.py`（capture_seed/load_seed 带 raw_hash 校验、propose/confirm/load_natural_language_spec 带真实用户事件 provenance、validate_stage_output、evaluate_stage_gate）；`prompts/incubator/s0_capture_seed.md`、`s1_natural_language_spec.md`（prompt_key/version/golden/forbidden）
 
 ## Verified
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
@@ -65,6 +66,7 @@
 - M1.3：`pytest tests/integration/storage/test_event_artifact_store.py` 5 passed；全套 `pytest` 73 passed；`ruff check .` 通过；`ruff format --check .` 通过（72 files）；`basedpyright` 0 errors, 0 warnings（沙箱只读 venv 无法安装新依赖，改用 `workspace/.venv-m13` 独立 venv 运行，basedpyright 以 `--pythonpath` 指向该 venv）
 - M1.4：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_project_vertical_slice.py` 8 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 81 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（78 files）；`UV_CACHE_DIR=/tmp basedpyright --pythonpath workspace/.venv-m13/bin/python` 0 errors, 0 warnings
 - M1.4 CLI 真实 smoke：`workspace/.venv-m13/bin/synaisthesis --version` 输出 `0.1.0.dev0`；在 `/tmp` 独立目录真实执行 `project create --name "联觉纵向切片 smoke" --description "M1.4 real CLI"` 后：输出单行 canonical JSON、payload Artifact 落盘（`events/{id}/{event_id}.json`）、`project show` 输出与 create 逐字节一致（ROUNDTRIP OK）、不存在的 project 输出 `PROJECT_NOT_FOUND` 且 exit=1；测试目录随后已清理
+- M2.1：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_s0_s1.py` 14 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 95 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（84 files）；`UV_CACHE_DIR=/tmp basedpyright --pythonpath workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -74,14 +76,15 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.1.S0_S1.CONTRACTS`（前置 M1.4 已 PASS）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract，并先确认 M1.4 变更已提交。
+- 代码方面：`M2.2.S2_S4.CONTRACTS`（前置 M2.1 已 PASS）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract，并先确认 M2.1 变更已提交。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
 - drvfs（`/mnt/e`）上 venv 反复损坏且性能差，venv 实际建在 WSL ext4（`~/.venvs/synaisthesis`），仓库 `.venv` 为符号链接；`uv run` 已验证可用。
 - 仅记录真实执行结果；未执行的内容（如 Lean/Z3 调用）不记录为已验证。
 - 本沙箱 venv 只读，`uv run` 需 `--no-sync` 并把 `UV_CACHE_DIR` 指向可写路径（`/tmp`）；该命令形式已由 CONTRIBUTING.md 与提交 `f2640d0` 记录。
-- M1.3/M1.4 因只读 venv 无法新增 sqlalchemy/alembic，故在 `workspace/.venv-m13`（gitignored）另建独立 venv 运行集成测试与检查；`/tmp` 跨命令会被清空，venv 必须落在 workspace 内才持久。
+- M1.3/M1.4/M2.1 因只读 venv 无法新增 sqlalchemy/alembic，故在 `workspace/.venv-m13`（gitignored）另建独立 venv 运行集成测试与检查；`/tmp` 跨命令会被清空，venv 必须落在 workspace 内才持久。
 - M1.4 采用事件溯源持久化（Project 状态 = canonical JSON payload Artifact + 有序 DomainEvent 流），未新建 `projects` 表；三处蓝图缺口记录见 `workspace/workunit-contracts/M1.4.PROJECT.VERTICAL_SLICE.md`（GAP-1 注册点、GAP-2 无 projects migration、SCOPE-1 幂等 envelope 延后）。
+- M2.1 沿用事件溯源（Seed/NaturalLanguageSpec 聚合）；issue→Gate 状态映射、07 §2 函数家族范围（create_stage_run/execute_stage/advance_stage 延后到 M2.2）、source_type 不发明枚举三处缺口记录见 `workspace/workunit-contracts/M2.1.S0_S1.CONTRACTS.md`。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。

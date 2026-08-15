@@ -10,10 +10,11 @@
 - [x] M1.2 — 领域聚合：Project、ResearchSpec（确认后不可原地覆盖）、StageRun、Revision（不可变链）、Evidence（撤回保留历史）
 - [x] M1.3 — 持久化底座：init_database、append_domain_event（稳定顺序）、save_artifact（内容寻址）、verify_artifact_hash（缺失/篡改可检测）、首个 Alembic migration（可升级/降级）；新增 sqlalchemy + alembic 生产依赖
 - [x] M1.4 — Project 纵向切片（Stage 1 最后一个 Task）：CLI `project create` 产生 Project、Artifact、DomainEvent，`project show`/服务可从有序事件流完整重读；payload 缺失/篡改可检测并 fail closed（8 个集成测试，全套 81 passed）
+- [x] M2.1 — S0–S1 合同（Stage 2 第 1 个 Task）：S0 SeedRecord 原文逐字节保留 + raw_hash 可复算校验；S1 NaturalLanguageSpec 13 必填字段 Schema 强制、验证器判定，确认只接受真实用户事件并落库 provenance；evaluate_stage_gate 按 Schema + 验证器 + 用户确认计算；s0/s1 Prompt Asset（14 个 golden 测试，全套 95 passed）
 
 ## Next
 
-- [ ] Stage 2（M2.1）— S0–S1 合同（前置 M1.4 已 PASS 且已提交）
+- [ ] Stage 2（M2.2）— S2–S4 合同与 NATURAL_LANGUAGE_DESIGN_READY 派生（前置 M2.1 已 PASS；开始前确认 M2.1 变更已提交）
 
 ## Backlog
 
