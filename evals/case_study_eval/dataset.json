@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-17T05:00:00+00:00",
+  "title": "M15.CASE_STUDY.EVAL case-study evaluation dataset",
+  "cases": [
+    {
+      "case_id": "theory_trace_cyclic",
+      "dir": "examples/real_project_case_study/theory_case",
+      "design": "design.json",
+      "project_id": "p-theory",
+      "research_spec_id": "rs-case-theory",
+      "frozen_exports": [
+        {
+          "file": "phase1_revision_export.json",
+          "run_id": "case-theory-phase1",
+          "review_decision": "REQUEST_REVISION",
+          "expected": {
+            "next_target": null,
+            "gate_type": "EARLY_FORMALIZATION_REVIEW",
+            "gate_status": "RESOLVED"
+          },
+          "phase": "RQ3M failure (REQUEST_REVISION)"
+        },
+        {
+          "file": "phase2_approved_export.json",
+          "run_id": "case-theory-phase2",
+          "review_decision": "APPROVE",
+          "expected": {
+            "route": "THEORY",
+            "next_target": "S5",
+            "novelty_total": 70
+          },
+          "phase": "RQ3M fix (APPROVE) -> RQ4M 70 -> S5"
+        }
+      ],
+      "real_tool": {
+        "kind": "lean",
+        "file": "lean/trace_cyclic.lean",
+        "required_exit_code": 0
+      },
+      "story_requirements": [
+        "at least one failure (REQUEST_REVISION)",
+        "one fix (v2 APPROVE)",
+        "gate (EARLY_FORMALIZATION_REVIEW)",
+        "real tool (Lean)",
+        "full RQ0-RQ4 walkthrough"
+      ]
+    },
+    {
+      "case_id": "engineering_trace_tooling",
+      "dir": "examples/real_project_case_study/engineering_case",
+      "design": "design.json",
+      "project_id": "p-engineering",
+      "research_spec_id": "rs-case-engineering",
+      "frozen_exports": [
+        {
+          "file": "export.json",
+          "run_id": "case-engineering",
+          "route_decision": "TRY_ENGINEERING_PROJECT",
+          "review_decision": "APPROVE",
+          "expected": {
+            "route": "ENGINEERING",
+            "route_classification": "ENGINEERING_PROJECT_CANDIDATE",
+            "next_target": "ENG0",
+            "novelty_total": 70
+          },
+          "phase": "user route split -> RQ4E 70 -> ENG0"
+        }
+      ],
+      "story_requirements": [
+        "user split (ENGINEERING_ROUTE_DECISION)",
+        "ENG0-ENG10 BLUEPRINT_ONLY",
+        "no fabricated results (no fictional benchmark numbers)"
+      ]
+    }
+  ],
+  "recomputation": "Both exports are recomputed by evals/case_study_eval/test_case_study_eval.py using run_qualification_pipeline with fixed run ids, fixed at timestamp, the fixture provider corpus and the recorded reviewer scorecards; JSON payloads must match byte-for-byte."
+}

@@ -945,6 +945,7 @@ def run_qualification_pipeline(
             user_event_id=user_event_id,
             current_input_spec_hash=input_spec_hash,
             at=now,
+            selection_id=f"{resolved_run_id}:route-selection",
         )
         if selection is None:
             return QualificationRun(

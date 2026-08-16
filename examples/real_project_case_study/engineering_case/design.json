@@ -1,0 +1,81 @@
+{
+  "project_id": "p-engineering",
+  "research_spec_id": "rs-case-engineering",
+  "spec": {
+    "core_definition": "Cyclic trace invariance: the trace of a matrix product is preserved under cyclic permutation of the factors.",
+    "positive_examples": [
+      "tr(AB) = tr(BA)",
+      "tr(ABC) = tr(CAB)"
+    ],
+    "non_examples": [
+      "tr(AB) = tr(A)tr(B)"
+    ],
+    "boundary_conditions": [
+      "finite square matrices over a field"
+    ],
+    "object_candidates": [
+      "finite square matrices"
+    ],
+    "ambiguous_terms": [
+      "trace"
+    ],
+    "explicit_non_goals": [
+      "non-square matrices"
+    ],
+    "expected_functions": [
+      "preserve trace under cyclic shift"
+    ],
+    "target_applications": [
+      "automated linear algebra verification"
+    ],
+    "intended_users": [
+      "verification researchers"
+    ],
+    "operational_constraints": [
+      "deterministic, no sampling"
+    ],
+    "success_metrics": [
+      "100% verified traces"
+    ],
+    "assistant_proposed": false,
+    "user_confirmed": false
+  },
+  "mechanism": {
+    "inputs": [
+      "square matrices A, B"
+    ],
+    "state_change": "apply a cyclic permutation to the product factors",
+    "outputs": [
+      "trace equality claim"
+    ],
+    "invariants": [
+      "trace invariant under cyclic shift"
+    ],
+    "failure_conditions": [
+      "non-multiplicable shapes"
+    ],
+    "causal_claims": [
+      "cyclic shift preserves the trace"
+    ],
+    "merely_descriptive_relations": [],
+    "uncertainty_register": [
+      "field characteristic edge cases"
+    ]
+  },
+  "scope": {
+    "main_question": "Is cyclic trace invariance formally provable?",
+    "object_domain": "finite matrix trace algebra",
+    "non_goals": [
+      "asymptotic complexity"
+    ],
+    "nearest_neighbor_difference": "trace invariance stated as a theorem with proof obligations",
+    "central_claims": [],
+    "evidence_requirements": [],
+    "failure_learning_plan": "record counterexamples in the failure register",
+    "engineering_relevance": "trace-verification tooling reuse",
+    "stop_conditions": [
+      "counterexample found"
+    ],
+    "user_confirmed_scope": false
+  }
+}

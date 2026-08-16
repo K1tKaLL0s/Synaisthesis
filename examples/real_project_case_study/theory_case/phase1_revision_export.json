@@ -1,0 +1,609 @@
+{
+  "run_id": "case-theory-phase1",
+  "project_id": "p-theory",
+  "research_spec_id": "rs-case-theory",
+  "input_spec_hash": "5d41d3ae70c7b9b9a5317f77a32991b91fe80b09da7b7fba2a55ca8e14c9d6f5",
+  "route": "THEORY",
+  "capability": {
+    "blocker": null,
+    "budget_snapshot_id": null,
+    "capability_evidence_refs": [
+      "model_profile:case-profile"
+    ],
+    "decision_id": "case-theory-phase1:rq0",
+    "input_spec_hash": "5d41d3ae70c7b9b9a5317f77a32991b91fe80b09da7b7fba2a55ca8e14c9d6f5",
+    "model_profile_id": "case-profile",
+    "privacy_policy_snapshot_id": null,
+    "project_id": "p-theory",
+    "research_spec_id": "rs-case-theory",
+    "route": "PLATFORM_ADVANCED_FORMALIZER",
+    "status": "CAPABILITY_READY"
+  },
+  "sources": {
+    "search_id": "prior-art:229362cb53021d4fa7fdea9482bfcc04d73185679a7e888e761b746c5cf8680f",
+    "coverage_status": "COMPLETE",
+    "coverage_blockers": [],
+    "query_records": [
+      {
+        "executed_at": "2026-08-17T05:00:00+00:00",
+        "filters": [],
+        "generated_from": [
+          "S1.core_definition",
+          "S4.central_claims"
+        ],
+        "original_text": "trace cyclic property matrix proof",
+        "page_count": 1,
+        "provider": "fake-academic",
+        "query_id": "case-q-academic",
+        "result_count": 20,
+        "time_range": "2015-2026"
+      },
+      {
+        "executed_at": "2026-08-17T05:00:00+00:00",
+        "filters": [],
+        "generated_from": [
+          "S1.expected_functions",
+          "S1.target_applications"
+        ],
+        "original_text": "trace invariance verification tooling",
+        "page_count": 1,
+        "provider": "fake-engineering",
+        "query_id": "case-q-engineering",
+        "result_count": 20,
+        "time_range": "2015-2026"
+      }
+    ],
+    "academic_neighbors": [
+      {
+        "application_proximity": 1.0,
+        "canonical_url": "https://example.org/openalex/W2001",
+        "maturity_evidence_refs": [
+          "OpenAlex:openalex:W2001:release-record",
+          "OpenAlex:openalex:W2001:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "academic:openalex:W2001",
+        "neighbor_type": "academic:OpenAlex",
+        "rank": 1,
+        "similarity_evidence_refs": [
+          "OpenAlex:openalex:W2001:similarity-evidence"
+        ],
+        "stable_identifier": "openalex:W2001",
+        "theory_proximity": 3.9999999999999996
+      },
+      {
+        "application_proximity": 1.0,
+        "canonical_url": "https://example.org/openalex/W2002",
+        "maturity_evidence_refs": [
+          "OpenAlex:openalex:W2002:release-record",
+          "OpenAlex:openalex:W2002:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "academic:openalex:W2002",
+        "neighbor_type": "academic:OpenAlex",
+        "rank": 2,
+        "similarity_evidence_refs": [
+          "OpenAlex:openalex:W2002:similarity-evidence"
+        ],
+        "stable_identifier": "openalex:W2002",
+        "theory_proximity": 3.5
+      },
+      {
+        "application_proximity": 1.0,
+        "canonical_url": "https://example.org/crossref/c2",
+        "maturity_evidence_refs": [
+          "Crossref:doi:10.1000/c2:release-record",
+          "Crossref:doi:10.1000/c2:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "academic:doi:10.1000/c2",
+        "neighbor_type": "academic:Crossref",
+        "rank": 3,
+        "similarity_evidence_refs": [
+          "Crossref:doi:10.1000/c2:similarity-evidence"
+        ],
+        "stable_identifier": "doi:10.1000/c2",
+        "theory_proximity": 3.0
+      },
+      {
+        "application_proximity": 1.0,
+        "canonical_url": "https://example.org/arxiv/2001.00001",
+        "maturity_evidence_refs": [
+          "arXiv:arxiv:2001.00001:release-record",
+          "arXiv:arxiv:2001.00001:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "academic:arxiv:2001.00001",
+        "neighbor_type": "academic:arXiv",
+        "rank": 4,
+        "similarity_evidence_refs": [
+          "arXiv:arxiv:2001.00001:similarity-evidence"
+        ],
+        "stable_identifier": "arxiv:2001.00001",
+        "theory_proximity": 2.5
+      },
+      {
+        "application_proximity": 1.0,
+        "canonical_url": "https://example.org/arxiv/2001.00002",
+        "maturity_evidence_refs": [
+          "arXiv:arxiv:2001.00002:release-record",
+          "arXiv:arxiv:2001.00002:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "academic:arxiv:2001.00002",
+        "neighbor_type": "academic:arXiv",
+        "rank": 5,
+        "similarity_evidence_refs": [
+          "arXiv:arxiv:2001.00002:similarity-evidence"
+        ],
+        "stable_identifier": "arxiv:2001.00002",
+        "theory_proximity": 1.9999999999999998
+      }
+    ],
+    "engineering_neighbors": [
+      {
+        "application_proximity": 4.0,
+        "canonical_url": "https://example.org/github/repo1",
+        "maturity_evidence_refs": [
+          "GitHub:github:org/repo1:release-record",
+          "GitHub:github:org/repo1:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "engineering:github:org/repo1",
+        "neighbor_type": "engineering:GitHub",
+        "rank": 1,
+        "similarity_evidence_refs": [
+          "GitHub:github:org/repo1:similarity-evidence"
+        ],
+        "stable_identifier": "github:org/repo1",
+        "theory_proximity": 0.9999999999999999
+      },
+      {
+        "application_proximity": 3.0,
+        "canonical_url": "https://example.org/github/repo2",
+        "maturity_evidence_refs": [
+          "GitHub:github:org/repo2:release-record",
+          "GitHub:github:org/repo2:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "engineering:github:org/repo2",
+        "neighbor_type": "engineering:GitHub",
+        "rank": 2,
+        "similarity_evidence_refs": [
+          "GitHub:github:org/repo2:similarity-evidence"
+        ],
+        "stable_identifier": "github:org/repo2",
+        "theory_proximity": 0.9999999999999999
+      },
+      {
+        "application_proximity": 2.5,
+        "canonical_url": "https://example.org/pypi/repo2",
+        "maturity_evidence_refs": [
+          "PyPI:pypi:repo2:release-record",
+          "PyPI:pypi:repo2:maintenance-record"
+        ],
+        "metadata_verified": true,
+        "neighbor_id": "engineering:pypi:repo2",
+        "neighbor_type": "engineering:PyPI",
+        "rank": 3,
+        "similarity_evidence_refs": [
+          "PyPI:pypi:repo2:similarity-evidence"
+        ],
+        "stable_identifier": "pypi:repo2",
+        "theory_proximity": 0.9999999999999999
+      }
+    ],
+    "metadata_verification_receipts": [
+      "Crossref:metadata:doi:10.1000/c2",
+      "GitHub:metadata:github:org/repo1",
+      "GitHub:metadata:github:org/repo2",
+      "OpenAlex:metadata:openalex:W2001",
+      "OpenAlex:metadata:openalex:W2002",
+      "PyPI:metadata:pypi:repo2",
+      "arXiv:metadata:arxiv:2001.00001",
+      "arXiv:metadata:arxiv:2001.00002"
+    ],
+    "unsearched_areas": []
+  },
+  "feasibility_matrix": {
+    "assessment_id": "case-theory-phase1:rq2f",
+    "route_classification": "HYBRID_FIT",
+    "theory": [
+      {
+        "evidence_refs": [
+          "S4.object_domain",
+          "S1.object_candidates",
+          "openalex:W2001",
+          "openalex:W2002"
+        ],
+        "predicate_id": "TFO",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S1.core_definition",
+          "S2.inputs",
+          "S2.state_change",
+          "S2.outputs",
+          "S2.invariants"
+        ],
+        "predicate_id": "TFR",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S4.central_claims",
+          "S4.evidence_requirements",
+          "openalex:W2001",
+          "openalex:W2002"
+        ],
+        "predicate_id": "TFC",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S2.failure_conditions",
+          "S4.stop_conditions"
+        ],
+        "predicate_id": "TFW",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S1.expected_functions",
+          "S1.target_applications",
+          "S4.nearest_neighbor_difference"
+        ],
+        "predicate_id": "TFP",
+        "verdict": "PASS"
+      }
+    ],
+    "engineering": [
+      {
+        "evidence_refs": [
+          "S1.intended_users",
+          "S1.target_applications",
+          "github:org/repo1",
+          "github:org/repo2"
+        ],
+        "predicate_id": "EFS",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S2.inputs",
+          "S2.outputs"
+        ],
+        "predicate_id": "EFI",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S2.state_change",
+          "S4.object_domain",
+          "S4.engineering_relevance"
+        ],
+        "predicate_id": "EFA",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S1.success_metrics",
+          "S1.operational_constraints"
+        ],
+        "predicate_id": "EFM",
+        "verdict": "PASS"
+      },
+      {
+        "evidence_refs": [
+          "S1.operational_constraints",
+          "S4.failure_learning_plan",
+          "S4.stop_conditions",
+          "github:org/repo1",
+          "github:org/repo2"
+        ],
+        "predicate_id": "EFF",
+        "verdict": "PASS"
+      }
+    ]
+  },
+  "formalization": {
+    "artifact_hash": "4869ed9ec43e7f3781a368cc606ac532111f23568ff6a02fd96cc19de905d460",
+    "feasibility_assessment_id": "case-theory-phase1:rq2f",
+    "formalization_id": "case-theory-phase1:rq2m",
+    "formalizer_profile_or_import_id": "case-profile",
+    "formula_dependency_graph": {
+      "f-core-claim": [
+        "f-assumption",
+        "f-failure-witness"
+      ],
+      "f-failure-witness": [
+        "f-assumption"
+      ],
+      "f-invariant": [
+        "f-assumption"
+      ],
+      "f-io-map": [
+        "f-assumption"
+      ],
+      "f-objective": [
+        "f-assumption"
+      ],
+      "f-state": [
+        "f-assumption"
+      ]
+    },
+    "formula_items": [
+      {
+        "assumption_formula_ids": [],
+        "confidence": 1.0,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-object-domain",
+        "formula_type": "OBJECT_DOMAIN",
+        "known_ambiguities": [],
+        "latex": "x \\in \\mathcal{X}",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S4.object_domain",
+          "S1.object_candidates"
+        ],
+        "symbols_used": [
+          "X"
+        ]
+      },
+      {
+        "assumption_formula_ids": [],
+        "confidence": 1.0,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-assumption",
+        "formula_type": "ASSUMPTION",
+        "known_ambiguities": [],
+        "latex": "A(x,\\theta)=\\bigwedge_i A_i(x,\\theta)",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S1.boundary_conditions",
+          "S1.operational_constraints"
+        ],
+        "symbols_used": [
+          "A",
+          "X",
+          "theta"
+        ]
+      },
+      {
+        "assumption_formula_ids": [
+          "f-assumption"
+        ],
+        "confidence": 1.0,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-io-map",
+        "formula_type": "INPUT_OUTPUT_MAP",
+        "known_ambiguities": [],
+        "latex": "f: \\mathcal{X} \\to \\mathcal{Y}",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S2.inputs",
+          "S2.outputs"
+        ],
+        "symbols_used": [
+          "X",
+          "Y"
+        ]
+      },
+      {
+        "assumption_formula_ids": [
+          "f-assumption"
+        ],
+        "confidence": 0.9,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-state",
+        "formula_type": "STATE_TRANSITION",
+        "known_ambiguities": [
+          "field characteristic edge cases"
+        ],
+        "latex": "s_{t+1}=T(s_t,u_t;\\theta)",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S2.state_change"
+        ],
+        "symbols_used": [
+          "s",
+          "u",
+          "theta"
+        ]
+      },
+      {
+        "assumption_formula_ids": [
+          "f-assumption"
+        ],
+        "confidence": 0.9,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-invariant",
+        "formula_type": "INVARIANT",
+        "known_ambiguities": [],
+        "latex": "\\forall t,\\ I(s_t)=1",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S2.invariants"
+        ],
+        "symbols_used": [
+          "I",
+          "s"
+        ]
+      },
+      {
+        "assumption_formula_ids": [
+          "f-assumption"
+        ],
+        "confidence": 0.9,
+        "falsification_or_failure_formula_id": "f-failure-witness",
+        "formula_id": "f-core-claim",
+        "formula_type": "CORE_CLAIM",
+        "known_ambiguities": [],
+        "latex": "\\forall x\\in D,\\ A(x)\\Rightarrow C(x)",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S1.core_definition",
+          "S4.central_claims"
+        ],
+        "symbols_used": [
+          "A",
+          "C"
+        ]
+      },
+      {
+        "assumption_formula_ids": [
+          "f-assumption"
+        ],
+        "confidence": 0.9,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-objective",
+        "formula_type": "OBJECTIVE",
+        "known_ambiguities": [],
+        "latex": "\\theta^*=\\arg\\min_\\theta L(\\theta)",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S1.success_metrics"
+        ],
+        "symbols_used": [
+          "theta"
+        ]
+      },
+      {
+        "assumption_formula_ids": [
+          "f-assumption"
+        ],
+        "confidence": 1.0,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-failure-witness",
+        "formula_type": "FAILURE_WITNESS",
+        "known_ambiguities": [],
+        "latex": "\\exists x\\in D,\\ A(x)\\land\\neg C(x)",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S2.failure_conditions",
+          "S4.stop_conditions"
+        ],
+        "symbols_used": [
+          "A",
+          "C"
+        ]
+      },
+      {
+        "assumption_formula_ids": [],
+        "confidence": 0.8,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-application-map",
+        "formula_type": "THEORY_APPLICATION_MAP",
+        "known_ambiguities": [],
+        "latex": "\\Phi:\\mathcal{M}\\to\\mathcal{A}",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S1.target_applications",
+          "S4.engineering_relevance"
+        ],
+        "symbols_used": [
+          "M",
+          "Aspace"
+        ]
+      },
+      {
+        "assumption_formula_ids": [],
+        "confidence": 1.0,
+        "falsification_or_failure_formula_id": "",
+        "formula_id": "f-verification",
+        "formula_type": "VERIFICATION_OBLIGATION",
+        "known_ambiguities": [],
+        "latex": "O=\\{O_1,\\ldots,O_n\\}",
+        "neighbor_refs": [],
+        "normalized_math_ast": null,
+        "origin": "DERIVED",
+        "source_spec_fields": [
+          "S4.evidence_requirements",
+          "S4.stop_conditions"
+        ],
+        "symbols_used": [
+          "O"
+        ]
+      }
+    ],
+    "input_spec_hash": "5d41d3ae70c7b9b9a5317f77a32991b91fe80b09da7b7fba2a55ca8e14c9d6f5",
+    "neighbor_difference_matrix": [
+      "trace invariance stated as a theorem with proof obligations -> f-core-claim"
+    ],
+    "neighbor_evidence_set_id": "prior-art:229362cb53021d4fa7fdea9482bfcc04d73185679a7e888e761b746c5cf8680f",
+    "notation_table": [
+      "X: object domain element",
+      "Y: output object",
+      "A: core assumption predicate",
+      "C: core conclusion predicate",
+      "I: invariant predicate",
+      "s: state",
+      "u: control input",
+      "theta: parameters",
+      "M: theory model space",
+      "Aspace: application space",
+      "O: verification obligations"
+    ],
+    "plain_language_explanation": [
+      "bundle is a formalization candidate, not a proof"
+    ],
+    "research_spec_id": "rs-case-theory",
+    "semantic_alignment_matrix": [
+      "S1.core_definition -> f-core-claim",
+      "S4.object_domain -> f-object-domain",
+      "S4.central_claims -> f-core-claim",
+      "S4.evidence_requirements -> f-verification"
+    ],
+    "status": "EARLY_FORMALIZATION_CANDIDATE",
+    "uncertainty_register": [
+      "field characteristic edge cases"
+    ],
+    "validator_results": [],
+    "version": 1
+  },
+  "engineering_concept": null,
+  "scores": null,
+  "next_target": null,
+  "gate": {
+    "binding": {
+      "artifact_hash": "4869ed9ec43e7f3781a368cc606ac532111f23568ff6a02fd96cc19de905d460",
+      "artifact_id": "case-theory-phase1:rq2m",
+      "coverage_status": null,
+      "gate_type": "EARLY_FORMALIZATION_REVIEW",
+      "input_spec_hash": "5d41d3ae70c7b9b9a5317f77a32991b91fe80b09da7b7fba2a55ca8e14c9d6f5",
+      "limitations": [],
+      "nearest_overlap_refs": [],
+      "novelty_total": null,
+      "route": "THEORY",
+      "route_selection_id": null,
+      "version": 1
+    },
+    "decision": "REQUEST_REVISION",
+    "gate_id": "case-theory-phase1:gate-rq3m",
+    "gate_type": "EARLY_FORMALIZATION_REVIEW",
+    "project_id": "rs-case-theory",
+    "reason": "",
+    "resolved_at": "2026-08-17T05:00:00+00:00",
+    "status": "RESOLVED"
+  },
+  "exported_at": "2026-08-17T05:00:00+00:00"
+}
