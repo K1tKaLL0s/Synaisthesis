@@ -6,6 +6,14 @@ from dataclasses import asdict, dataclass, replace
 from datetime import datetime
 from typing import Any
 
+from synaisthesis.domain.engineering import (
+    EngineeringArchitectureReviewDecision,
+    EngineeringDeliveryAcceptanceDecision,
+    EngineeringGateType,
+    EngineeringProfileChoice,
+    FormalManuscriptDecision,
+    PrototypeExecutionAuthorizationDecision,
+)
 from synaisthesis.domain.enums import (
     EarlyFormalizationReviewDecision,
     EngineeringConceptReviewDecision,
@@ -215,9 +223,134 @@ def qualification_next_target(
     )
 
 
+# ---------------------------------------------------------------------------
+# Engineering workflow gates (03B, sections 7.4/9.1/11.4/12.2/13.3)
+# ---------------------------------------------------------------------------
+
+
+def engineering_allowed_decisions_for_gate(
+    gate_type: EngineeringGateType,
+) -> tuple[str, ...]:
+    """Return the legal decision strings for one engineering workflow gate."""
+    if gate_type is EngineeringGateType.ENGINEERING_ARCHITECTURE_REVIEW:
+        return tuple(member.value for member in EngineeringArchitectureReviewDecision)
+    if gate_type is EngineeringGateType.PROTOTYPE_EXECUTION_AUTHORIZATION:
+        return tuple(member.value for member in PrototypeExecutionAuthorizationDecision)
+    if gate_type is EngineeringGateType.FORMAL_MANUSCRIPT_DECISION:
+        return tuple(member.value for member in FormalManuscriptDecision)
+    if gate_type is EngineeringGateType.PUBLICATION_PROFILE_SELECTION:
+        return tuple(member.value for member in EngineeringProfileChoice)
+    if gate_type is EngineeringGateType.ENGINEERING_DELIVERY_ACCEPTANCE:
+        return tuple(member.value for member in EngineeringDeliveryAcceptanceDecision)
+    raise DomainError(
+        f"unknown engineering gate type {gate_type.value}",
+        error_code="GATE_BINDING_INVALID",
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class EngineeringGateBinding:
+    """Hash binding for one engineering Human Gate (03B, sections 7.4/11.4/13.3)."""
+
+    gate_type: EngineeringGateType
+    artifact_id: str
+    version: int | None
+    artifact_hash: str
+    bound_hashes: dict[str, str]
+    route: ResearchRoute = ResearchRoute.ENGINEERING
+
+    def __post_init__(self) -> None:
+        missing: list[str] = []
+        if not _non_empty(self.artifact_id):
+            missing.append("artifact_id")
+        if not _non_empty(self.artifact_hash):
+            missing.append("artifact_hash")
+        if self.version is None or self.version < 1:
+            missing.append("version")
+        if not self.bound_hashes or any(
+            not _non_empty(value) for value in self.bound_hashes.values()
+        ):
+            missing.append("bound_hashes")
+        if self.route is not ResearchRoute.ENGINEERING:
+            missing.append("route=ENGINEERING")
+        if missing:
+            raise DomainError(
+                "engineering gate binding missing or invalid: " + ", ".join(missing),
+                error_code="GATE_BINDING_INVALID",
+            )
+
+    def to_event_payload(self) -> dict[str, Any]:
+        return _canonical_payload(asdict(self))
+
+
+@dataclass(frozen=True, slots=True)
+class EngineeringGate:
+    """An immutable engineering workflow Human Gate (03B)."""
+
+    gate_id: str
+    project_id: str
+    gate_type: EngineeringGateType
+    binding: EngineeringGateBinding
+    status: GateStatus = GateStatus.OPEN
+    reason: str = ""
+    decision: str | None = None
+    resolved_at: datetime | None = None
+
+    def __post_init__(self) -> None:
+        if self.binding.gate_type is not self.gate_type:
+            raise DomainError(
+                "gate_type and binding.gate_type must match",
+                error_code="GATE_BINDING_INVALID",
+            )
+        if self.status is GateStatus.RESOLVED and self.decision is None:
+            raise DomainError(
+                "a resolved gate must have a decision",
+                error_code="GATE_BINDING_INVALID",
+            )
+
+    def resolve(
+        self,
+        *,
+        decision: str,
+        actor: ProvenanceType,
+        user_event_id: str,
+        at: datetime,
+    ) -> EngineeringGate:
+        """Return a RESOLVED copy; only a real user event may decide."""
+        if self.status is not GateStatus.OPEN:
+            raise DomainError(
+                f"gate {self.gate_id!r} is already {self.status.value}",
+                error_code="CONFLICT",
+            )
+        if not is_user_actor(actor):
+            raise DomainError(
+                f"gate resolution requires a real user event; got actor={actor.value}",
+                error_code="CONFIRMATION_REQUIRES_USER_EVENT",
+            )
+        allowed = engineering_allowed_decisions_for_gate(self.gate_type)
+        if decision not in allowed:
+            raise DomainError(
+                f"decision {decision!r} is not legal for {self.gate_type.value}; "
+                f"allowed: {', '.join(allowed)}",
+                error_code="INVALID_GATE_DECISION",
+            )
+        return replace(
+            self,
+            status=GateStatus.RESOLVED,
+            decision=decision,
+            resolved_at=at,
+        )
+
+    def to_event_payload(self) -> dict[str, Any]:
+        return _canonical_payload(asdict(self))
+
+
 __all__ = [
+    "EngineeringGate",
+    "EngineeringGateBinding",
     "Gate",
     "GateBinding",
     "allowed_decisions_for_gate",
+    "engineering_allowed_decisions_for_gate",
     "qualification_next_target",
 ]

@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2.5 完成，Stage 2.6 待推进：M2.3–M2.7 均已提交 PASS）
+`M2`（Stage 2.6 进行中：M2.8 已提交 PASS，M2.9 待推进）
 
 ## Current task
-`M2.7.S5.VERTICAL_SLICE_COMPLETE`
+`M2.8.ENGINEERING.WORKFLOW_DOMAIN`
 
 ## Last verified commit
-`0c4edeb`（M2.7 已提交）
+`M2.8` 已提交（见下方 M2.8 提交记录）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M2.7.S5.VERTICAL_SLICE`
-- Milestone: `M2`（Stage 2.5 收口：理论路线 S5 纵向切片）
-- WorkUnitContract: `workspace/workunit-contracts/M2.7.S5.VERTICAL_SLICE.md`
-- 交付：MinimalCaseBundle Schema/Prompt；`propose_minimal_case_bundle` 强制 RQ4M 前置并校验 actually_executed/receipt；事件溯源 `MinimalCaseProposed` 可重放；`s5_qualification_node` 复用同一前置路径。
+- Stable Task ID: `M2.8.ENGINEERING.WORKFLOW_DOMAIN`
+- Milestone: `M2`（Stage 2.6 第 1 个 Task：ENG0–ENG10 工程工作流领域底座）
+- WorkUnitContract: `workspace/workunit-contracts/M2.8.ENGINEERING.WORKFLOW_DOMAIN.md`
+- 交付：ENG0–ENG10 领域对象与状态事件；`eng0_entry_blockers` 强制用户 route/RQ3E/RQ4E 或绑定 override/S1·S4 hash 不变；阶段 Artifact 不可变 + 内容 hash；03B §14 确定性回归；工程 Gate；migration 0004。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -54,6 +54,7 @@
 - M2.5B RQ2E：`agents/engineering_feasibility_assessor.py`（build_engineering_concept_bundle、engineering_concept_content_payload）；`application/qualification_service.py`（validate_engineering_concept_bundle、open/resolve_early_engineering_concept_review）；`prompts/engineering/concept_engineering.md`
 - M2.6 Novelty 服务：`domain/novelty.py`（NoveltyItemEvidence、NoveltyReview.create review_valid）；`agents/novelty_reviewer.py` + `agents/auditor.py`（隔离 Reviewer/Auditor）；`application/novelty_service.py`（start_novelty_review、open/resolve_low_novelty_research_decision）
 - M2.7 S5 纵切片：`agents/schemas.py`（MinimalCaseBundle）；`application/incubation_service.py`（propose/load_minimal_case_bundle、MinimalCaseProposed）；`orchestration/nodes/incubator_nodes.py`（s5_qualification_node）；`prompts/incubator/s5_minimal_case.md`
+- M2.8 工程工作流领域：`domain/engineering.py`（EngineeringStageId ENG0–ENG10、EngineeringArtifactStatus、EngineeringDeliveryMode、EngineeringDeliveryStatus 全表 32 值、EngineeringChangeKind、EngineeringGateType 与四组工程 Gate 决策枚举、ENGINEERING_EVENT_TYPES + build_engineering_event、finalize_artifact_hash/superseded、eng0_entry_blockers 03B §1.1 结构化 Blocker、EngineeringMissionCharter（proposed_additions 分离 + ENGINEERING_SCOPE_CHANGE）、OperationalConceptBundle + conops_blockers、EngineeringReferenceSet/OptionTradeStudy（Σw=1、Critical 硬淘汰、eligible_ranking）/TechnologySelectionRecord/RejectedOptionLog、MechanicalEngineeringBlueprint + EngineeringWorkUnitContract（模糊措辞拒绝）+ blueprint_completeness_blockers、ApplicationDirectionPortfolio/ExtensionRoadmap、engineering_regression_check 03B §14 确定性最早回退 + artifact_needs_regression）；`domain/requirements.py`（RequirementType/VerificationMethod/RequirementPriority、EngineeringRequirement（无阈值形容词拒绝/UNRESOLVED_THRESHOLD）、RequirementsBaseline + requirements_baseline_blockers 03B §5.4、AcceptanceCriteriaCatalog、QualityAttributeScenarioSet、SecurityPrivacyComplianceObligationSet（AI 义务六字段）、UnresolvedDecisionRegister）；`domain/architecture.py`（ArchitectureComponent 稳定 ID、ArchitectureDiagram（源/SVG hash + 渲染回执 + 断链拒绝）、InterfaceContractSet/DataContractSet/StateAndFailureModel/ThreatModel/DeploymentAndOperationsDesign、ArchitectureBaseline、ArchitectureReviewBinding 三 hash）；`domain/traceability.py`（RequirementsTraceabilityMatrix + traceability_coverage、VerificationPlan/ValidationPlan/VerificationReport/ValidationReport（PASS 必须真实回执））；`domain/publication.py`（EngineeringEvidenceTier/EngineeringPaperType + paper_type_allowed_by_evidence 03B §11.1、ClaimEvidenceMatrix（SUPPORTED 必须回执）、EngineeringMasterManuscript（author 字段 NEEDS_AUTHOR_INPUT/USER_PROVIDED 强制、master_hash 内容绑定）、VenueComplianceStatus PASS/FAIL/NEEDS_AUTHOR_INPUT/NOT_APPLICABLE/STALE_GUIDANCE）；`domain/gate.py`（EngineeringGateBinding + EngineeringGate + engineering_allowed_decisions_for_gate，仅真实用户事件可决议）；`domain/__init__.py` 导出；migration 0004（engineering_workflow_runs/engineering_requirements/engineering_trace_edges/engineering_manuscripts，按 06 §）；`.gitignore` 追加 `.dsh-upstream/`（DSH 环境本会话在仓库内创建的未跟踪目录，避免误提交与本地门禁污染）
 
 ## Verified
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
@@ -82,6 +83,7 @@
 - M2.5：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_early_formalization.py` 11 passed；M2.5B：`tests/golden/test_engineering_concept.py tests/unit/application/test_engineering_concept_review.py` 9 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 186 passed；`ruff check .` 通过；`ruff format --check .` 通过（112 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.6：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_novelty_service.py tests/golden/test_novelty_gate.py` 9 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 195 passed；`ruff check .` 通过；`ruff format --check .` 通过（117 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.7：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_qualification_to_s5.py` 7 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 202 passed；`ruff check .` 通过；`ruff format --check .` 通过（122 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M2.8：`workspace/.venv-m13/bin/python -m pytest tests/unit/domain/test_engineering_workflow.py tests/unit/domain/test_engineering_traceability.py` 66 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 268 passed（含 migration 0004 升级/降级）；`ruff check .` 通过；`ruff format --check .` 通过（130 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -91,7 +93,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.8.ENGINEERING.WORKFLOW_DOMAIN`（前置 M2.6 的工程 route 已 PASS；必须读取 03B）
+- 代码方面：`M2.9.ENGINEERING.REQUIREMENTS_ARCHITECTURE`（前置 M2.8 已 PASS；必须读取 03B；工程领域应用服务与图示渲染）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -113,5 +115,9 @@
 - M2.5/M2.5B 已提交：`4609db8`。
 - M2.6 已提交：`1c2cb58`。
 - M2.7 已提交：`0c4edeb`。
+- M2.8 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M2.8 蓝图缺口记录：GAP-1（03B §14 回归表部分行给出多个回退点，领域层 `EARLIEST_ROLLBACK` 固定取最早保守回退点并注释在案）；GAP-2（06 §engineering_manuscripts 无 compliance 字段，ComplianceMatrix 由 `domain/publication.py` 领域对象承载，migration 0004 未加列）。
+- M2.8 工程枚举按 19 §5 M2.8 文件清单落在 `domain/engineering.py`（`domain/enums.py` 不在清单内），与 enums.py 模块 docstring 的“里程碑枚举归里程碑文件”约定一致。
+- M2.8 本会话期间 DSH 环境在仓库内创建未跟踪目录 `.dsh-upstream/`（modeltest 检查点），已在 `.gitignore` 追加忽略，避免误提交与本地 ruff 门禁污染；CI 全新检出不受影响。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。
