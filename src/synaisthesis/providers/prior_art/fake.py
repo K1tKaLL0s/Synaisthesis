@@ -1,4 +1,4 @@
-"""Deterministic fake prior-art providers for contract tests and CI (M2.4)."""
+"""Deterministic fake prior-art providers for contract tests and CI (M2.4/M2.9)."""
 
 from __future__ import annotations
 
@@ -8,6 +8,9 @@ from datetime import UTC, datetime
 from synaisthesis.domain.qualification import PriorArtQueryRecord
 from synaisthesis.providers.prior_art.base import (
     ApplicationProximityFeatures,
+    EngineeringReferenceCategory,
+    EngineeringReferenceHit,
+    EngineeringReferenceQuery,
     ExternalText,
     PriorArtProviderKind,
     PriorArtQueryRequest,
@@ -242,11 +245,144 @@ def fake_query_requests() -> tuple[PriorArtQueryRequest, ...]:
     )
 
 
+# ---------------------------------------------------------------------------
+# ENG3 fake engineering reference corpus (03B, section 6.1; M2.9)
+# ---------------------------------------------------------------------------
+
+_FAKE_REF_ACCESSED_AT = datetime(2026, 8, 17, 0, 0, 0, tzinfo=UTC)
+
+
+def _ref_hit(
+    *,
+    provider_name: str,
+    category: EngineeringReferenceCategory,
+    stable_identifier: str,
+    canonical_url: str,
+    title: str,
+    maturity_refs: tuple[str, ...],
+    license_ref: str | None = None,
+) -> EngineeringReferenceHit:
+    return EngineeringReferenceHit(
+        provider_name=provider_name,
+        category=category,
+        stable_identifier=stable_identifier,
+        canonical_url=canonical_url,
+        title=title,
+        evidence_refs=(f"{provider_name}:{stable_identifier}:evidence",),
+        maturity_evidence_refs=maturity_refs,
+        license_ref=license_ref,
+        untrusted_texts=(
+            ExternalText(
+                content=f"untrusted reference text for {stable_identifier}",
+                source_ref=f"{provider_name}:{stable_identifier}",
+            ),
+        ),
+        accessed_at=_FAKE_REF_ACCESSED_AT,
+    )
+
+
+_ENGINEERING_REFERENCE_RECORDS = (
+    _ref_hit(
+        provider_name="GitHub",
+        category="repository",
+        stable_identifier="github:trace-lib/trace-core",
+        canonical_url="https://example.org/github/trace-core",
+        title="trace-core: deterministic trace computation",
+        maturity_refs=(
+            "github:trace-core:release-v1.2",
+            "github:trace-core:test-suite",
+            "github:trace-core:architecture-doc",
+            "github:trace-core:issue-42",
+        ),
+        license_ref="Apache-2.0",
+    ),
+    _ref_hit(
+        provider_name="GitHub",
+        category="repository",
+        stable_identifier="github:trace-lib/trace-core",
+        canonical_url="https://example.org/github/trace-core",
+        title="trace-core (mirror entry)",
+        maturity_refs=("github:trace-core:release-v1.2",),
+        license_ref="Apache-2.0",
+    ),
+    _ref_hit(
+        provider_name="GitLab",
+        category="documentation",
+        stable_identifier="gitlab:trace-lib/trace-core-docs",
+        canonical_url="https://example.org/gitlab/trace-core-docs",
+        title="trace-core official documentation",
+        maturity_refs=("gitlab:docs:install-guide",),
+        license_ref="Apache-2.0",
+    ),
+    _ref_hit(
+        provider_name="Standards",
+        category="standard",
+        stable_identifier="iso:25010:2023",
+        canonical_url="https://example.org/iso/25010-2023",
+        title="ISO/IEC 25010 quality model",
+        maturity_refs=("iso:25010:2023:published",),
+    ),
+    _ref_hit(
+        provider_name="arXiv",
+        category="paper",
+        stable_identifier="arxiv:2608.00001",
+        canonical_url="https://example.org/arxiv/2608.00001",
+        title="Reproducible numerical trace pipelines",
+        maturity_refs=("arxiv:2608.00001:experiment-repro",),
+    ),
+    _ref_hit(
+        provider_name="PyPI",
+        category="registry",
+        stable_identifier="pypi:trace-core",
+        canonical_url="https://example.org/pypi/trace-core",
+        title="trace-core package metadata",
+        maturity_refs=("pypi:trace-core:wheel", "pypi:trace-core:license"),
+        license_ref="Apache-2.0",
+    ),
+)
+
+
+@dataclass(frozen=True, slots=True)
+class FakeEngineeringReferenceProvider:
+    """Deterministic ENG3 reference provider over a frozen corpus."""
+
+    source_name: str
+    records: tuple[EngineeringReferenceHit, ...]
+
+    def search_references(
+        self, query: EngineeringReferenceQuery
+    ) -> tuple[EngineeringReferenceHit, ...]:
+        del query  # query is intentionally unused in the fixed fake corpus
+        return tuple(record for record in self.records if record.provider_name == self.source_name)
+
+
+def fake_engineering_reference_providers() -> tuple[FakeEngineeringReferenceProvider, ...]:
+    """One provider per source; the corpus covers all five 03B 6.1 categories."""
+    return tuple(
+        FakeEngineeringReferenceProvider(
+            source_name=source_name,
+            records=tuple(
+                record
+                for record in _ENGINEERING_REFERENCE_RECORDS
+                if record.provider_name == source_name
+            ),
+        )
+        for source_name in ("GitHub", "GitLab", "Standards", "arXiv", "PyPI")
+    )
+
+
+def fake_engineering_reference_records() -> tuple[EngineeringReferenceHit, ...]:
+    return _ENGINEERING_REFERENCE_RECORDS
+
+
 __all__ = [
+    "FakeEngineeringReferenceProvider",
     "FakePriorArtProvider",
     "fake_academic_providers",
     "fake_academic_records",
     "fake_engineering_providers",
+    "fake_engineering_reference_providers",
+    "fake_engineering_reference_records",
     "fake_engineering_records",
     "fake_query_requests",
 ]

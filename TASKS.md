@@ -20,10 +20,11 @@
 - [x] M2.6 — Novelty 路线审验（Stage 2.5 第 6 个 Task）：两个隔离 Reviewer/Auditor、逐项近邻证据、独立性与 route/policy 校验、理论/工程 69/70 路由、低分用户 Gate 与绑定 override（9 个测试，全套 195 passed）
 - [x] M2.7 — S5 纵向切片（Stage 2.5 第 7 个 Task）：MinimalCaseBundle Schema/Prompt、RQ4M 前置强制、actually_executed/receipt 分离、事件溯源恢复一致、s5_qualification_node（7 个测试，全套 202 passed）
 - [x] M2.8 — 工程工作流领域（Stage 2.6 第 1 个 Task，提交 `19be013`）：ENG0–ENG10 领域对象与状态事件（03B 全部阶段 Artifact）、ENG0 入口强制（用户 route/RQ3E/RQ4E 或绑定 override/S1·S4 hash 不变）、阶段 Artifact 不可变 + 内容 hash、S1/S4 与上游 hash 变化确定性回归、工程 Gate（架构评审/原型授权/母稿决策/Profile/交付验收）、requirements/architecture/traceability/publication 领域模块、migration 0004（66 个测试，全套 268 passed）
+- [x] M2.9 — 需求与架构设计服务（Stage 2.6 第 2 个 Task）：ENG0–ENG4 事件溯源纵切片（charter/ConOps/Requirements Baseline/Trade Study/Architecture Baseline 全部持久化可重放）、ConOps source coverage 100%、Critical 阈值/验收/验证方法强制、工程深检索 5 类来源去重、Trade Study Critical 硬淘汰 + 权重冻结、确定性图源→SVG 渲染器（稳定 ID/双 hash/回执/断链）、Architecture Gate 三 hash 绑定且仅真实用户可批准、eng2/eng3/eng4 节点与节点前置、eng2/eng3/eng4 prompt assets（25 个测试，全套 293 passed）
 
 ## Next
 
-- [ ] M2.9.ENGINEERING.REQUIREMENTS_ARCHITECTURE — ENG2–ENG4 应用服务：ConOps source coverage 100%、Trade Study 硬淘汰、图渲染回执与稳定 ID、Architecture Gate 三 hash 绑定（前置 M2.8）
+- [ ] M2.10.ENGINEERING.MECHANICAL_BLUEPRINT — ENG5 机械蓝图应用服务：requirement→design→task→test Critical 链 100%、WorkUnit 合同完备性、Blueprint Completeness Gate（前置 M2.9 Architecture Baseline 已批准）
 
 ## Backlog
 

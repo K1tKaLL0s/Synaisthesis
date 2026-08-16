@@ -90,3 +90,60 @@ class PriorArtProvider(Protocol):
     def kind(self) -> PriorArtProviderKind: ...
 
     def search(self, query: PriorArtQueryRecord) -> tuple[ProviderNeighborRecord, ...]: ...
+
+
+# ---------------------------------------------------------------------------
+# ENG3 deep engineering reference search (03B, section 6.1)
+# ---------------------------------------------------------------------------
+
+EngineeringReferenceCategory = Literal[
+    "repository",
+    "documentation",
+    "standard",
+    "paper",
+    "registry",
+]
+
+
+@dataclass(frozen=True, slots=True)
+class EngineeringReferenceQuery:
+    """A deep-search query against the frozen requirements baseline (03B, 6.1)."""
+
+    query_id: str
+    baseline_id: str
+    requirement_refs: tuple[str, ...]
+    original_text: str
+    categories: tuple[EngineeringReferenceCategory, ...]
+    executed_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class EngineeringReferenceHit:
+    """One quarantined engineering reference hit (03B, section 6.1).
+
+    Star counts, downloads, marketing text or a single benchmark never stand
+    alone as maturity evidence; maturity_evidence_refs must cite concrete
+    release/architecture/test/issue evidence.
+    """
+
+    provider_name: str
+    category: EngineeringReferenceCategory
+    stable_identifier: str
+    canonical_url: str
+    title: str
+    evidence_refs: tuple[str, ...]
+    maturity_evidence_refs: tuple[str, ...]
+    license_ref: str | None
+    untrusted_texts: tuple[ExternalText, ...]
+    accessed_at: datetime
+
+
+class EngineeringReferenceProvider(Protocol):
+    """Synchronous ENG3 engineering deep-search provider contract."""
+
+    @property
+    def source_name(self) -> str: ...
+
+    def search_references(
+        self, query: EngineeringReferenceQuery
+    ) -> tuple[EngineeringReferenceHit, ...]: ...
