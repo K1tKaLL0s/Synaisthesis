@@ -1,13 +1,13 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2.5 进行中：M2.3 已 PASS，变更尚未提交）
+`M2`（Stage 2.5 进行中：M2.3 已提交 PASS）
 
 ## Current task
 `M2.3.RQ.DOMAIN_COMPLETE`
 
 ## Last verified commit
-`b64ab8f`（M2.3 变更已通过全部检查，尚未提交）
+`e86f28a`（M2.3 已提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
@@ -80,7 +80,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.4.RQ.FAKE_RETRIEVAL`（前置 M2.3 已验收 PASS；开始前必须先处理 M2.3 工作区变更的提交）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
+- 代码方面：`M2.4.RQ.FAKE_RETRIEVAL`（前置 M2.3 已 PASS 且已提交）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -93,6 +93,6 @@
 - M2.2 沿用事件溯源（MechanismSketch/PriorWorkMap/ResearchScopeSpec/ResearchSpec 聚合）；S1/S4 hash 覆盖语义内容，排除 `assistant_proposed`/`user_confirmed`/`user_confirmed_scope` 确认标记，确认 provenance 由事件流单独恢复。07 §2 的 `create_stage_run`/`execute_stage`/`advance_stage` 不在 19 §5 M2.2 文件与验收内，且真实 execute 依赖 M6 Provider，故继续延后（GAP-4 见 M2.2 WorkUnitContract）。
 - M2.2 已提交：`5c880ee`。
 - M2.3 领域层保持零 Web/数据库/MCP/Provider 依赖（migration 文件除外）；RQ Artifact 与 Gate 均为 frozen dataclass。`FormalizationFeasibilityAssessment.status`/`recommended_route` 为 GAP-2 派生映射；`GateStatus` 为 GAP-4 保守映射；migration 表清单为 GAP-5 按 06 §1 推导。
-- M2.3 验收已通过但尚未提交；按 Git safety，未经用户明确指令不自动 commit。
+- M2.3 已提交：`e86f28a`。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。
