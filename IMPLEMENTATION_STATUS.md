@@ -13,10 +13,10 @@
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M6.3.RQ.REAL_MODELS`
-- Milestone: `M6`（Stage 6 第 3 个 Task：RQ 角色接入真实模型路由）
-- WorkUnitContract: `workspace/workunit-contracts/M6.3.RQ.REAL_MODELS.md`
-- 交付：LLMRouter + capability_profile_from_llm（RQ0 能力门）+ 两 Reviewer 经路由独立评分（同家族 degraded）+ Fake 路径保留。
+- Stable Task ID: `M6.2.ROLE.ISOLATION`
+- Milestone: `M6`（Stage 6 第 2 个 Task：角色隔离与 Council 服务底座）
+- WorkUnitContract: `workspace/workunit-contracts/M6.2.ROLE.ISOLATION.md`
+- 交付：三轨隔离（SUPPORT/OPPOSE/INDEPENDENT_REVIEWER ≥ SESSION）、VisibilityBundle 来源可证、同家族 degraded、注入阻断；council_service run/round/会话底座。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -94,6 +94,7 @@
 - M5.1：`workspace/.venv-m13/bin/python -m pytest tests/security/test_action_gate_policy.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 452 passed（含 M0.5 的 29 个）；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M6.1：`workspace/.venv-m13/bin/python -m pytest tests/contract/llm/test_provider_contract.py` 8 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 460 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M6.3：`workspace/.venv-m13/bin/python -m pytest tests/contract/llm/test_qualification_roles.py` 9 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 469 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M6.2：`workspace/.venv-m13/bin/python -m pytest tests/security/test_role_isolation.py` 12 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 481 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M0.5（并入 d6dbfbe）：`workspace/.venv-m13/bin/python -m pytest tests/security/test_codex_fidelity.py tests/integration/test_prepare_commit.py` 29 passed；`ruff check --no-cache src/synaisthesis/fidelity/ src/synaisthesis/application/fidelity_service.py` 通过；format 通过
 
 ## Known failures
@@ -104,7 +105,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M6.2.ROLE.ISOLATION`（前置 M6.1 已 PASS；并行子 agent d9b61c81 实现中）与 `M13.1.ACADEMIC.PROVIDERS`（并行子 agent 441dd195 实现中）
+- 代码方面：`M13.1.ACADEMIC.PROVIDERS`（并行子 agent 441dd195 实现中；落地后为 `M7.1.COUNCIL.STATE_GRAPH`，合同已备）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -137,6 +138,7 @@
 - M5.1 已提交：`d6dbfbe`（注意：该提交因并发暂存竞争一并包含 M0.5 的文件；按仓库规则不做历史改写，M0.5 里程碑随此提交记录）。
 - M6.1 已提交：`cd62a2f`。
 - M6.3 已提交：`ec120ed`。
+- M6.2 已提交：`8ecd361`（并行子 agent 实现，主 agent 复核；子 agent 多轮未提交，主 agent 按预案中断并以其已验证工作树内容提交）。
 - M5.1 记录：ActionGate 与其决策常量按架构放在 `domain/action.py`（gate.py 无需改动，M4.2 已为其加入 CLAIM_ACCEPTANCE 决策），合同 GAP-1 注明。
 - 并发协作记录：M0.5 子 agent 已 `git add` 暂存其文件后，主 agent 的 `git commit` 将暂存区一并提交；后续并行批次将要求子 agent 在提交前检查 `git status` 暂存区并改用 `git commit -- <files>` 精确路径提交，避免再次混入。
 - M0.5 验收覆盖（子 agent 最终报告）：05A §25 全量覆盖 13/18（1–11、14、15）；延后：12 compact 恢复（M10 Sidecar）、13 并发 E2E（逻辑已覆盖）、16 Sidecar spool 恢复（M10）、17 附件 hash 重验（字段已定义未接线）、18 Recursion Guard（M12）。

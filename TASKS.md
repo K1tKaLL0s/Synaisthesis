@@ -31,10 +31,11 @@
 - [x] M0.5 — Codex 指令忠实通道（P0；并行子 agent 实现，随 `d6dbfbe` 合并提交）：fidelity 10 模块 + fidelity_service（Capsule/Token/SessionBinding/ContextManifest/Delta/prepare-commit/CommandReceipt/DisplayContract/command_gateway，fail-closed 无 token、state version + idempotency、非用户确认拒绝）、29 个 security/integration 测试全绿（并入提交说明见 IMPLEMENTATION_STATUS.md）
 - [x] M6.1 — LLM Provider 层（Stage 6 第 1 个 Task，提交 `cd62a2f`）：Provider 无关接口（LLMProvider Protocol）、FakeLLMProvider 确定性（同请求同响应同 usage hash）、结构化输出严格解析（缺失/未知键/非法 JSON → STRUCTURED_OUTPUT_INVALID，不写领域状态）、UsageRecord（tokens/cost/request·response hash 内容绑定）、零新依赖（8 个测试，全套 460 passed）
 - [x] M6.3 — RQ 角色接入模型路由（Stage 6 第 3 个 Task，提交 `ec120ed`）：LLMRouter（role→provider 绑定、结构化输出强制、reviewer_independence 同家族 degraded）、capability_profile_from_llm（RQ0 能力证据；无证据/非 ADVANCED → CAPABILITY_UNAVAILABLE，绝不无证据标记 ADVANCED）、early_formalizer.build_formula_items_from_llm 与 novelty_reviewer.review_scorecard_from_llm（Fake 骨架保留 CI）（9 个测试，全套 469 passed）
+- [x] M6.2 — 三轨角色隔离（Stage 6 第 2 个 Task，提交 `8ecd361`，并行子 agent 实现、主 agent 复核接管提交）：IsolationLevel（BEHAVIORAL..CREDENTIAL）、CouncilRole（SUPPORT/OPPOSE/INDEPENDENT_REVIEWER）、ModelFamilyFingerprint/same_family/ModelIndependenceAssessment（同家族 degraded）、UntrustedExternalText + detect_injected_instructions（外部注入阻断）、CouncilRun/CouncilRound/RoleSession/VisibilityBundle（Phase A 产物仅生成方可见，assert_visibility_scope）、council_service（create run/round/register/issue/verify/load）、三轨 agent 骨架（12 个测试，全套 481 passed）
 
 ## Next
 
-- [ ] M6.2.ROLE.ISOLATION — 三轨隔离：Phase A 互不可见、同家族 degraded、违规阻断（前置 M6.1；并行子 agent 实现中）
+- [ ] M13.1.ACADEMIC.PROVIDERS — OpenAlex/Crossref/arXiv 生产适配 + 稳定去重 + 失败结构化 Blocker（前置 M2.4+M6.1；并行子 agent 实现中）
 
 ## Backlog
 
