@@ -148,7 +148,7 @@
 - M7.1 已提交：`d16d467`。
 - M8.1 已提交：`e6de495`。
 - M8.2 已提交：`6cf2132`。
-- M8.3 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M8.3 已提交：`5eb0896`。
 - M8.3 环境：Lean 4.32.2 / Lake 5.0.0 经 ~/.elan（WSL 原生二进制）；Mathlib 集成留给 M9.1（本任务为自足定理编译合同）。
 - M8.2 环境：Docker Desktop 29.7.2（Windows host，经 WSL interop `docker.exe`）；Docker Hub 网络被阻断，Python 镜像改从 ghcr.io 拉取（ghcr.io/astral-sh/uv:python3.13-bookworm-slim，Python 3.13.11）。
 - M8.1 环境：真实 Z3 5.0.0 位于 N 盘 toolchain（Windows 构建，经 WSL interop 以 `z3.exe` 执行）；`SYNAISTHESIS_Z3_BINARY` 可覆盖。
