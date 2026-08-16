@@ -99,6 +99,7 @@
 - M13.2：`workspace/.venv-m13/bin/python -m pytest tests/contract/prior_art/test_engineering_neighbors.py` 14 passed（工程近邻 Provider 合同：功能/应用特征强制证据引用、成熟度 ≥2 项且 popularity 单独不足、跨 Provider 去重、外部文本隔离）；全套 `workspace/.venv-m13/bin/python -m pytest` 561 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M13.3：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_research_qualification_e2e.py` 8 passed（真实自然语言设计 route-aware RQ0–RQ4：理论 70 自动进 S5、工程 70 自动进 ENG0、理论 69 返回用户 LOW_NOVELTY_RESEARCH_DECISION、工程候选未选 route 交还用户、PARTIAL 覆盖 fail-closed、节点/CLI/MCP 适配器、导出全字段；MCP 合同 7 passed 未破坏）；全套 `workspace/.venv-m13/bin/python -m pytest` 570 tests exit 0；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M13.4：`workspace/.venv-m13/bin/python -m pytest tests/contract/prior_art/test_engineering_reference_set.py tests/contract/publication/test_official_profiles.py tests/contract/publication/test_arxiv_profiles.py` 29 passed（ENG3 参考集逐条可追溯与类别完整性、13 个内置 Profile 与 configs/publication_profiles/*.json 冻结 fixture 全字段相等、route 锁、scope 候选排除、STALE_GUIDANCE（不可达/模板 hash 改变/窗口过期）fail-closed、arXiv 双路线 PREPRINT_REPOSITORY 与 metadata/状态检查；M2.11 test_profiles.py 10 passed 未破坏）；全套 `workspace/.venv-m13/bin/python -m pytest` 599 tests exit 0；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M14：`workspace/.venv-m13/bin/python -m pytest tests/contract/api/test_observability_schema.py` 8 passed（冻结 API Schema `configs/api/observability_schema.json` 1.0.0；6 页面与 PAGE_SPECS 一致；空项目全 NOT_STARTED；存储 artifact/gate 原样呈现（spec hash、route、novelty_total=63 不重算）；篡改 artifact fail-closed ARTIFACT_HASH_MISMATCH；MCP 只读工具；Web 渲染器无派生逻辑；MCP 合同未破坏）；全套 `workspace/.venv-m13/bin/python -m pytest` 607 tests exit 0；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M7.1：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_fake_council.py` 7 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 485 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M8.1：`workspace/.venv-m13/bin/python -m pytest tests/external/test_z3_adapter.py` 9 passed（真实 Z3 5.0.0 smoke：sat/unsat/unknown、witness 重验、篡改检测、注入惰性、receipt 确定性、registry）；全套 `workspace/.venv-m13/bin/python -m pytest` 494 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M8.2：`workspace/.venv-m13/bin/python -m pytest tests/external/test_python_sandbox.py` 7 passed（真实 Docker 29.7.2 + ghcr python:3.13 镜像 smoke：执行/断网/无 secret/无挂载/pids/OOM/超时清理/回执）；全套 `workspace/.venv-m13/bin/python -m pytest` 501 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
@@ -118,7 +119,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M14.WEB.OBSERVABILITY`（必须读取 19 §5 M14；Web 可观测性：UI 状态/进度/错误/审计展示与观察接口）
+- 代码方面：`M15.CASE_STUDY.EVAL`（前置 M14 已 PASS；必须读取 19 §5 M15；`examples/real_project_case_study`、eval dataset/report、case-study docs；理论案例至少一次失败、修复、Gate、真实工具和 RQ0–RQ4；工程案例展示用户分流、ENG0–ENG10 BLUEPRINT_ONLY、无虚构结果；两个 Bundle 均可复算）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -156,6 +157,7 @@
 - M13.2 已提交：`604208d`（feat）＋本 chore(status) 提交；合同 `workspace/workunit-contracts/M13.2.ENGINEERING.PROVIDERS.md`。
 - M13.3 已提交：`f52b294`（feat）＋本 chore(status) 提交；合同 `workspace/workunit-contracts/M13.3.RQ.PRODUCTION_E2E.md`。
 - M13.4 已提交：`09fd6c8`（feat）＋本 chore(status) 提交；合同 `workspace/workunit-contracts/M13.4.DUAL_TRACK.REFERENCE_AND_PUBLICATION_PROFILES.md`。
+- M14 已提交：`75a3506`（feat）＋本 chore(status) 提交；合同 `workspace/workunit-contracts/M14.WEB.OBSERVABILITY.md`。
 - M7.1 已提交：`d16d467`。
 - M8.1 已提交：`e6de495`。
 - M8.2 已提交：`6cf2132`。
