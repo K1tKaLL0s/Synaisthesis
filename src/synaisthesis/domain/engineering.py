@@ -918,6 +918,7 @@ class MechanicalEngineeringBlueprint:
     stop_and_escalation_conditions: tuple[str, ...]
     pending_generated_artifacts: tuple[str, ...]
     work_units: tuple[EngineeringWorkUnitContract, ...]
+    escalated_decision_ids: tuple[str, ...] = ()
     artifact_hash: str | None = None
     status: EngineeringArtifactStatus = EngineeringArtifactStatus.ACTIVE
     created_at: datetime | None = None
@@ -985,6 +986,26 @@ def blueprint_completeness_blockers(
     if tasks_without_stop:
         blockers.append("tasks_with_stop_condition 未达 100%：" + ", ".join(tasks_without_stop))
     return tuple(blockers)
+
+
+def validate_decision_escalation(
+    *,
+    escalated_decision_ids: tuple[str, ...],
+    ordinary_decision_ids: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Ordinary implementation choices must never be escalated to users (03B, 8.1/16.10).
+
+    Only product/architecture-affecting decisions (public interface, data or
+    security boundary, irreversibility) may reach a user gate; decisions that
+    are unrelated to the 69/70 routing (naming, formatting, internal layout)
+    must be fixed inside the blueprint instead.
+    """
+    escalated = set(escalated_decision_ids)
+    ordinary = set(ordinary_decision_ids)
+    wrongly_escalated = sorted(escalated & ordinary)
+    if wrongly_escalated:
+        return ("普通实现选择不得上抛为产品/架构决策：" + ", ".join(wrongly_escalated),)
+    return ()
 
 
 # ---------------------------------------------------------------------------
@@ -1239,5 +1260,6 @@ __all__ = [
     "ensure_artifact_hash",
     "superseded",
     "trade_study_blockers",
+    "validate_decision_escalation",
     "validate_technology_selection",
 ]

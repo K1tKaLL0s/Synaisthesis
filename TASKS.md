@@ -21,10 +21,11 @@
 - [x] M2.7 — S5 纵向切片（Stage 2.5 第 7 个 Task）：MinimalCaseBundle Schema/Prompt、RQ4M 前置强制、actually_executed/receipt 分离、事件溯源恢复一致、s5_qualification_node（7 个测试，全套 202 passed）
 - [x] M2.8 — 工程工作流领域（Stage 2.6 第 1 个 Task，提交 `19be013`）：ENG0–ENG10 领域对象与状态事件（03B 全部阶段 Artifact）、ENG0 入口强制（用户 route/RQ3E/RQ4E 或绑定 override/S1·S4 hash 不变）、阶段 Artifact 不可变 + 内容 hash、S1/S4 与上游 hash 变化确定性回归、工程 Gate（架构评审/原型授权/母稿决策/Profile/交付验收）、requirements/architecture/traceability/publication 领域模块、migration 0004（66 个测试，全套 268 passed）
 - [x] M2.9 — 需求与架构设计服务（Stage 2.6 第 2 个 Task，提交 `9d42022`）：ENG0–ENG4 事件溯源纵切片（charter/ConOps/Requirements Baseline/Trade Study/Architecture Baseline 全部持久化可重放）、ConOps source coverage 100%、Critical 阈值/验收/验证方法强制、工程深检索 5 类来源去重、Trade Study Critical 硬淘汰 + 权重冻结、确定性图源→SVG 渲染器（稳定 ID/双 hash/回执/断链）、Architecture Gate 三 hash 绑定且仅真实用户可批准、eng2/eng3/eng4 节点与节点前置、eng2/eng3/eng4 prompt assets（25 个测试，全套 293 passed）
+- [x] M2.10 — 机械工程蓝图（Stage 2.6 第 3 个 Task）：ENG5 蓝图服务（未批准架构/三 hash 失配/追踪缺口/无停止条件 WorkUnit/上抛普通选择 全部 BLUEPRINT_GAP 或 ENGINEERING_ARCHITECTURE_REVIEW_REQUIRED）、Blueprint Completeness Gate 指标化、决策上抛范围规则（69/70 无关的普通实现选择不得上抛）、WorkUnit 14 项合同完备 golden、storage/export_bundle.py 确定性导出（manifest/checksums/篡改检测）、blueprint prompt asset（15 个测试，全套 308 passed）
 
 ## Next
 
-- [ ] M2.10.ENGINEERING.MECHANICAL_BLUEPRINT — ENG5 机械蓝图应用服务：requirement→design→task→test Critical 链 100%、WorkUnit 合同完备性、Blueprint Completeness Gate（前置 M2.9 Architecture Baseline 已批准）
+- [ ] M2.11.ENGINEERING.PUBLICATION_DELIVERY — ENG8 母稿/ENG10 交付审计与导出：BLUEPRINT_ONLY 证据策略、ClaimEvidenceMatrix 真实回执、独立审计、FORMAL_MANUSCRIPT_DECISION、Profile 与合规矩阵（前置 M2.10）
 
 ## Backlog
 

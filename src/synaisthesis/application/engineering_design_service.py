@@ -45,6 +45,7 @@ from synaisthesis.domain.engineering import (
     EngineeringReference,
     EngineeringReferenceSet,
     EngineeringStageId,
+    MechanicalEngineeringBlueprint,
     OperationalConceptBundle,
     OptionTradeStudy,
     TechnologySelectionRecord,
@@ -68,6 +69,7 @@ from synaisthesis.domain.requirements import (
     RequirementsBaseline,
     requirements_baseline_blockers,
 )
+from synaisthesis.domain.traceability import RequirementsTraceabilityMatrix
 from synaisthesis.providers.prior_art.base import (
     EngineeringReferenceProvider,
     EngineeringReferenceQuery,
@@ -834,8 +836,161 @@ def load_engineering_gate(
     return gate
 
 
+# ---------------------------------------------------------------------------
+# ENG5 — mechanical engineering blueprint (03B, section 8)
+# ---------------------------------------------------------------------------
+
+BLUEPRINT_AGGREGATE_TYPE = "MechanicalEngineeringBlueprint"
+
+
+def _approved_architecture_binding_blockers(
+    architecture: ArchitectureBaseline, approval: EngineeringGate
+) -> tuple[str, ...]:
+    """A blueprint may only freeze an architecture the user approved (03B, 8.3)."""
+    blockers: list[str] = []
+    if approval.status.value != "RESOLVED" or approval.decision != "APPROVE_BASELINE":
+        blockers.append("重大架构未由用户批准（Gate 未以 APPROVE_BASELINE 决议）")
+    expected = {
+        "requirements": architecture.requirements_hash,
+        "trade_study": architecture.trade_study_hash,
+        "architecture": architecture.artifact_hash,
+    }
+    if (
+        approval.binding.artifact_id != architecture.baseline_id
+        or approval.binding.bound_hashes != expected
+    ):
+        blockers.append("架构批准 Gate 未绑定当前 baseline 三 hash")
+    return tuple(blockers)
+
+
+def create_mechanical_engineering_blueprint(
+    session: Session,
+    *,
+    project_id: str,
+    architecture: ArchitectureBaseline,
+    architecture_approval: EngineeringGate,
+    matrix: RequirementsTraceabilityMatrix,
+    blueprint: MechanicalEngineeringBlueprint,
+    ordinary_decision_ids: tuple[str, ...] = (),
+    artifact_root: Path,
+    blueprint_id: str | None = None,
+) -> MechanicalEngineeringBlueprint:
+    """Persist ENG5 only when the Blueprint Completeness Gate passes (03B, 8.3)."""
+    approval_blockers = _approved_architecture_binding_blockers(architecture, architecture_approval)
+    if approval_blockers:
+        raise DomainError(
+            "ENGINEERING_ARCHITECTURE_REVIEW_REQUIRED: " + "; ".join(approval_blockers),
+            error_code="ENGINEERING_ARCHITECTURE_REVIEW_REQUIRED",
+        )
+    if blueprint.architecture_baseline_id != architecture.baseline_id:
+        raise DomainError(
+            "blueprint 未绑定当前 ArchitectureBaseline",
+            error_code="BLUEPRINT_GAP",
+        )
+    if blueprint.architecture_hash != architecture.artifact_hash:
+        raise DomainError(
+            "blueprint 绑定 architecture hash 与当前 baseline 不一致",
+            error_code="BLUEPRINT_GAP",
+        )
+    baseline = load_requirements_baseline(
+        session, architecture.requirements_baseline_id, artifact_root=artifact_root
+    )
+    requirements = tuple(requirement.requirement_id for requirement in baseline.requirements)
+    critical_requirements = baseline.critical_requirement_ids
+    from synaisthesis.domain.traceability import (
+        TraceableElementType,
+        uncovered_requirements,
+    )
+
+    missing_design = uncovered_requirements(
+        matrix,
+        requirements=requirements,
+        target_type=TraceableElementType.DESIGN,
+    )
+    missing_task = uncovered_requirements(
+        matrix,
+        requirements=requirements,
+        target_type=TraceableElementType.TASK,
+    )
+    missing_test = uncovered_requirements(
+        matrix,
+        requirements=critical_requirements,
+        target_type=TraceableElementType.TEST,
+    )
+    trace_gaps = (
+        ([f"requirement→design 缺失: {', '.join(missing_design)}"] if missing_design else [])
+        + ([f"requirement→task 缺失: {', '.join(missing_task)}"] if missing_task else [])
+        + ([f"critical→test 缺失: {', '.join(missing_test)}"] if missing_test else [])
+    )
+    if trace_gaps:
+        raise DomainError(
+            "BLUEPRINT_GAP: " + "; ".join(trace_gaps),
+            error_code="BLUEPRINT_GAP",
+        )
+    interfaces_total = len(architecture.interface_contracts)
+    interfaces_with_schema = sum(
+        1 for contract in architecture.interface_contracts if contract.schema_ref.strip()
+    )
+    broken_diagram_references = sum(
+        len(diagram.broken_link_refs) for diagram in architecture.diagrams
+    )
+    from synaisthesis.domain.engineering import (
+        blueprint_completeness_blockers,
+        validate_decision_escalation,
+    )
+
+    completeness_blockers = blueprint_completeness_blockers(
+        blueprint,
+        requirements_total=len(requirements),
+        requirements_to_design=len(requirements) - len(missing_design),
+        requirements_to_task=len(requirements) - len(missing_task),
+        critical_requirements_total=len(critical_requirements),
+        critical_requirements_to_test=len(critical_requirements) - len(missing_test),
+        public_interfaces_total=interfaces_total,
+        public_interfaces_with_schema=interfaces_with_schema,
+        unresolved_product_decisions=len(blueprint.escalated_decision_ids),
+        unresolved_architecture_decisions=0,
+        broken_diagram_references=broken_diagram_references,
+    )
+    escalation_blockers = validate_decision_escalation(
+        escalated_decision_ids=blueprint.escalated_decision_ids,
+        ordinary_decision_ids=ordinary_decision_ids,
+    )
+    all_blockers = list(completeness_blockers) + list(escalation_blockers)
+    if all_blockers:
+        raise DomainError(
+            "BLUEPRINT_GAP: " + "; ".join(all_blockers),
+            error_code="BLUEPRINT_GAP",
+        )
+    aggregate_id = blueprint_id or blueprint.blueprint_id
+    _persist_stage_and_artifact(
+        session,
+        project_id=project_id,
+        stage=EngineeringStageId.ENG5,
+        aggregate_type=BLUEPRINT_AGGREGATE_TYPE,
+        aggregate_id=aggregate_id,
+        artifact_payload=blueprint.to_event_payload(),
+        artifact_root=artifact_root,
+    )
+    return blueprint
+
+
+def load_mechanical_engineering_blueprint(
+    session: Session, blueprint_id: str, *, artifact_root: Path
+) -> MechanicalEngineeringBlueprint:
+    return _load_artifact(
+        session,
+        aggregate_type=BLUEPRINT_AGGREGATE_TYPE,
+        aggregate_id=blueprint_id,
+        model=MechanicalEngineeringBlueprint,
+        artifact_root=artifact_root,
+        not_found_code="BLUEPRINT_REQUIRED",
+    )
+
+
 __all__ = [
     "ARCHITECTURE_AGGREGATE_TYPE",
+    "BLUEPRINT_AGGREGATE_TYPE",
     "CHARTER_AGGREGATE_TYPE",
     "CONOPS_AGGREGATE_TYPE",
     "GATE_AGGREGATE_TYPE",
@@ -846,11 +1001,13 @@ __all__ = [
     "create_architecture_baseline",
     "create_engineering_mission_charter",
     "create_engineering_requirements_baseline",
+    "create_mechanical_engineering_blueprint",
     "create_operational_concept_bundle",
     "create_option_trade_study",
     "load_architecture_baseline",
     "load_engineering_charter",
     "load_engineering_gate",
+    "load_mechanical_engineering_blueprint",
     "load_operational_concept_bundle",
     "load_option_trade_study",
     "load_requirements_baseline",

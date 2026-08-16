@@ -133,6 +133,24 @@ class RequirementsTraceabilityMatrix:
         )
 
 
+def uncovered_requirements(
+    matrix: RequirementsTraceabilityMatrix,
+    *,
+    requirements: tuple[str, ...],
+    target_type: TraceableElementType,
+) -> tuple[str, ...]:
+    """Return requirement ids with no outgoing edge to the target kind (03B, 8.3)."""
+    return tuple(
+        requirement
+        for requirement in requirements
+        if not matrix.edges_from(
+            from_type=TraceableElementType.REQUIREMENT,
+            from_id=requirement,
+            to_type=target_type,
+        )
+    )
+
+
 def traceability_coverage(
     matrix: RequirementsTraceabilityMatrix,
     *,
@@ -353,6 +371,7 @@ __all__ = [
     "VerificationReport",
     "VerificationReportStatus",
     "traceability_coverage",
+    "uncovered_requirements",
     "validation_report_blockers",
     "verification_report_blockers",
 ]

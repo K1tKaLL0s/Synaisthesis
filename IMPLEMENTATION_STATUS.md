@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2.6 进行中：M2.9 已提交 PASS，M2.10 待推进）
+`M2`（Stage 2.6 进行中：M2.10 已提交 PASS，M2.11 待推进）
 
 ## Current task
-`M2.9.ENGINEERING.REQUIREMENTS_ARCHITECTURE`
+`M2.10.ENGINEERING.MECHANICAL_BLUEPRINT`
 
 ## Last verified commit
-`9d42022`（M2.9 已提交）
+M2.10 已提交（见 M2.10 提交记录）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M2.9.ENGINEERING.REQUIREMENTS_ARCHITECTURE`
-- Milestone: `M2`（Stage 2.6 第 2 个 Task：ENG2–ENG4 工程设计应用服务与图示渲染）
-- WorkUnitContract: `workspace/workunit-contracts/M2.9.ENGINEERING.REQUIREMENTS_ARCHITECTURE.md`
-- 交付：ENG0–ENG4 事件溯源纵切片；ConOps source coverage 100%；Trade Study 硬淘汰与权重冻结；确定性图源→SVG 渲染器；Architecture Gate 三 hash 绑定；eng2/eng3/eng4 节点。
+- Stable Task ID: `M2.10.ENGINEERING.MECHANICAL_BLUEPRINT`
+- Milestone: `M2`（Stage 2.6 第 3 个 Task：ENG5 机械蓝图应用服务与交付导出）
+- WorkUnitContract: `workspace/workunit-contracts/M2.10.ENGINEERING.MECHANICAL_BLUEPRINT.md`
+- 交付：ENG5 蓝图服务（批准 Gate 三 hash 绑定 + Completeness Gate）；决策上抛范围规则；WorkUnit 14 项合同 golden；`storage/export_bundle.py` 确定性导出；blueprint prompt asset。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -85,6 +85,7 @@
 - M2.7：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_qualification_to_s5.py` 7 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 202 passed；`ruff check .` 通过；`ruff format --check .` 通过（122 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.8：`workspace/.venv-m13/bin/python -m pytest tests/unit/domain/test_engineering_workflow.py tests/unit/domain/test_engineering_traceability.py` 66 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 268 passed（含 migration 0004 升级/降级）；`ruff check .` 通过；`ruff format --check .` 通过（130 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.9：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_engineering_requirements.py tests/integration/test_engineering_architecture.py tests/contract/renderers/test_diagram_renderers.py` 25 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 293 passed；`ruff check .` 通过；`ruff format --check .` 通过（141 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M2.10：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_blueprint_completeness.py tests/golden/test_mechanical_engineering_blueprint.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 308 passed；`ruff check .` 通过；`ruff format --check .` 通过（145 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -94,7 +95,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.10.ENGINEERING.MECHANICAL_BLUEPRINT`（前置 M2.9 的 Architecture Baseline 已批准；必须读取 03B §8；ENG5 机械蓝图应用服务）
+- 代码方面：`M2.11.ENGINEERING.PUBLICATION_DELIVERY`（前置 M2.10 已 PASS；必须读取 03B §9–§13 与 03C；ENG8/ENG9/ENG10 论文与交付）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -118,6 +119,8 @@
 - M2.7 已提交：`0c4edeb`。
 - M2.8 已提交：`19be013`。
 - M2.9 已提交：`9d42022`。
+- M2.10 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M2.10 WorkUnit 合同字段为 15 个（03B §8.2 第 1 项“稳定 Task ID 与唯一目标”拆分为 task_id + unique_objective 两个字段），golden 测试按 14 项合同逐一断言非空。
 - M2.9 蓝图缺口记录：GAP-1（真实 Mermaid/Graphviz 渲染依赖外部工具，M2.9 提供确定性内置文本源→SVG 渲染器作为合同，真实渲染器后续 WorkUnit 替换，合同不得放宽）；GAP-2（ENG0/ENG1 服务未单列于 19 §5 M2.9 文件清单，纳入 engineering_design_service 以支撑纵向切片前置）。
 - M2.9 事件负载为 dataclass canonical JSON，`rebuild_dataclass` 按字段注解重建枚举/嵌套 dataclass/datetime，round-trip 由 focused 测试覆盖。
 - M2.8 蓝图缺口记录：GAP-1（03B §14 回归表部分行给出多个回退点，领域层 `EARLIEST_ROLLBACK` 固定取最早保守回退点并注释在案）；GAP-2（06 §engineering_manuscripts 无 compliance 字段，ComplianceMatrix 由 `domain/publication.py` 领域对象承载，migration 0004 未加列）。
