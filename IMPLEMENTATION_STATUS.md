@@ -146,7 +146,7 @@
 - M13.1 已提交：`7fb992a`（并行子 agent 实现，提交纪律到位：仅自己的 6 文件）。
 - M7.1 已提交：`d16d467`。
 - M8.1 已提交：`e6de495`。
-- M8.2 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M8.2 已提交：`6cf2132`。
 - M8.2 环境：Docker Desktop 29.7.2（Windows host，经 WSL interop `docker.exe`）；Docker Hub 网络被阻断，Python 镜像改从 ghcr.io 拉取（ghcr.io/astral-sh/uv:python3.13-bookworm-slim，Python 3.13.11）。
 - M8.1 环境：真实 Z3 5.0.0 位于 N 盘 toolchain（Windows 构建，经 WSL interop 以 `z3.exe` 执行）；`SYNAISTHESIS_Z3_BINARY` 可覆盖。
 - M7.1 合同 GAP-2：CouncilRunStatus 枚举在 domain/isolation.py 加法扩展（RUNNING/PAUSED/COMPLETED），因为状态机需要共享生命周期枚举而 M7.1 文件清单只列 orchestration 模块；扩展保持 CREATED 不变，M6.2 测试不受影响。
