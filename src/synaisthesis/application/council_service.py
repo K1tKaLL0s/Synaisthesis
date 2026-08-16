@@ -22,7 +22,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from synaisthesis.application.engineering_design_service import rebuild_dataclass
-from synaisthesis.domain.enums import ProgressKind
+from synaisthesis.domain.action import SemanticDelta
+from synaisthesis.domain.enums import ProgressKind, ProvenanceType
 from synaisthesis.domain.errors import DomainError
 from synaisthesis.domain.event import sha256_hex
 from synaisthesis.domain.isolation import (
@@ -42,6 +43,7 @@ from synaisthesis.domain.isolation import (
     assert_visibility_scope,
     build_council_event,
 )
+from synaisthesis.domain.qualification import is_user_actor
 from synaisthesis.orchestration.state import build_council_state_event
 from synaisthesis.storage.artifact_store import ArtifactRecord
 from synaisthesis.storage.hashing import verify_artifact_hash
@@ -49,6 +51,7 @@ from synaisthesis.storage.repositories.event_repository import (
     DomainEventRecord,
     append_domain_event,
 )
+from synaisthesis.verifiers.lean.adapter import LeanResult
 
 COUNCIL_RUN_AGGREGATE_TYPE = "CouncilRun"
 COUNCIL_ROUND_AGGREGATE_TYPE = "CouncilRound"
@@ -655,8 +658,176 @@ def load_council_run_state(session: Session, run_id: str, *, artifact_root: Path
     return run
 
 
+# ---------------------------------------------------------------------------
+# M9.1 — real council vertical slice (04, 19 §5 M9.1)
+# ---------------------------------------------------------------------------
+
+
+def council_repair(
+    session: Session,
+    *,
+    project_id: str,
+    run_id: str,
+    repaired_claim: str,
+    repair_rationale: str,
+    artifact_root: Path,
+) -> dict[str, str]:
+    """Record one deterministic repair revision of the claim under review."""
+    from synaisthesis.orchestration.state import EVENT_COUNCIL_REPAIR_RECORDED
+
+    record = {
+        "run_id": run_id,
+        "repaired_claim": repaired_claim,
+        "repair_rationale": repair_rationale,
+    }
+    _persist_council_state_event(
+        session,
+        event_type=EVENT_COUNCIL_REPAIR_RECORDED,
+        aggregate_type=COUNCIL_RUN_AGGREGATE_TYPE,
+        aggregate_id=run_id,
+        payload={"repair": record},
+        project_id=project_id,
+        artifact_root=artifact_root,
+    )
+    return record
+
+
+def council_semantic_gate(
+    session: Session,
+    *,
+    project_id: str,
+    run_id: str,
+    delta: SemanticDelta,
+    actor: ProvenanceType,
+    user_event_id: str,
+    at: datetime,
+    artifact_root: Path,
+) -> dict[str, str]:
+    """Resolve the semantic gate for a repair; F4/F5 are rejected (05A §11)."""
+    from synaisthesis.orchestration.state import EVENT_COUNCIL_SEMANTIC_GATE_RESOLVED
+
+    if delta in {SemanticDelta.F4_SEMANTIC_DRIFT, SemanticDelta.F5_UNAUTHORIZED_ACTION}:
+        raise DomainError(
+            f"语义门拒绝 {delta.value}：修复不得改变冻结语义",
+            error_code="SEMANTIC_DELTA_REJECTED",
+        )
+    if not is_user_actor(actor):
+        raise DomainError(
+            "语义门决议需要真实用户事件",
+            error_code="CONFIRMATION_REQUIRES_USER_EVENT",
+        )
+    record = {
+        "run_id": run_id,
+        "delta": delta.value,
+        "user_event_id": user_event_id,
+        "resolved_at": at.isoformat(),
+        "decision": "APPROVE",
+    }
+    _persist_council_state_event(
+        session,
+        event_type=EVENT_COUNCIL_SEMANTIC_GATE_RESOLVED,
+        aggregate_type=COUNCIL_RUN_AGGREGATE_TYPE,
+        aggregate_id=run_id,
+        payload={"semantic_gate": record},
+        project_id=project_id,
+        artifact_root=artifact_root,
+    )
+    return record
+
+
+def council_verify_with_lean(
+    session: Session,
+    *,
+    project_id: str,
+    run_id: str,
+    lean_source: str,
+    artifact_root: Path,
+    expected_statement_hash: str | None = None,
+) -> LeanResult:
+    """Verify the repaired claim with the REAL Lean compiler (M9.1)."""
+    from synaisthesis.orchestration.state import EVENT_COUNCIL_EVIDENCE_RECORDED
+    from synaisthesis.verifiers.lean.adapter import (
+        assert_proof_loop_statement_unchanged,
+        run_lean,
+    )
+
+    if expected_statement_hash is not None:
+        assert_proof_loop_statement_unchanged(
+            current_source=lean_source,
+            expected_statement_hash=expected_statement_hash,
+        )
+    result = run_lean(lean_source)
+    _persist_council_state_event(
+        session,
+        event_type=EVENT_COUNCIL_EVIDENCE_RECORDED,
+        aggregate_type=COUNCIL_RUN_AGGREGATE_TYPE,
+        aggregate_id=run_id,
+        payload={
+            "evidence": {
+                "verifier": "lean",
+                "exit_code": result.exit_code,
+                "receipt_hash": result.receipt_hash,
+                "source_hash": result.source_hash,
+                "statement_hash": result.statement_hash,
+                "tool_version": result.tool_version,
+            }
+        },
+        project_id=project_id,
+        artifact_root=artifact_root,
+    )
+    return result
+
+
+def council_confirm_and_bundle(
+    session: Session,
+    *,
+    project_id: str,
+    run_id: str,
+    claim_id: str,
+    actor: ProvenanceType,
+    user_event_id: str,
+    at: datetime,
+    evidence_receipt_hash: str,
+    artifact_root: Path,
+) -> dict[str, str]:
+    """User confirmation closes the slice and emits the bundle event chain."""
+    from synaisthesis.orchestration.state import EVENT_COUNCIL_SLICE_CONFIRMED
+
+    if not is_user_actor(actor):
+        raise DomainError(
+            "切片确认需要真实用户事件",
+            error_code="CONFIRMATION_REQUIRES_USER_EVENT",
+        )
+    if not evidence_receipt_hash:
+        raise DomainError(
+            "切片确认必须绑定真实验证回执",
+            error_code="EVIDENCE_RECEIPT_REQUIRED",
+        )
+    record = {
+        "run_id": run_id,
+        "claim_id": claim_id,
+        "user_event_id": user_event_id,
+        "confirmed_at": at.isoformat(),
+        "evidence_receipt_hash": evidence_receipt_hash,
+    }
+    _persist_council_state_event(
+        session,
+        event_type=EVENT_COUNCIL_SLICE_CONFIRMED,
+        aggregate_type=COUNCIL_RUN_AGGREGATE_TYPE,
+        aggregate_id=run_id,
+        payload={"slice": record},
+        project_id=project_id,
+        artifact_root=artifact_root,
+    )
+    return record
+
+
 __all__ = [
     "advance_council_round",
+    "council_confirm_and_bundle",
+    "council_repair",
+    "council_semantic_gate",
+    "council_verify_with_lean",
     "start_council_run",
     "load_council_run_state",
     "pause_council_run",

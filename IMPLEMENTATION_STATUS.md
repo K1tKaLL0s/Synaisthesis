@@ -13,10 +13,10 @@
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M8.3.LEAN.COMPILER`
-- Milestone: `M8`（Stage 8 第 3 个 Task：真实 Lean 适配器）
-- WorkUnitContract: `workspace/workunit-contracts/M8.3.LEAN.COMPILER.md`
-- 交付：真实 Lean 4.32.2 编译、exit 0 才 E4-eligible、statement hash 守卫、内容绑定 receipt。
+- Stable Task ID: `M9.1.COUNCIL.REAL_VERTICAL_SLICE`
+- Milestone: `M9`（Stage 9 第 1 个 Task：真实 Council 纵切片）
+- WorkUnitContract: `workspace/workunit-contracts/M9.1.COUNCIL.REAL_VERTICAL_SLICE.md`
+- 交付：小 Claim 全链（反例→修复→语义门→真实 Lean→用户确认→Bundle 事件链）+ 五个节点。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -100,6 +100,7 @@
 - M8.1：`workspace/.venv-m13/bin/python -m pytest tests/external/test_z3_adapter.py` 9 passed（真实 Z3 5.0.0 smoke：sat/unsat/unknown、witness 重验、篡改检测、注入惰性、receipt 确定性、registry）；全套 `workspace/.venv-m13/bin/python -m pytest` 494 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M8.2：`workspace/.venv-m13/bin/python -m pytest tests/external/test_python_sandbox.py` 7 passed（真实 Docker 29.7.2 + ghcr python:3.13 镜像 smoke：执行/断网/无 secret/无挂载/pids/OOM/超时清理/回执）；全套 `workspace/.venv-m13/bin/python -m pytest` 501 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M8.3：`workspace/.venv-m13/bin/python -m pytest tests/external/test_lean_adapter.py` 7 passed（真实 Lean 4.32.2 smoke：合法定理 exit 0 / 错误证明 exit 1 / 版本记录 / statement hash 守卫 / receipt 确定性 / registry / 不可用 Blocker）；全套 `workspace/.venv-m13/bin/python -m pytest` 508 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M9.1：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_real_council_smoke.py` 4 passed（真实 Lean 验证步骤在内）；全套 `workspace/.venv-m13/bin/python -m pytest` 512 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M0.5（并入 d6dbfbe）：`workspace/.venv-m13/bin/python -m pytest tests/security/test_codex_fidelity.py tests/integration/test_prepare_commit.py` 29 passed；`ruff check --no-cache src/synaisthesis/fidelity/ src/synaisthesis/application/fidelity_service.py` 通过；format 通过
 
 ## Known failures
@@ -110,7 +111,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M9.1.COUNCIL.REAL_VERTICAL_SLICE`（前置 M6.2+M8.3 已 PASS；必须读取 04 §5-§8 与 10；小 Claim 真实 Council 纵切片）
+- 代码方面：`M9.2.THEORY.PUBLICATION_DELIVERY`（前置 M9.1 已 PASS；必须读取 03C 与 19 §5 M9.2；TheoryMasterManuscript/证明依赖图/独立审计/正式稿决策/Profile）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -149,6 +150,8 @@
 - M8.1 已提交：`e6de495`。
 - M8.2 已提交：`6cf2132`。
 - M8.3 已提交：`5eb0896`。
+- M9.1 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M9.1 说明：模型角色为确定性实现（付费调用手动，符合 19 §5 M9.1）；Lean 步骤为真实工具调用（自足定理，Mathlib 集成在后续 WorkUnit）。
 - M8.3 环境：Lean 4.32.2 / Lake 5.0.0 经 ~/.elan（WSL 原生二进制）；Mathlib 集成留给 M9.1（本任务为自足定理编译合同）。
 - M8.2 环境：Docker Desktop 29.7.2（Windows host，经 WSL interop `docker.exe`）；Docker Hub 网络被阻断，Python 镜像改从 ghcr.io 拉取（ghcr.io/astral-sh/uv:python3.13-bookworm-slim，Python 3.13.11）。
 - M8.1 环境：真实 Z3 5.0.0 位于 N 盘 toolchain（Windows 构建，经 WSL interop 以 `z3.exe` 执行）；`SYNAISTHESIS_Z3_BINARY` 可覆盖。
