@@ -52,9 +52,17 @@ class CouncilRole(StrictStrEnum):
 
 
 class CouncilRunStatus(StrictStrEnum):
-    """Council run lifecycle; M6.2 only opens runs, M7.1 owns transitions."""
+    """Council run lifecycle; M6.2 opens runs, M7.1 owns transitions.
+
+    RUNNING/PAUSED/COMPLETED were added by M7.1 (GAP-2 in the M7.1 contract:
+    the shared lifecycle enum must live here even though M7.1's file list
+    names orchestration modules; the extension is additive and keeps CREATED).
+    """
 
     CREATED = "CREATED"
+    RUNNING = "RUNNING"
+    PAUSED = "PAUSED"
+    COMPLETED = "COMPLETED"
 
 
 class RoleSessionStatus(StrictStrEnum):
