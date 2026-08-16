@@ -13,10 +13,10 @@
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M11.CODEX.OUTBOUND`
-- Milestone: `M11`（Stage 11 第 1 个 Task：Codex 出站）
-- WorkUnitContract: `workspace/workunit-contracts/M11.CODEX.OUTBOUND.md`
-- 交付：isolated worktree + 受控文件 + diff/receipt + 适配器重验 + 节点。
+- Stable Task ID: `M12.CODEX.RECURSION_GUARD`
+- Milestone: `M12`（Stage 12 第 1 个 Task：双向递归防护）
+- WorkUnitContract: `workspace/workunit-contracts/M12.CODEX.RECURSION_GUARD.md`
+- 交付：OriginChain 验证 + REENTRANCY_BLOCKED + MCP mutation origin 注解。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -104,6 +104,7 @@
 - M9.2：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_theory_claim_manuscript_trace.py tests/unit/application/test_theory_master_manuscript.py tests/integration/test_theory_publication_delivery.py` 16 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 528 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M10：`workspace/.venv-m13/bin/python -m pytest tests/contract/mcp/test_mcp_server.py` 7 passed（握手/tools 列表/未知方法 fail-closed/无 token mutation 阻断/prepare 经 gateway/只读 gates/帧 round-trip）；全套 `workspace/.venv-m13/bin/python -m pytest` 535 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M11：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_codex_outbound.py` 5 passed（真实 git worktree 隔离/受控文件禁止写/委托全流程/自声称 PASS 拒绝/违规阻断）；全套 `workspace/.venv-m13/bin/python -m pytest` 540 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M12：`workspace/.venv-m13/bin/python -m pytest tests/security/test_recursion_guard.py` 7 passed（合法链/worker 回环阻断/仅 PLATFORM 派生/depth 上限/MCP 缺 chain 阻断/MCP worker 回环阻断）；全套 `workspace/.venv-m13/bin/python -m pytest` 547 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M0.5（并入 d6dbfbe）：`workspace/.venv-m13/bin/python -m pytest tests/security/test_codex_fidelity.py tests/integration/test_prepare_commit.py` 29 passed；`ruff check --no-cache src/synaisthesis/fidelity/ src/synaisthesis/application/fidelity_service.py` 通过；format 通过
 
 ## Known failures
@@ -114,7 +115,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M12.CODEX.RECURSION_GUARD`（前置 M11 已 PASS；必须读取 19 §5 M12 与 05 §Recursion Guard；Operator→平台→Worker→平台 REENTRANCY_BLOCKED）
+- 代码方面：`M13.2.ENGINEERING.PROVIDERS`（前置 M13.1 已 PASS；必须读取 19 §5 M13.2 与 03B §6.1；工程近邻生产 Provider 与成熟度证据）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -157,6 +158,7 @@
 - M9.2 已提交：`e95b9ad`。
 - M10 已提交：`d1bf78b`。
 - M11 已提交：`7f6ae23`。
+- M12 已提交：见 commit 记录（feat + chore(status) 两提交）。
 - M11 说明：Codex SDK 安装为单独依赖 Human Gate（19 §5 M11），本任务以 stdlib + 真实 git 实现合同，零新依赖；真实 Codex worker 适配在 SDK 决策后接入。
 - M10 说明：MCP Inspector（外部 UI 工具）不在本环境，协议合同以 JSON-RPC 帧与工具级 contract tests 覆盖（19 §5 M10 的 Inspector PASS 留待真实 Inspector 环境）；Hook 为骨架 + 服务端独立复验（05A §19）。
 - M9.2 说明：理论 Profile 为冻结 fixture（官方 URL 示例域名），真实指南刷新留给生产级 WorkUnit；TeX/PDF 真实编译回执后续 WorkUnit 接线（本任务为领域与服务合同）。

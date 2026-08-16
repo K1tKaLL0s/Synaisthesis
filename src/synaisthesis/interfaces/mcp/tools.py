@@ -166,6 +166,30 @@ def _call_mutation(
     fidelity: FidelityConfig,
     artifact_root: Path,
 ) -> Any:
+    from synaisthesis.integrations.codex.recursion_guard import (
+        OriginActorType,
+        OriginChain,
+        OriginHop,
+        assert_no_reentrancy,
+    )
+
+    chain_data = arguments.get("origin_chain")
+    if not isinstance(chain_data, list) or not chain_data:
+        raise DomainError(
+            "mutation 缺少 origin_chain；递归防护 fail closed",
+            error_code="REENTRANCY_BLOCKED",
+        )
+    chain = OriginChain(
+        hops=tuple(
+            OriginHop(
+                actor_type=OriginActorType(hop.get("actor_type", "")),
+                session_id=hop.get("session_id", ""),
+                delegation_id=hop.get("delegation_id"),
+            )
+            for hop in chain_data
+        )
+    )
+    assert_no_reentrancy(chain)
     token_data = arguments.get("instruction_token")
     if not isinstance(token_data, dict):
         raise DomainError(

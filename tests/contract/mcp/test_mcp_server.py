@@ -109,7 +109,13 @@ def test_mutation_without_token_fails_closed():
             "method": "tools/call",
             "params": {
                 "name": "research_prepare_command",
-                "arguments": {"project_id": "p-1"},
+                "arguments": {
+                    "project_id": "p-1",
+                    "origin_chain": [
+                        {"actor_type": "OPERATOR", "session_id": "op-1"},
+                        {"actor_type": "PLATFORM", "session_id": "pl-1"},
+                    ],
+                },
             },
         },
     )
@@ -157,6 +163,10 @@ def test_prepare_commit_round_trip_through_gateway():
             "params": {
                 "name": "research_prepare_command",
                 "arguments": {
+                    "origin_chain": [
+                        {"actor_type": "OPERATOR", "session_id": "op-1"},
+                        {"actor_type": "PLATFORM", "session_id": "pl-1"},
+                    ],
                     "instruction_token": {
                         **token.signing_payload(),
                         "signature": token.signature,
