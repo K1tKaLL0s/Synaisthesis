@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from synaisthesis.domain.claim import ClaimClass, ClaimVerifier
 from synaisthesis.domain.enums import EarlyFormalizationStatus, FormulaOrigin
 
 
@@ -316,3 +317,34 @@ class ResearchHandoffBundle(BaseModel):
     writing_track: list[str]
     artifact_manifest: list[str]
     unresolved_gates: list[str]
+
+
+class ClaimCandidate(BaseModel):
+    """One claim-compiler input (02 §8, 04 §1, 07 §4; M4.1).
+
+    An atomic candidate carries a single-proposition statement plus the four
+    required claim fields (object domain, quantifiers, falsification witness,
+    verifier). A MIXED candidate declares ``claim_class=MIXED`` and supplies its
+    atomic split as ``atomic_parts``; the compiler never invents per-clause
+    falsification witnesses.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    statement: str = Field(min_length=1)
+    object_domain: str = Field(min_length=1)
+    quantifiers: list[str] = Field(default_factory=list)
+    claim_class: ClaimClass
+    verifier: ClaimVerifier = ClaimVerifier.NONE
+    falsification_witness: str | None = None
+    formal_statement_candidate: str | None = None
+    assumptions: list[str] = Field(default_factory=list)
+    conclusion: str = ""
+    claim_key: str | None = None
+    claim_id: str | None = None
+    dependencies: list[str] = Field(default_factory=list)
+    engineering_relevance: str = ""
+    semantic_critical_fields: list[str] = Field(default_factory=list)
+    unverified: bool = False
+    atomic: bool = False
+    atomic_parts: list[ClaimCandidate] | None = None
