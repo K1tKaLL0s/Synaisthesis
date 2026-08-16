@@ -22,12 +22,14 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from synaisthesis.agents.schemas import (
+    FormalizationPlan,
     MechanismSketch,
     MinimalCaseBundle,
     NaturalLanguageSpec,
     PriorWorkMap,
     ResearchScopeSpec,
     SeedRecord,
+    TheoryKernel,
 )
 from synaisthesis.domain.enums import (
     NoveltyStatus,
@@ -42,13 +44,19 @@ from synaisthesis.domain.errors import DomainError
 from synaisthesis.domain.event import DomainEvent, sha256_hex
 from synaisthesis.domain.gate import qualification_next_target
 from synaisthesis.domain.novelty import LowNoveltyOverride
+from synaisthesis.domain.qualification import (
+    EarlyFormalizationBundle,
+    UserFormalizationApproval,
+)
 from synaisthesis.domain.research_spec import ResearchSpec
 from synaisthesis.domain.stage import (
+    validate_formalization_plan,
     validate_mechanism_sketch,
     validate_natural_language_spec,
     validate_prior_work_map,
     validate_research_scope_spec,
     validate_seed_record,
+    validate_theory_kernel,
 )
 from synaisthesis.storage.artifact_store import ArtifactRecord
 from synaisthesis.storage.hashing import sha256_bytes, verify_artifact_hash
@@ -934,6 +942,173 @@ def load_minimal_case_bundle(
     return bundle
 
 
+# ---------------------------------------------------------------------------
+# S6 — TheoryKernel (03, S6; M3.1)
+# ---------------------------------------------------------------------------
+
+S6_AGGREGATE_TYPE = "TheoryKernel"
+EVENT_THEORY_KERNEL_PROPOSED = "TheoryKernelProposed"
+
+
+def propose_theory_kernel(
+    session: Session,
+    *,
+    project_id: str,
+    kernel: TheoryKernel,
+    artifact_root: Path,
+    kernel_id: str | None = None,
+) -> TheoryKernel:
+    """Persist an S6 TheoryKernel only when the 03 S6 PASS conditions hold."""
+    issues = validate_theory_kernel(kernel)
+    if issues:
+        raise DomainError(
+            "S6 blocked: " + "; ".join(issues),
+            error_code="STAGE_OUTPUT_INVALID",
+        )
+    event = DomainEvent(
+        aggregate_type=S6_AGGREGATE_TYPE,
+        aggregate_id=kernel_id or uuid.uuid4().hex,
+        event_type=EVENT_THEORY_KERNEL_PROPOSED,
+        payload={"theory_kernel": kernel.model_dump()},
+        sequence=1,
+    )
+    append_domain_event(session, event, project_id=project_id, artifact_root=artifact_root)
+    return kernel
+
+
+def load_theory_kernel(session: Session, kernel_id: str, *, artifact_root: Path) -> TheoryKernel:
+    """Replay an S6 TheoryKernel from its hash-verified event payload."""
+    records = _event_stream(session, S6_AGGREGATE_TYPE, kernel_id)
+    if not records:
+        raise DomainError(
+            f"theory kernel {kernel_id!r} has no events",
+            error_code="PROJECT_NOT_FOUND",
+        )
+    kernel: TheoryKernel | None = None
+    for record in records:
+        payload = _verified_payload(session, record, artifact_root)
+        if record.event_type != EVENT_THEORY_KERNEL_PROPOSED:
+            raise DomainError(
+                f"unknown event type {record.event_type!r} for {kernel_id!r}; state unrecoverable",
+                error_code="PROJECT_STATE_UNRECOVERABLE",
+            )
+        kernel = TheoryKernel.model_validate(payload["theory_kernel"])
+    if kernel is None:
+        raise DomainError(
+            f"state of {kernel_id!r} is unrecoverable",
+            error_code="PROJECT_STATE_UNRECOVERABLE",
+        )
+    return kernel
+
+
+# ---------------------------------------------------------------------------
+# S7 — FormalizationPlan (03, S7; M3.1)
+# ---------------------------------------------------------------------------
+
+S7_AGGREGATE_TYPE = "FormalizationPlan"
+EVENT_FORMALIZATION_PLAN_PROPOSED = "FormalizationPlanProposed"
+
+#: Deterministic markers that claim tool verification (03, S7 rule).
+TOOL_VERIFIED_MARKERS: tuple[str, ...] = (
+    "TOOL_VERIFIED",
+    "TOOL_VERIFIED=",
+    "VERIFIED_BY_LEAN",
+    "VERIFIED_BY_Z3",
+    "PROVED",
+)
+
+
+def propose_formalization_plan(
+    session: Session,
+    *,
+    project_id: str,
+    plan: FormalizationPlan,
+    approval: UserFormalizationApproval,
+    bundle: EarlyFormalizationBundle,
+    current_input_spec_hash: str,
+    artifact_root: Path,
+    plan_id: str | None = None,
+) -> FormalizationPlan:
+    """Persist an S7 FormalizationPlan consuming the approved RQ2M bundle.
+
+    The plan is independent output; early formulas are inputs, never proof
+    status.  Semantic change (S1/S4 hash drift) rolls back to S1/S4/RQ and
+    every AI-produced proof artifact stays PROOF_CANDIDATE.
+    """
+    if (
+        approval.formalization_id != bundle.formalization_id
+        or approval.formalization_hash != bundle.artifact_hash
+    ):
+        raise DomainError(
+            "RQ2M 早期公式尚未被用户批准或 hash 已变化",
+            error_code="EARLY_FORMALIZATION_REQUIRED",
+        )
+    if approval.route is not ResearchRoute.THEORY:
+        raise DomainError(
+            "S7 只接受理论 route 的已批准早期公式",
+            error_code="INVALID_APPROVAL_ROUTE",
+        )
+    if current_input_spec_hash != bundle.input_spec_hash:
+        raise DomainError(
+            "S1/S4 语义已变化，必须回退 S1/S4/RQ 重新资格化",
+            error_code="SEMANTIC_REGRESSION_REQUIRED",
+        )
+    issues = validate_formalization_plan(plan)
+    if issues:
+        raise DomainError(
+            "S7 blocked: " + "; ".join(issues),
+            error_code="STAGE_OUTPUT_INVALID",
+        )
+    for artifact in plan.proof_candidate_artifacts:
+        upper = artifact.upper()
+        if any(marker in upper for marker in TOOL_VERIFIED_MARKERS):
+            raise DomainError(
+                f"proof artifact {artifact!r} 不得标为 Tool-verified；AI 证明先标 PROOF_CANDIDATE",
+                error_code="PROOF_CANDIDATE_REQUIRED",
+            )
+    event = DomainEvent(
+        aggregate_type=S7_AGGREGATE_TYPE,
+        aggregate_id=plan_id or uuid.uuid4().hex,
+        event_type=EVENT_FORMALIZATION_PLAN_PROPOSED,
+        payload={
+            "formalization_plan": plan.model_dump(),
+            "early_formalization_id": bundle.formalization_id,
+            "early_formalization_hash": bundle.artifact_hash,
+            "input_spec_hash": bundle.input_spec_hash,
+        },
+        sequence=1,
+    )
+    append_domain_event(session, event, project_id=project_id, artifact_root=artifact_root)
+    return plan
+
+
+def load_formalization_plan(
+    session: Session, plan_id: str, *, artifact_root: Path
+) -> FormalizationPlan:
+    """Replay an S7 FormalizationPlan from its hash-verified event payload."""
+    records = _event_stream(session, S7_AGGREGATE_TYPE, plan_id)
+    if not records:
+        raise DomainError(
+            f"formalization plan {plan_id!r} has no events",
+            error_code="PROJECT_NOT_FOUND",
+        )
+    plan: FormalizationPlan | None = None
+    for record in records:
+        payload = _verified_payload(session, record, artifact_root)
+        if record.event_type != EVENT_FORMALIZATION_PLAN_PROPOSED:
+            raise DomainError(
+                f"unknown event type {record.event_type!r} for {plan_id!r}; state unrecoverable",
+                error_code="PROJECT_STATE_UNRECOVERABLE",
+            )
+        plan = FormalizationPlan.model_validate(payload["formalization_plan"])
+    if plan is None:
+        raise DomainError(
+            f"state of {plan_id!r} is unrecoverable",
+            error_code="PROJECT_STATE_UNRECOVERABLE",
+        )
+    return plan
+
+
 __all__ = [
     "capture_seed",
     "confirm_natural_language_spec",
@@ -946,12 +1121,16 @@ __all__ = [
     "load_natural_language_spec",
     "load_prior_work_map",
     "load_research_scope_spec",
+    "load_formalization_plan",
     "load_minimal_case_bundle",
     "load_seed",
+    "load_theory_kernel",
+    "propose_formalization_plan",
     "propose_minimal_case_bundle",
     "propose_mechanism_sketch",
     "propose_natural_language_spec",
     "propose_prior_work_map",
     "propose_research_scope_spec",
+    "propose_theory_kernel",
     "validate_stage_output",
 ]

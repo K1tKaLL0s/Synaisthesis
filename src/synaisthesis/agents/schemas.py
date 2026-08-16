@@ -175,3 +175,61 @@ class MinimalCaseBundle(BaseModel):
 
 class MinimalCaseBundleModel(MinimalCaseBundle):
     """Alias retaining the schema name used by prompt/API contracts."""
+
+
+class TheoryKernel(BaseModel):
+    """S6 output: core unified theory kernel (03, S6).
+
+    candidate_mechanism is the theory's explanatory proposal; predictions and
+    explanations are separate fields and explanation fluency is never evidence.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_mechanism: str = Field(min_length=1)
+    competing_explanations: list[str]
+    examples: list[str]
+    counterexamples: list[str]
+    invariants: list[str]
+    boundaries: list[str]
+    predictions: list[str]
+    discarded_alternatives: list[str]
+    discard_reasons: list[str]
+    unresolved_conflicts: list[str]
+
+
+class FormalizationPlanClaim(BaseModel):
+    """One S7 claim with object domain, quantifiers and falsification witness."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(min_length=1)
+    statement: str = Field(min_length=1)
+    object_domain: str = Field(min_length=1)
+    quantifiers: list[str]
+    falsification_witness: str = Field(min_length=1)
+
+
+class FormalizationPlan(BaseModel):
+    """S7 output: independent formalization plan (03, S7).
+
+    Consumes the user-approved RQ2M early-formalization bundle but stands on
+    its own: every claim carries object domain, quantifiers and a
+    falsification witness; dependency graph is acyclic or explicitly
+    recursive; intended tools are chosen or NOT_APPLICABLE.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    object_domain: str = Field(min_length=1)
+    symbols: list[str]
+    definitions: list[str]
+    assumptions: list[str]
+    quantifiers: list[str]
+    claims: list[FormalizationPlanClaim]
+    dependency_graph: dict[str, list[str]]
+    proof_paths: list[str]
+    counterexample_paths: list[str]
+    intended_tools: list[str]
+    formalization_uncertainties: list[str]
+    proof_candidate_artifacts: list[str]

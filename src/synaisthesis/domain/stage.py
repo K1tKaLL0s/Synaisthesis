@@ -245,6 +245,76 @@ S4_STAGE_CONTRACT = StageContract(
 )
 
 
+S6_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S6,
+    objective="形成核心统一理论 TheoryKernel，比较替代理论并保留反例。",
+    required_inputs=("MinimalCaseBundle", "NaturalLanguageSpec"),
+    output_artifact_type="TheoryKernel",
+    required_fields=(
+        "candidate_mechanism",
+        "competing_explanations",
+        "examples",
+        "counterexamples",
+        "invariants",
+        "boundaries",
+        "predictions",
+        "discarded_alternatives",
+        "discard_reasons",
+        "unresolved_conflicts",
+    ),
+    validators=("validate_theory_kernel",),
+    tool_requirements=(),
+    human_gate_policy="S6 只产生 candidate，不产生验证状态。",
+    pass_criteria=(
+        "比较至少一个替代理论",
+        "保留反例",
+        "不以解释流畅度代替证据",
+        "预测与解释分开",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 TheoryKernel",),
+    allowed_next_stages=(StageId.S7,),
+    rollback_targets=(StageId.S1, StageId.S4),
+    prompt_version="1.0.0",
+)
+
+
+S7_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S7,
+    objective="消费已批准早期公式，生成独立 FormalizationPlan（形式构造）。",
+    required_inputs=("TheoryKernel", "EarlyFormalizationBundle"),
+    output_artifact_type="FormalizationPlan",
+    required_fields=(
+        "object_domain",
+        "symbols",
+        "definitions",
+        "assumptions",
+        "quantifiers",
+        "claims",
+        "dependency_graph",
+        "proof_paths",
+        "counterexample_paths",
+        "intended_tools",
+        "formalization_uncertainties",
+        "proof_candidate_artifacts",
+    ),
+    validators=("validate_formalization_plan",),
+    tool_requirements=("intended_tools 或 NOT_APPLICABLE",),
+    human_gate_policy="AI 产生的形式证明先标 PROOF_CANDIDATE，不得标 Tool-verified。",
+    pass_criteria=(
+        "每个 Claim 有对象域和量词",
+        "每个 Claim 有证伪见证",
+        "依赖关系无环或明确递归",
+        "已选验证工具或明确 NOT_APPLICABLE",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 FormalizationPlan",),
+    allowed_next_stages=(StageId.S8,),
+    rollback_targets=(StageId.S1, StageId.S4, StageId.S6),
+    prompt_version="1.0.0",
+)
+
+
 def _non_empty_str(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
@@ -407,4 +477,98 @@ def validate_research_scope_spec(scope: Any) -> tuple[str, ...]:
         issues.append("每个中心主张必须有对应证据需求（数量一致）")
     if not _non_empty_str_list(getattr(scope, "stop_conditions", None)):
         issues.append("stop_conditions 至少包含一个停止条件")
+    return tuple(issues)
+
+
+def validate_theory_kernel(kernel: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S6 TheoryKernel (03, S6).
+
+    PASS conditions: at least one competing explanation is compared,
+    counterexamples are preserved (never silently dropped), explanation
+    fluency is not evidence (predictions and explanations stay separate
+    fields), and predictions are separated from explanations.
+    """
+    issues: list[str] = []
+    if not _non_empty_str(getattr(kernel, "candidate_mechanism", None)):
+        issues.append("candidate_mechanism 不能为空")
+    if not _non_empty_str_list(getattr(kernel, "competing_explanations", None)):
+        issues.append("必须比较至少一个替代理论（competing_explanations）")
+    if not _non_empty_str_list(getattr(kernel, "counterexamples", None)):
+        issues.append("反例必须保留（counterexamples 至少一个，或显式 NONE_FOUND）")
+    if not _non_empty_str_list(getattr(kernel, "invariants", None)):
+        issues.append("invariants 至少包含一个不变量")
+    if not _non_empty_str_list(getattr(kernel, "boundaries", None)):
+        issues.append("boundaries 至少包含一个边界")
+    discarded = getattr(kernel, "discarded_alternatives", None)
+    reasons = getattr(kernel, "discard_reasons", None)
+    if (
+        isinstance(discarded, (list, tuple))
+        and isinstance(reasons, (list, tuple))
+        and len(discarded) != len(reasons)
+    ):
+        issues.append("每个被放弃的替代理论必须有放弃理由（数量一致）")
+    return tuple(issues)
+
+
+def _dependency_graph_acyclic_or_explicitly_recursive(graph: Any) -> bool:
+    if not isinstance(graph, dict):
+        return False
+    if not graph:
+        return True
+    visited: set[str] = set()
+    active: set[str] = set()
+
+    def visit(node: str) -> bool:
+        if node in active:
+            return True  # cycle found
+        if node in visited:
+            return False
+        active.add(node)
+        deps = graph.get(node, ())
+        if not isinstance(deps, (list, tuple)):
+            active.discard(node)
+            return False
+        for dependency in deps:
+            if dependency == node:
+                continue  # explicit self-recursion is allowed and declared
+            if dependency in graph and visit(dependency):
+                return True
+        active.discard(node)
+        visited.add(node)
+        return False
+
+    return all(not visit(node) for node in graph)
+
+
+def validate_formalization_plan(plan: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S7 FormalizationPlan (03, S7).
+
+    PASS conditions: every claim carries an object domain, quantifiers and a
+    falsification witness; the dependency graph is acyclic or explicitly
+    recursive; verification tools are chosen or NOT_APPLICABLE is declared.
+    """
+    issues: list[str] = []
+    if not _non_empty_str(getattr(plan, "object_domain", None)):
+        issues.append("object_domain 不能为空")
+    if not _non_empty_str_list(getattr(plan, "symbols", None)):
+        issues.append("symbols 至少包含一个符号")
+    claims = getattr(plan, "claims", None)
+    if not isinstance(claims, (list, tuple)) or not claims:
+        issues.append("claims 至少包含一个 Claim")
+    else:
+        for claim in claims:
+            claim_id = getattr(claim, "claim_id", "?")
+            if not _non_empty_str(getattr(claim, "object_domain", None)):
+                issues.append(f"claim {claim_id} 缺少对象域")
+            if not _non_empty_str_list(getattr(claim, "quantifiers", None)):
+                issues.append(f"claim {claim_id} 缺少量词")
+            if not _non_empty_str(getattr(claim, "falsification_witness", None)):
+                issues.append(f"claim {claim_id} 缺少证伪见证")
+    if not _dependency_graph_acyclic_or_explicitly_recursive(
+        getattr(plan, "dependency_graph", None)
+    ):
+        issues.append("依赖图必须无环或显式声明递归")
+    intended_tools = getattr(plan, "intended_tools", None)
+    if not _non_empty_str_list(intended_tools) and "NOT_APPLICABLE" not in (intended_tools or ()):
+        issues.append("必须选择验证工具或显式声明 NOT_APPLICABLE")
     return tuple(issues)
