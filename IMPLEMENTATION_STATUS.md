@@ -134,9 +134,10 @@
 - M4.1 已提交：`2de344d`（并行子 agent 实现，主 agent 复核）。
 - M4.2 已提交：`91b6a7e`。
 - M5.1 已提交：`d6dbfbe`（注意：该提交因并发暂存竞争一并包含 M0.5 的文件；按仓库规则不做历史改写，M0.5 里程碑随此提交记录）。
-- M6.1 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M6.1 已提交：`cd62a2f`。
 - M5.1 记录：ActionGate 与其决策常量按架构放在 `domain/action.py`（gate.py 无需改动，M4.2 已为其加入 CLAIM_ACCEPTANCE 决策），合同 GAP-1 注明。
 - 并发协作记录：M0.5 子 agent 已 `git add` 暂存其文件后，主 agent 的 `git commit` 将暂存区一并提交；后续并行批次将要求子 agent 在提交前检查 `git status` 暂存区并改用 `git commit -- <files>` 精确路径提交，避免再次混入。
+- M0.5 验收覆盖（子 agent 最终报告）：05A §25 全量覆盖 13/18（1–11、14、15）；延后：12 compact 恢复（M10 Sidecar）、13 并发 E2E（逻辑已覆盖）、16 Sidecar spool 恢复（M10）、17 附件 hash 重验（字段已定义未接线）、18 Recursion Guard（M12）。
 - M0.5.CODEX.FIDELITY 并行子 agent 进行中（fidelity/* + fidelity_service.py + 两个测试文件已在工作树，未提交）。
 - M2.11 蓝图缺口记录：GAP-1（“母稿交付用户”以 audit_status=AUDITED_CLEAN 为确定性代理，交付回执事件由后续 WorkUnit 补充）；GAP-2（JOSS/Nature venue_kind 03C 未枚举，定为 EXTENDED_PROFILE 并记录在案）。
 - M2.11 内置 Profile 为冻结 fixture（官方 URL 为示例域名）；真实指南刷新与模板 checksum 由后续生产级 WorkUnit 接入。

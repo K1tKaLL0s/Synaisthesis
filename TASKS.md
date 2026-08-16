@@ -29,7 +29,7 @@
 - [x] M4.2 — Claim 冻结（Stage 4 第 2 个 Task，提交 `91b6a7e`）：ClaimContract 不可变对象（04 §2 全字段）、contract_hash 覆盖语义/工具/预算/策略、仅真实用户事件可冻结（CLAIM_FREEZE_REQUIRES_USER_EVENT）、修订只生成新版本（旧版保留、SUPERSEDES 链）、gate.py 增 CLAIM_ACCEPTANCE 决策（ACCEPT/REJECT/PAUSE）（7 个测试，全套 437 passed）
 - [x] M5.1 — ActionBroker/Gate 策略（Stage 5 第 1 个 Task，提交 `d6dbfbe`）：A0–A3 委托 × R0–R6 风险确定性路由（R0 自动；R1 需 A2/A3+路径 allowlist；R2 域名 allowlist；R3 预算；R4–R6 恒 Human Gate）、Semantic Delta F4→GATE/F5→REJECT、模型/工作流/默认超时不能批准（CONFIRMATION_REQUIRES_USER_EVENT）、ActionRequest/ExecutionReceipt（08 §12 全字段，request/result hash 缺失即 RECEIPT_HASH_MISSING、绑定不符即 RECEIPT_HASH_MISMATCH）、无 Receipt 不形成 Tool Evidence、通用 gate_service 持久化任意 Gate（15 个测试）
 - [x] M0.5 — Codex 指令忠实通道（P0；并行子 agent 实现，随 `d6dbfbe` 合并提交）：fidelity 10 模块 + fidelity_service（Capsule/Token/SessionBinding/ContextManifest/Delta/prepare-commit/CommandReceipt/DisplayContract/command_gateway，fail-closed 无 token、state version + idempotency、非用户确认拒绝）、29 个 security/integration 测试全绿（并入提交说明见 IMPLEMENTATION_STATUS.md）
-- [x] M6.1 — LLM Provider 层（Stage 6 第 1 个 Task）：Provider 无关接口（LLMProvider Protocol）、FakeLLMProvider 确定性（同请求同响应同 usage hash）、结构化输出严格解析（缺失/未知键/非法 JSON → STRUCTURED_OUTPUT_INVALID，不写领域状态）、UsageRecord（tokens/cost/request·response hash 内容绑定）、零新依赖（8 个测试，全套 460 passed）
+- [x] M6.1 — LLM Provider 层（Stage 6 第 1 个 Task，提交 `cd62a2f`）：Provider 无关接口（LLMProvider Protocol）、FakeLLMProvider 确定性（同请求同响应同 usage hash）、结构化输出严格解析（缺失/未知键/非法 JSON → STRUCTURED_OUTPUT_INVALID，不写领域状态）、UsageRecord（tokens/cost/request·response hash 内容绑定）、零新依赖（8 个测试，全套 460 passed）
 
 ## Next
 
