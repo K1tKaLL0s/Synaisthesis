@@ -24,10 +24,11 @@
 - [x] M2.10 — 机械工程蓝图（Stage 2.6 第 3 个 Task，提交 `3070c49`）：ENG5 蓝图服务（未批准架构/三 hash 失配/追踪缺口/无停止条件 WorkUnit/上抛普通选择 全部 BLUEPRINT_GAP 或 ENGINEERING_ARCHITECTURE_REVIEW_REQUIRED）、Blueprint Completeness Gate 指标化、决策上抛范围规则（69/70 无关的普通实现选择不得上抛）、WorkUnit 14 项合同完备 golden、storage/export_bundle.py 确定性导出（manifest/checksums/篡改检测）、blueprint prompt asset（15 个测试，全套 308 passed）
 - [x] M2.11 — 工程论文与交付（Stage 2.6 第 4 个 Task，提交 `3f88f46`）：ENG8 母稿服务（BLUEPRINT_ONLY 不产生完成态结果、claim 真实回执、作者输入 NEEDS_AUTHOR_INPUT）、独立母稿审计（不得审自己初稿、Major/Critical 阻断）、FORMAL_MANUSCRIPT_DECISION Gate（先审计交付后打开、仅用户决议、KEEP_MASTER_ONLY 完整合法）、ENG9 Profile Registry（8 个内置工程 Profile、profile_hash 内容绑定、freshness、scope-fit、arXiv 恒为 PREPRINT_REPOSITORY、JOSS 软件门、ComplianceMatrix）、ENG10 独立交付审计 + ENGINEERING_DELIVERY_ACCEPTANCE（manifest hash 绑定、变更即失效）+ 03B §13.3 readiness 全条件、导出包 role/checksums 扩展、eng8/eng10 prompt assets（31 个测试，全套 339 passed）
 - [x] M3.1 — 理论路线 S6/S7（Stage 3 第 1 个 Task，提交 `275c9f9`）：S6 TheoryKernel（比较替代理论、保留反例、预测/解释分栏、核心概念变化回 S1/S4）、S7 FormalizationPlan（每个 Claim 有对象域/量词/证伪见证、依赖图无环或显式递归、工具或 NOT_APPLICABLE、消费已批准 RQ2M 公式但生成独立计划、S1/S4 hash 变化 → SEMANTIC_REGRESSION_REQUIRED 回退、AI 证明先标 PROOF_CANDIDATE 禁止 Tool-verified）、S6/S7 StageContract 与 prompt assets（16 个测试，全套 355 passed）
+- [x] M3.2 — S8–S10 交接（Stage 3 第 2 个 Task）：S8 PreFreezeAttackReport（1–2 轮攻击强制、禁止正式十轮 Council、内部+独立外部攻击、Critical 已解决或明确阻断）、S9 OpenQuestionRegistry（来源标记 USER/AI_GENERATED/DERIVED/LITERATURE/TOOL_FAILURE 强制、AI_GENERATED 保留）、S10 ResearchHandoffBundle（无未归属证据、每任务有 input/output/threshold、成熟门检查理论 RQ4M）、s8/s9/s10 节点与 prompt assets（15 个测试，全套 370 passed）
 
 ## Next
 
-- [ ] M3.2.S8_S10.HANDOFF — S8 就绪攻击（1–2 轮，不启动正式十轮 Council）、S9/S10 Handoff（每任务有 I/O/门槛）、成熟门检查 RQ 状态（前置 M3.1）
+- [ ] M4.1.CLAIM.COMPILER — Claim Compiler：MIXED 拆分、每个 Claim 有对象域/量词/证伪见证/verifier（前置 M3.2）
 
 ## Backlog
 

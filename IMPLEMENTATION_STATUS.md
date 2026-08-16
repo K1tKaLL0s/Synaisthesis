@@ -13,10 +13,10 @@
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M3.1.S6_S7.THEORY_FORMAL_PLAN`
-- Milestone: `M3`（Stage 3 第 1 个 Task：理论路线 S6 TheoryKernel + S7 FormalizationPlan）
-- WorkUnitContract: `workspace/workunit-contracts/M3.1.S6_S7.THEORY_FORMAL_PLAN.md`
-- 交付：S6/S7 StageContract + 验证器；S6 TheoryKernel 与 S7 FormalizationPlan Schema/服务；S7 消费已批准 RQ2M 公式、S1/S4 语义回退、PROOF_CANDIDATE 强制；s6/s7 prompt assets。
+- Stable Task ID: `M3.2.S8_S10.HANDOFF`
+- Milestone: `M3`（Stage 3 第 2 个 Task：S8 就绪攻击、S9 开放问题、S10 研究交接）
+- WorkUnitContract: `workspace/workunit-contracts/M3.2.S8_S10.HANDOFF.md`
+- 交付：S8/S9/S10 Schema、StageContract、验证器与事件溯源服务；S10 成熟门复用 qualification_next_target；s8/s9/s10 节点与 prompt assets。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -88,6 +88,7 @@
 - M2.10：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_blueprint_completeness.py tests/golden/test_mechanical_engineering_blueprint.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 308 passed；`ruff check .` 通过；`ruff format --check .` 通过（145 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.11：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_publication_evidence_policy.py tests/contract/publication/test_profiles.py tests/integration/test_engineering_delivery_export.py` 31 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 339 passed；`ruff check .` 通过；`ruff format --check .` 通过（155 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M3.1：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_s6_s7.py` 16 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 355 passed；`ruff check .` 通过；`ruff format --check .` 通过（158 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M3.2：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_incubator_s6_s10.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 370 passed；`ruff check .` 通过；`ruff format --check .` 通过（160 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -97,7 +98,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M3.2.S8_S10.HANDOFF`（前置 M3.1 已 PASS；S8 就绪攻击 1–2 轮、S9/S10 Handoff 与成熟门；必须读取 03 §S8–S10）
+- 代码方面：`M4.1.CLAIM.COMPILER`（前置 M3.2 已 PASS；必须读取 03A/06 §claim 与 19 §5 M4；Claim Compiler 与冻结）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -124,6 +125,7 @@
 - M2.10 已提交：`3070c49`。
 - M2.11 已提交：`3f88f46`。
 - M3.1 已提交：`275c9f9`。
+- M3.2 已提交：见 commit 记录（feat + chore(status) 两提交）。
 - M2.11 蓝图缺口记录：GAP-1（“母稿交付用户”以 audit_status=AUDITED_CLEAN 为确定性代理，交付回执事件由后续 WorkUnit 补充）；GAP-2（JOSS/Nature venue_kind 03C 未枚举，定为 EXTENDED_PROFILE 并记录在案）。
 - M2.11 内置 Profile 为冻结 fixture（官方 URL 为示例域名）；真实指南刷新与模板 checksum 由后续生产级 WorkUnit 接入。
 - M2.10 WorkUnit 合同字段为 15 个（03B §8.2 第 1 项“稳定 Task ID 与唯一目标”拆分为 task_id + unique_objective 两个字段），golden 测试按 14 项合同逐一断言非空。

@@ -233,3 +233,86 @@ class FormalizationPlan(BaseModel):
     intended_tools: list[str]
     formalization_uncertainties: list[str]
     proof_candidate_artifacts: list[str]
+
+
+class PreFreezeAttackReport(BaseModel):
+    """S8 output: bounded pre-freeze readiness attack (03, S8).
+
+    Only one or two attack rounds are allowed; the full ten-round Council is
+    never started here.  freeze_readiness requires every critical issue to be
+    resolved or explicitly blocked.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    attack_rounds: int = Field(ge=1, le=2)
+    internal_attacks: list[str]
+    external_attacks: list[str]
+    obvious_counterexamples: list[str]
+    boundary_failures: list[str]
+    definition_holes: list[str]
+    quantifier_risks: list[str]
+    tool_feasibility: list[str]
+    claim_atomicity: list[str]
+    recommended_split: list[str]
+    freeze_readiness: bool = False
+    critical_issues_resolved: bool = False
+    critical_issues_blocked: bool = False
+    rollback_targets: list[str] = Field(default_factory=list)
+
+
+class OpenQuestionRecord(BaseModel):
+    """One S9 open question entry (03, S9)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    question_id: str = Field(min_length=1)
+    statement: str = Field(min_length=1)
+    origin: str = Field(min_length=1)
+    why_open: str = Field(min_length=1)
+    known_failed_attempts: list[str]
+    falsification_path: str = Field(min_length=1)
+    next_action: str = Field(min_length=1)
+    dependency_claims: list[str]
+    status: str = Field(min_length=1)
+
+
+class OpenQuestionRegistry(BaseModel):
+    """S9 output: open question registry (03, S9)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    registry_id: str = Field(min_length=1)
+    entries: list[OpenQuestionRecord]
+
+
+class HandoffTask(BaseModel):
+    """One S10 downstream task with input/output/threshold (03, S10)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    task_id: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    track: str = Field(min_length=1)
+    input: str = Field(min_length=1)
+    output: str = Field(min_length=1)
+    threshold: str = Field(min_length=1)
+
+
+class ResearchHandoffBundle(BaseModel):
+    """S10 output: research handoff bundle (03, S10)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    frozen_terms: list[str]
+    evidence_summary: list[str]
+    current_versions: dict[str, str]
+    open_questions: list[str]
+    downstream_tasks: list[HandoffTask]
+    verification_thresholds: list[str]
+    proof_track: list[str]
+    experiment_track: list[str]
+    engineering_track: list[str]
+    writing_track: list[str]
+    artifact_manifest: list[str]
+    unresolved_gates: list[str]

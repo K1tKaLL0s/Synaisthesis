@@ -26,7 +26,10 @@ from synaisthesis.agents.schemas import (
     MechanismSketch,
     MinimalCaseBundle,
     NaturalLanguageSpec,
+    OpenQuestionRegistry,
+    PreFreezeAttackReport,
     PriorWorkMap,
+    ResearchHandoffBundle,
     ResearchScopeSpec,
     SeedRecord,
     TheoryKernel,
@@ -53,7 +56,10 @@ from synaisthesis.domain.stage import (
     validate_formalization_plan,
     validate_mechanism_sketch,
     validate_natural_language_spec,
+    validate_open_question_registry,
+    validate_prefreeze_attack_report,
     validate_prior_work_map,
+    validate_research_handoff_bundle,
     validate_research_scope_spec,
     validate_seed_record,
     validate_theory_kernel,
@@ -1109,6 +1115,201 @@ def load_formalization_plan(
     return plan
 
 
+# ---------------------------------------------------------------------------
+# S8 — PreFreezeAttackReport (03, S8; M3.2)
+# ---------------------------------------------------------------------------
+
+S8_AGGREGATE_TYPE = "PreFreezeAttackReport"
+EVENT_PREFREEZE_ATTACK_PROPOSED = "PreFreezeAttackProposed"
+
+
+def propose_prefreeze_attack_report(
+    session: Session,
+    *,
+    project_id: str,
+    report: PreFreezeAttackReport,
+    artifact_root: Path,
+    report_id: str | None = None,
+) -> PreFreezeAttackReport:
+    """Persist an S8 report; 1-2 rounds only, never the ten-round Council."""
+    issues = validate_prefreeze_attack_report(report)
+    if issues:
+        raise DomainError(
+            "S8 blocked: " + "; ".join(issues),
+            error_code="STAGE_OUTPUT_INVALID",
+        )
+    event = DomainEvent(
+        aggregate_type=S8_AGGREGATE_TYPE,
+        aggregate_id=report_id or uuid.uuid4().hex,
+        event_type=EVENT_PREFREEZE_ATTACK_PROPOSED,
+        payload={"prefreeze_attack": report.model_dump()},
+        sequence=1,
+    )
+    append_domain_event(session, event, project_id=project_id, artifact_root=artifact_root)
+    return report
+
+
+def load_prefreeze_attack_report(
+    session: Session, report_id: str, *, artifact_root: Path
+) -> PreFreezeAttackReport:
+    records = _event_stream(session, S8_AGGREGATE_TYPE, report_id)
+    if not records:
+        raise DomainError(
+            f"prefreeze attack report {report_id!r} has no events",
+            error_code="PROJECT_NOT_FOUND",
+        )
+    report: PreFreezeAttackReport | None = None
+    for record in records:
+        payload = _verified_payload(session, record, artifact_root)
+        if record.event_type != EVENT_PREFREEZE_ATTACK_PROPOSED:
+            raise DomainError(
+                f"unknown event type {record.event_type!r} for {report_id!r}; state unrecoverable",
+                error_code="PROJECT_STATE_UNRECOVERABLE",
+            )
+        report = PreFreezeAttackReport.model_validate(payload["prefreeze_attack"])
+    if report is None:
+        raise DomainError(
+            f"state of {report_id!r} is unrecoverable",
+            error_code="PROJECT_STATE_UNRECOVERABLE",
+        )
+    return report
+
+
+# ---------------------------------------------------------------------------
+# S9 — OpenQuestionRegistry (03, S9; M3.2)
+# ---------------------------------------------------------------------------
+
+S9_AGGREGATE_TYPE = "OpenQuestionRegistry"
+EVENT_OPEN_QUESTION_REGISTRY_PROPOSED = "OpenQuestionRegistryProposed"
+
+
+def propose_open_question_registry(
+    session: Session,
+    *,
+    project_id: str,
+    registry: OpenQuestionRegistry,
+    artifact_root: Path,
+) -> OpenQuestionRegistry:
+    """Persist an S9 registry; AI_GENERATED origin markers are preserved."""
+    issues = validate_open_question_registry(registry)
+    if issues:
+        raise DomainError(
+            "S9 blocked: " + "; ".join(issues),
+            error_code="STAGE_OUTPUT_INVALID",
+        )
+    event = DomainEvent(
+        aggregate_type=S9_AGGREGATE_TYPE,
+        aggregate_id=registry.registry_id,
+        event_type=EVENT_OPEN_QUESTION_REGISTRY_PROPOSED,
+        payload={"open_question_registry": registry.model_dump()},
+        sequence=1,
+    )
+    append_domain_event(session, event, project_id=project_id, artifact_root=artifact_root)
+    return registry
+
+
+def load_open_question_registry(
+    session: Session, registry_id: str, *, artifact_root: Path
+) -> OpenQuestionRegistry:
+    records = _event_stream(session, S9_AGGREGATE_TYPE, registry_id)
+    if not records:
+        raise DomainError(
+            f"open question registry {registry_id!r} has no events",
+            error_code="PROJECT_NOT_FOUND",
+        )
+    registry: OpenQuestionRegistry | None = None
+    for record in records:
+        payload = _verified_payload(session, record, artifact_root)
+        if record.event_type != EVENT_OPEN_QUESTION_REGISTRY_PROPOSED:
+            raise DomainError(
+                f"unknown event type {record.event_type!r} for "
+                f"{registry_id!r}; state unrecoverable",
+                error_code="PROJECT_STATE_UNRECOVERABLE",
+            )
+        registry = OpenQuestionRegistry.model_validate(payload["open_question_registry"])
+    if registry is None:
+        raise DomainError(
+            f"state of {registry_id!r} is unrecoverable",
+            error_code="PROJECT_STATE_UNRECOVERABLE",
+        )
+    return registry
+
+
+# ---------------------------------------------------------------------------
+# S10 — ResearchHandoffBundle with maturity gate (03, S10; M3.2)
+# ---------------------------------------------------------------------------
+
+S10_AGGREGATE_TYPE = "ResearchHandoffBundle"
+EVENT_RESEARCH_HANDOFF_PROPOSED = "ResearchHandoffProposed"
+
+
+def propose_research_handoff_bundle(
+    session: Session,
+    *,
+    project_id: str,
+    bundle: ResearchHandoffBundle,
+    qualification_route: ResearchRoute,
+    novelty_status: NoveltyStatus,
+    qualification_review_hash: str,
+    override: LowNoveltyOverride | None = None,
+    artifact_root: Path,
+    bundle_id: str | None = None,
+) -> ResearchHandoffBundle:
+    """Persist S10 only after the theory-route maturity gate passes (RQ4M)."""
+    target = qualification_next_target(
+        route=qualification_route,
+        novelty_status=novelty_status,
+        override=override,
+        review_artifact_hash=qualification_review_hash,
+    )
+    if target is not QualifiedNextTarget.S5:
+        raise DomainError(
+            f"qualified target {target.value} is not S5; maturity gate requires theory route RQ4M",
+            error_code="EARLY_QUALIFICATION_REQUIRED",
+        )
+    issues = validate_research_handoff_bundle(bundle)
+    if issues:
+        raise DomainError(
+            "S10 blocked: " + "; ".join(issues),
+            error_code="STAGE_OUTPUT_INVALID",
+        )
+    event = DomainEvent(
+        aggregate_type=S10_AGGREGATE_TYPE,
+        aggregate_id=bundle_id or uuid.uuid4().hex,
+        event_type=EVENT_RESEARCH_HANDOFF_PROPOSED,
+        payload={"research_handoff": bundle.model_dump()},
+        sequence=1,
+    )
+    append_domain_event(session, event, project_id=project_id, artifact_root=artifact_root)
+    return bundle
+
+
+def load_research_handoff_bundle(
+    session: Session, bundle_id: str, *, artifact_root: Path
+) -> ResearchHandoffBundle:
+    records = _event_stream(session, S10_AGGREGATE_TYPE, bundle_id)
+    if not records:
+        raise DomainError(
+            f"research handoff bundle {bundle_id!r} has no events",
+            error_code="PROJECT_NOT_FOUND",
+        )
+    bundle: ResearchHandoffBundle | None = None
+    for record in records:
+        payload = _verified_payload(session, record, artifact_root)
+        if record.event_type != EVENT_RESEARCH_HANDOFF_PROPOSED:
+            raise DomainError(
+                f"unknown event type {record.event_type!r} for {bundle_id!r}; state unrecoverable",
+                error_code="PROJECT_STATE_UNRECOVERABLE",
+            )
+        bundle = ResearchHandoffBundle.model_validate(payload["research_handoff"])
+    if bundle is None:
+        raise DomainError(
+            f"state of {bundle_id!r} is unrecoverable",
+            error_code="PROJECT_STATE_UNRECOVERABLE",
+        )
+    return bundle
+
+
 __all__ = [
     "capture_seed",
     "confirm_natural_language_spec",
@@ -1123,10 +1324,16 @@ __all__ = [
     "load_research_scope_spec",
     "load_formalization_plan",
     "load_minimal_case_bundle",
+    "load_open_question_registry",
+    "load_prefreeze_attack_report",
+    "load_research_handoff_bundle",
     "load_seed",
     "load_theory_kernel",
     "propose_formalization_plan",
     "propose_minimal_case_bundle",
+    "propose_open_question_registry",
+    "propose_prefreeze_attack_report",
+    "propose_research_handoff_bundle",
     "propose_mechanism_sketch",
     "propose_natural_language_spec",
     "propose_prior_work_map",

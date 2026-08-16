@@ -315,6 +315,103 @@ S7_STAGE_CONTRACT = StageContract(
 )
 
 
+S8_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S8,
+    objective="冻结前就绪攻击：一至两轮内部+独立外部攻击，不启动正式十轮 Council。",
+    required_inputs=("FormalizationPlan",),
+    output_artifact_type="PreFreezeAttackReport",
+    required_fields=(
+        "attack_rounds",
+        "internal_attacks",
+        "external_attacks",
+        "obvious_counterexamples",
+        "boundary_failures",
+        "definition_holes",
+        "quantifier_risks",
+        "tool_feasibility",
+        "claim_atomicity",
+        "recommended_split",
+        "freeze_readiness",
+        "critical_issues_resolved",
+        "critical_issues_blocked",
+    ),
+    validators=("validate_prefreeze_attack_report",),
+    tool_requirements=(),
+    human_gate_policy="S8 只做 1–2 轮 readiness attack；禁止启动正式十轮 Council。",
+    pass_criteria=(
+        "至少一次内部攻击",
+        "至少一次独立外部攻击",
+        "Critical 问题已解决或明确阻断",
+        "Claim 足够原子",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 PreFreezeAttackReport",),
+    allowed_next_stages=(StageId.S9,),
+    rollback_targets=(StageId.S1, StageId.S4, StageId.S6, StageId.S7),
+    prompt_version="1.0.0",
+)
+
+
+S9_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S9,
+    objective="登记开放问题与猜想，保留 AI_GENERATED 来源标记。",
+    required_inputs=("PreFreezeAttackReport",),
+    output_artifact_type="OpenQuestionRegistry",
+    required_fields=(
+        "registry_id",
+        "entries",
+    ),
+    validators=("validate_open_question_registry",),
+    tool_requirements=(),
+    human_gate_policy="开放问题只登记不解决；来源标记不可改写。",
+    pass_criteria=(
+        "每条记录字段完整",
+        "AI 生成问题保留 AI_GENERATED 标记",
+        "失败尝试与证伪路径已记录",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 OpenQuestionRegistry",),
+    allowed_next_stages=(StageId.S10,),
+    rollback_targets=(StageId.S1, StageId.S4, StageId.S6, StageId.S7),
+    prompt_version="1.0.0",
+)
+
+
+S10_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S10,
+    objective="研究交接：无未归属证据、每个下游任务有输入/输出/门槛、可形成 FrozenClaim 候选。",
+    required_inputs=("OpenQuestionRegistry", "MinimalCaseBundle"),
+    output_artifact_type="ResearchHandoffBundle",
+    required_fields=(
+        "frozen_terms",
+        "evidence_summary",
+        "current_versions",
+        "open_questions",
+        "downstream_tasks",
+        "verification_thresholds",
+        "proof_track",
+        "experiment_track",
+        "engineering_track",
+        "writing_track",
+        "artifact_manifest",
+        "unresolved_gates",
+    ),
+    validators=("validate_research_handoff_bundle",),
+    tool_requirements=(),
+    human_gate_policy="成熟门检查 RQ 状态：理论 route 必须已通过 RQ4M 或绑定 override。",
+    pass_criteria=(
+        "不存在未归属证据",
+        "每个下游任务有输入、输出和门槛",
+        "可形成 FrozenClaim 候选",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 ResearchHandoffBundle",),
+    allowed_next_stages=(),
+    rollback_targets=(StageId.S1, StageId.S4, StageId.S6, StageId.S7),
+    prompt_version="1.0.0",
+)
+
+
 def _non_empty_str(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
@@ -571,4 +668,92 @@ def validate_formalization_plan(plan: Any) -> tuple[str, ...]:
     intended_tools = getattr(plan, "intended_tools", None)
     if not _non_empty_str_list(intended_tools) and "NOT_APPLICABLE" not in (intended_tools or ()):
         issues.append("必须选择验证工具或显式声明 NOT_APPLICABLE")
+    return tuple(issues)
+
+
+def validate_prefreeze_attack_report(report: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S8 PreFreezeAttackReport (03, S8).
+
+    Only 1-2 attack rounds are allowed; the ten-round Council is never started
+    here.  freeze_readiness requires every critical issue to be resolved or
+    explicitly blocked.
+    """
+    issues: list[str] = []
+    rounds = getattr(report, "attack_rounds", None)
+    if not isinstance(rounds, int) or rounds < 1 or rounds > 2:
+        issues.append("S8 只允许 1–2 轮 readiness attack，不得启动正式十轮 Council")
+    if not _non_empty_str_list(getattr(report, "internal_attacks", None)):
+        issues.append("至少一次内部攻击（internal_attacks）")
+    if not _non_empty_str_list(getattr(report, "external_attacks", None)):
+        issues.append("至少一次独立外部攻击（external_attacks）")
+    resolved = bool(getattr(report, "critical_issues_resolved", False))
+    blocked = bool(getattr(report, "critical_issues_blocked", False))
+    if not resolved and not blocked:
+        issues.append("Critical 问题必须已解决或明确阻断")
+    if bool(getattr(report, "freeze_readiness", False)) and not resolved:
+        issues.append("freeze_readiness 要求 Critical 问题已解决")
+    if not _non_empty_str_list(getattr(report, "claim_atomicity", None)):
+        issues.append("claim_atomicity 至少包含一条原子性检查")
+    return tuple(issues)
+
+
+OPEN_QUESTION_ORIGINS = frozenset({"USER", "AI_GENERATED", "DERIVED", "LITERATURE", "TOOL_FAILURE"})
+
+
+def validate_open_question_registry(registry: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S9 OpenQuestionRegistry (03, S9)."""
+    issues: list[str] = []
+    entries = getattr(registry, "entries", None)
+    if not isinstance(entries, (list, tuple)) or not entries:
+        issues.append("至少登记一条开放问题")
+        return tuple(issues)
+    for entry in entries:
+        entry_id = getattr(entry, "question_id", "?")
+        origin = getattr(entry, "origin", None)
+        if origin not in OPEN_QUESTION_ORIGINS:
+            issues.append(f"question {entry_id} 的来源 {origin!r} 非法")
+        for field, label in (
+            ("statement", "statement"),
+            ("why_open", "why_open"),
+            ("falsification_path", "falsification_path"),
+            ("next_action", "next_action"),
+        ):
+            if not _non_empty_str(getattr(entry, field, None)):
+                issues.append(f"question {entry_id} 缺少 {label}")
+        if not _non_empty_str_list(getattr(entry, "known_failed_attempts", None)):
+            issues.append(f"question {entry_id} 缺少已知失败尝试")
+        if not _non_empty_str(getattr(entry, "status", None)):
+            issues.append(f"question {entry_id} 缺少 status")
+    return tuple(issues)
+
+
+def validate_research_handoff_bundle(bundle: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S10 ResearchHandoffBundle (03, S10).
+
+    PASS: no unattributed evidence, every downstream task carries
+    input/output/threshold, and FrozenClaim candidates are formable.
+    """
+    issues: list[str] = []
+    if not _non_empty_str_list(getattr(bundle, "frozen_terms", None)):
+        issues.append("frozen_terms 至少包含一个冻结术语")
+    evidence = getattr(bundle, "evidence_summary", None)
+    if not isinstance(evidence, (list, tuple)) or not evidence:
+        issues.append("evidence_summary 至少包含一条证据")
+    else:
+        for item in evidence:
+            if not isinstance(item, str) or "@" not in item:
+                issues.append(f"证据未归属：{item!r}（必须标注 @来源）")
+    tasks = getattr(bundle, "downstream_tasks", None)
+    if not isinstance(tasks, (list, tuple)) or not tasks:
+        issues.append("downstream_tasks 至少包含一个下游任务")
+    else:
+        for task in tasks:
+            task_id = getattr(task, "task_id", "?")
+            for field in ("input", "output", "threshold"):
+                if not _non_empty_str(getattr(task, field, None)):
+                    issues.append(f"任务 {task_id} 缺少 {field}")
+    if not _non_empty_str_list(getattr(bundle, "verification_thresholds", None)):
+        issues.append("verification_thresholds 至少包含一个验证门槛")
+    if not _non_empty_str_list(getattr(bundle, "artifact_manifest", None)):
+        issues.append("artifact_manifest 至少包含一个工件")
     return tuple(issues)
