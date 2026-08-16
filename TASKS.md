@@ -45,7 +45,7 @@
 
 ## Next
 
-- [ ] M13.2.ENGINEERING.PROVIDERS — 工程近邻生产 Provider：功能/应用排序有来源、成熟度至少两项证据、外部文本隔离（前置 M13.1）
+- [x] M13.2.ENGINEERING.PROVIDERS — 工程近邻生产 Provider（提交见下）：`engineering_base.py`（EngineeringNeighborHit/Query/Provider、特征证据引用强制、POPULARITY_MARKERS）、`repository_registry.py`/`package_registry.py`/`official_docs.py`（可注入 fixture 语料、每个 hit 3 项成熟度证据、popularity 只进 untrusted 隔离区）、`maturity.py`（成熟度 ≥2 项证据、popularity 单独不足 → MATURITY_EVIDENCE_INSUFFICIENT；功能/应用加权排序每分有来源 → NEIGHBOR_RANK_UNSOURCED；跨 Provider 去重、外部文本隔离收集）；14 个 focused 测试；全套 561 passed
 
 ## Backlog
 
