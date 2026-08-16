@@ -154,7 +154,7 @@
 - M8.3 已提交：`5eb0896`。
 - M9.1 已提交：`04c2b86`。
 - M9.2 已提交：`e95b9ad`。
-- M10 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M10 已提交：`d1bf78b`。
 - M10 说明：MCP Inspector（外部 UI 工具）不在本环境，协议合同以 JSON-RPC 帧与工具级 contract tests 覆盖（19 §5 M10 的 Inspector PASS 留待真实 Inspector 环境）；Hook 为骨架 + 服务端独立复验（05A §19）。
 - M9.2 说明：理论 Profile 为冻结 fixture（官方 URL 示例域名），真实指南刷新留给生产级 WorkUnit；TeX/PDF 真实编译回执后续 WorkUnit 接线（本任务为领域与服务合同）。
 - M9.1 说明：模型角色为确定性实现（付费调用手动，符合 19 §5 M9.1）；Lean 步骤为真实工具调用（自足定理，Mathlib 集成在后续 WorkUnit）。
