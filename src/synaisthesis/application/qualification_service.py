@@ -8,11 +8,13 @@ is performed here yet; those capabilities arrive in later storage tasks.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from dataclasses import replace
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
+from synaisthesis.agents.auditor import NoveltyAuditor
 from synaisthesis.agents.early_formalizer import (
     EarlyFormalizer,
     build_formula_items,
@@ -20,26 +22,38 @@ from synaisthesis.agents.early_formalizer import (
 )
 from synaisthesis.agents.engineering_feasibility_assessor import (
     EngineeringFeasibilityAssessor,
+    build_engineering_concept_bundle,
     engineering_concept_content_payload,
 )
+from synaisthesis.agents.novelty_reviewer import NoveltyReviewer
 from synaisthesis.agents.schemas import MechanismSketch, NaturalLanguageSpec, ResearchScopeSpec
+from synaisthesis.application.novelty_service import (
+    novelty_next_target,
+    open_low_novelty_research_gate,
+    start_novelty_review,
+)
 from synaisthesis.domain.enums import (
+    CapabilityStatus,
     EarlyFormalizationStatus,
     EngineeringConceptStatus,
     EngineeringRouteDecision,
+    FormalizationExecutionRoute,
     PriorArtCoverageStatus,
     ProvenanceType,
     QualificationGateType,
+    QualifiedNextTarget,
     ResearchRoute,
 )
 from synaisthesis.domain.errors import DomainError
 from synaisthesis.domain.event import sha256_hex
 from synaisthesis.domain.gate import Gate, GateBinding
+from synaisthesis.domain.novelty import NoveltyReview, novelty_policy_for
 from synaisthesis.domain.qualification import (
     EarlyFormalizationBundle,
     EngineeringConceptBundle,
     EngineeringRouteSelection,
     FeasibilityPredicateMatrix,
+    FormalizationCapabilityDecision,
     FormalizationCapabilityProfile,
     FormalizationFeasibilityAssessment,
     NeighborEvidenceSet,
@@ -743,8 +757,515 @@ def resolve_early_engineering_concept_review(
     return resolved, approval
 
 
+# ---------------------------------------------------------------------------
+# M13.3 — route-aware RQ0-RQ4 qualification pipeline (19 §5 M13.3)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class QualificationRun:
+    """One deterministic RQ0→RQ4 run with every stage artifact kept."""
+
+    run_id: str
+    project_id: str
+    research_spec_id: str
+    input_spec_hash: str
+    capability_decision: FormalizationCapabilityDecision
+    evidence: NeighborEvidenceSet
+    feasibility_assessment: FormalizationFeasibilityAssessment
+    route: ResearchRoute | None
+    route_selection: EngineeringRouteSelection | None
+    formula_bundle: EarlyFormalizationBundle | None
+    concept_bundle: EngineeringConceptBundle | None
+    user_formalization_approval: UserFormalizationApproval | None
+    user_engineering_concept_approval: UserEngineeringConceptApproval | None
+    novelty_review: NoveltyReview | None
+    next_target: QualifiedNextTarget | None
+    user_gate: Gate | None
+    created_at: datetime
+
+
+def _input_spec_hash(
+    spec: NaturalLanguageSpec,
+    mechanism: MechanismSketch,
+    scope: ResearchScopeSpec,
+) -> str:
+    return sha256_hex(
+        {
+            "spec": spec.model_dump(mode="json"),
+            "mechanism": mechanism.model_dump(mode="json"),
+            "scope": scope.model_dump(mode="json"),
+        }
+    )
+
+
+def run_qualification_pipeline(
+    *,
+    run_id: str | None = None,
+    project_id: str,
+    research_spec_id: str,
+    spec: NaturalLanguageSpec,
+    mechanism: MechanismSketch,
+    scope: ResearchScopeSpec,
+    capability_profile: FormalizationCapabilityProfile,
+    academic_providers: Sequence[PriorArtProvider],
+    engineering_providers: Sequence[PriorArtProvider],
+    queries: tuple[PriorArtQueryRequest, ...],
+    formalizer_session_id: str,
+    assessor_session_id: str,
+    primary_reviewer_factory: Callable[[ResearchRoute], NoveltyReviewer],
+    auditor_reviewer_factory: Callable[[ResearchRoute], NoveltyAuditor],
+    route_decision: str | None = None,
+    review_decision: str | None = "APPROVE",
+    actor: ProvenanceType = ProvenanceType.USER_DECISION,
+    user_event_id: str = "user-event:qualification-pipeline",
+    search_id: str | None = None,
+    unsearched_areas: tuple[str, ...] = (),
+    at: datetime | None = None,
+) -> QualificationRun:
+    """Execute route-aware RQ0→RQ4 for a real natural-language design.
+
+    - RQ0: capability gate must be CAPABILITY_READY, else RQ0_CAPABILITY_BLOCKED.
+    - RQ1: coverage must be COMPLETE, else RQ1_COVERAGE_INCOMPLETE (never auto-pass).
+    - RQ2F: fixed classification; ENGINEERING_PROJECT_CANDIDATE requires the
+      user's TRY_ENGINEERING_PROJECT route decision.
+    - RQ2M/RQ2E -> RQ3 review -> RQ4: 70 auto-continues to S5/ENG0; below 70 or
+      an unresolved gate returns the run to the user with `user_gate` set.
+    """
+    resolved_run_id = run_id or "qualification-" + uuid4().hex
+    now = at or datetime.now(UTC)
+    input_spec_hash = _input_spec_hash(spec, mechanism, scope)
+
+    capability_status, capability_blockers = evaluate_formalizer_capability(
+        capability_profile,
+        evaluated_at=now,
+    )
+    if capability_status is not CapabilityStatus.CAPABILITY_READY:
+        raise DomainError(
+            "RQ0 capability gate failed: " + "; ".join(capability_blockers),
+            error_code="RQ0_CAPABILITY_BLOCKED",
+        )
+    capability_decision = FormalizationCapabilityDecision(
+        decision_id=f"{resolved_run_id}:rq0",
+        project_id=project_id,
+        research_spec_id=research_spec_id,
+        route=FormalizationExecutionRoute.PLATFORM_ADVANCED_FORMALIZER,
+        model_profile_id=capability_profile.model_profile_id,
+        capability_evidence_refs=(f"model_profile:{capability_profile.model_profile_id}",),
+        input_spec_hash=input_spec_hash,
+        budget_snapshot_id=None,
+        privacy_policy_snapshot_id=None,
+        status=CapabilityStatus.CAPABILITY_READY,
+        blocker=None,
+    )
+
+    evidence = run_prior_art_search(
+        academic_providers=academic_providers,
+        engineering_providers=engineering_providers,
+        queries=queries,
+        research_spec_id=research_spec_id,
+        input_spec_hash=input_spec_hash,
+        search_id=search_id,
+        unsearched_areas=unsearched_areas,
+        now=now,
+    )
+    if evidence.coverage_status is not PriorArtCoverageStatus.COMPLETE:
+        raise DomainError(
+            "RQ1 coverage incomplete, no auto qualification: "
+            + "; ".join(evidence.coverage_blockers),
+            error_code="RQ1_COVERAGE_INCOMPLETE",
+        )
+
+    formalizer = EarlyFormalizer.create(
+        session_id=formalizer_session_id,
+        spec=spec,
+        mechanism=mechanism,
+        scope=scope,
+        evidence=evidence,
+    )
+    engineering_assessor = EngineeringFeasibilityAssessor.create(
+        session_id=assessor_session_id,
+        spec=spec,
+        mechanism=mechanism,
+        scope=scope,
+        evidence=evidence,
+    )
+    assessment = assess_formalization_feasibility(
+        assessment_id=f"{resolved_run_id}:rq2f",
+        version=1,
+        research_spec_id=research_spec_id,
+        input_spec_hash=input_spec_hash,
+        neighbor_evidence_set_id=evidence.search_id,
+        early_formalizer=formalizer,
+        engineering_assessor=engineering_assessor,
+        spec=spec,
+        mechanism=mechanism,
+        scope=scope,
+        evidence=evidence,
+        public_explanation=("RQ2F 双评估保守聚合，见 feasibility_matrix",),
+    )
+
+    classification = assessment.route_classification.value
+    route: ResearchRoute | None = None
+    route_selection: EngineeringRouteSelection | None = None
+    if classification == "ENGINEERING_PROJECT_CANDIDATE":
+        gate = open_formalization_feasibility_gate(
+            assessment=assessment,
+            gate_id=f"{resolved_run_id}:gate-route",
+        )
+        if gate is None:
+            raise DomainError(
+                "RQ2F engineering candidate produced no route gate",
+                error_code="GATE_BINDING_INVALID",
+            )
+        if route_decision is None:
+            return QualificationRun(
+                run_id=resolved_run_id,
+                project_id=project_id,
+                research_spec_id=research_spec_id,
+                input_spec_hash=input_spec_hash,
+                capability_decision=capability_decision,
+                evidence=evidence,
+                feasibility_assessment=assessment,
+                route=None,
+                route_selection=None,
+                formula_bundle=None,
+                concept_bundle=None,
+                user_formalization_approval=None,
+                user_engineering_concept_approval=None,
+                novelty_review=None,
+                next_target=None,
+                user_gate=gate,
+                created_at=now,
+            )
+        resolved, selection = resolve_engineering_route_decision(
+            gate=gate,
+            decision=route_decision,
+            actor=actor,
+            user_event_id=user_event_id,
+            current_input_spec_hash=input_spec_hash,
+            at=now,
+        )
+        if selection is None:
+            return QualificationRun(
+                run_id=resolved_run_id,
+                project_id=project_id,
+                research_spec_id=research_spec_id,
+                input_spec_hash=input_spec_hash,
+                capability_decision=capability_decision,
+                evidence=evidence,
+                feasibility_assessment=assessment,
+                route=None,
+                route_selection=None,
+                formula_bundle=None,
+                concept_bundle=None,
+                user_formalization_approval=None,
+                user_engineering_concept_approval=None,
+                novelty_review=None,
+                next_target=None,
+                user_gate=resolved,
+                created_at=now,
+            )
+        route = ResearchRoute.ENGINEERING
+        route_selection = selection
+    elif classification in {"PURE_THEORY_FIT", "HYBRID_FIT"}:
+        route = ResearchRoute.THEORY
+    else:
+        gate = open_formalization_feasibility_gate(
+            assessment=assessment,
+            gate_id=f"{resolved_run_id}:gate-feasibility",
+        )
+        if gate is None:
+            raise DomainError(
+                "RQ2F inconclusive produced no feasibility gate",
+                error_code="GATE_BINDING_INVALID",
+            )
+        return QualificationRun(
+            run_id=resolved_run_id,
+            project_id=project_id,
+            research_spec_id=research_spec_id,
+            input_spec_hash=input_spec_hash,
+            capability_decision=capability_decision,
+            evidence=evidence,
+            feasibility_assessment=assessment,
+            route=None,
+            route_selection=None,
+            formula_bundle=None,
+            concept_bundle=None,
+            user_formalization_approval=None,
+            user_engineering_concept_approval=None,
+            novelty_review=None,
+            next_target=None,
+            user_gate=gate,
+            created_at=now,
+        )
+
+    formula_bundle: EarlyFormalizationBundle | None = None
+    concept_bundle: EngineeringConceptBundle | None = None
+    formalization_approval: UserFormalizationApproval | None = None
+    concept_approval: UserEngineeringConceptApproval | None = None
+    subject_artifact_type: str
+    subject_artifact_id: str
+    subject_artifact_hash: str
+
+    if route is ResearchRoute.THEORY:
+        formula_bundle = build_early_formula_bundle(
+            capability_profile=capability_profile,
+            feasibility_assessment=assessment,
+            spec=spec,
+            mechanism=mechanism,
+            scope=scope,
+            evidence=evidence,
+            formalizer_session_id=formalizer_session_id,
+            formalization_id=f"{resolved_run_id}:rq2m",
+        )
+        gate = open_early_formalization_review(
+            bundle=formula_bundle,
+            gate_id=f"{resolved_run_id}:gate-rq3m",
+        )
+        if review_decision is None:
+            return QualificationRun(
+                run_id=resolved_run_id,
+                project_id=project_id,
+                research_spec_id=research_spec_id,
+                input_spec_hash=input_spec_hash,
+                capability_decision=capability_decision,
+                evidence=evidence,
+                feasibility_assessment=assessment,
+                route=route,
+                route_selection=None,
+                formula_bundle=formula_bundle,
+                concept_bundle=None,
+                user_formalization_approval=None,
+                user_engineering_concept_approval=None,
+                novelty_review=None,
+                next_target=None,
+                user_gate=gate,
+                created_at=now,
+            )
+        resolved, formalization_approval = resolve_early_formalization_review(
+            gate=gate,
+            decision=review_decision,
+            actor=actor,
+            user_event_id=user_event_id,
+            current_bundle_hash=formula_bundle.artifact_hash,
+            at=now,
+        )
+        if formalization_approval is None:
+            return QualificationRun(
+                run_id=resolved_run_id,
+                project_id=project_id,
+                research_spec_id=research_spec_id,
+                input_spec_hash=input_spec_hash,
+                capability_decision=capability_decision,
+                evidence=evidence,
+                feasibility_assessment=assessment,
+                route=route,
+                route_selection=None,
+                formula_bundle=formula_bundle,
+                concept_bundle=None,
+                user_formalization_approval=None,
+                user_engineering_concept_approval=None,
+                novelty_review=None,
+                next_target=None,
+                user_gate=resolved,
+                created_at=now,
+            )
+        subject_artifact_type = "EarlyFormalizationBundle"
+        subject_artifact_id = formula_bundle.formalization_id
+        subject_artifact_hash = formula_bundle.artifact_hash
+    else:
+        assert route_selection is not None
+        concept_bundle = build_engineering_concept_bundle(
+            route_selection=route_selection,
+            feasibility_assessment=assessment,
+            spec=spec,
+            mechanism=mechanism,
+            scope=scope,
+            evidence=evidence,
+            assessor_session_id=assessor_session_id,
+            concept_id=f"{resolved_run_id}:rq2e",
+        )
+        concept_status, concept_issues = validate_engineering_concept_bundle(concept_bundle)
+        if concept_status is not EngineeringConceptStatus.ENGINEERING_CONCEPT_CANDIDATE:
+            raise DomainError(
+                "RQ2E concept bundle invalid: " + "; ".join(concept_issues),
+                error_code="REQUIREMENT_COVERAGE_INCOMPLETE",
+            )
+        gate = open_early_engineering_concept_review(
+            bundle=concept_bundle,
+            gate_id=f"{resolved_run_id}:gate-rq3e",
+        )
+        if review_decision is None:
+            return QualificationRun(
+                run_id=resolved_run_id,
+                project_id=project_id,
+                research_spec_id=research_spec_id,
+                input_spec_hash=input_spec_hash,
+                capability_decision=capability_decision,
+                evidence=evidence,
+                feasibility_assessment=assessment,
+                route=route,
+                route_selection=route_selection,
+                formula_bundle=None,
+                concept_bundle=concept_bundle,
+                user_formalization_approval=None,
+                user_engineering_concept_approval=None,
+                novelty_review=None,
+                next_target=None,
+                user_gate=gate,
+                created_at=now,
+            )
+        resolved, concept_approval = resolve_early_engineering_concept_review(
+            gate=gate,
+            decision=review_decision,
+            actor=actor,
+            user_event_id=user_event_id,
+            current_concept_hash=concept_bundle.artifact_hash,
+            at=now,
+        )
+        if concept_approval is None:
+            return QualificationRun(
+                run_id=resolved_run_id,
+                project_id=project_id,
+                research_spec_id=research_spec_id,
+                input_spec_hash=input_spec_hash,
+                capability_decision=capability_decision,
+                evidence=evidence,
+                feasibility_assessment=assessment,
+                route=route,
+                route_selection=route_selection,
+                formula_bundle=None,
+                concept_bundle=concept_bundle,
+                user_formalization_approval=None,
+                user_engineering_concept_approval=None,
+                novelty_review=None,
+                next_target=None,
+                user_gate=resolved,
+                created_at=now,
+            )
+        subject_artifact_type = "EngineeringConceptBundle"
+        subject_artifact_id = concept_bundle.concept_id
+        subject_artifact_hash = concept_bundle.artifact_hash
+
+    review = start_novelty_review(
+        review_id=f"{resolved_run_id}:rq4",
+        project_id=project_id,
+        route=route,
+        policy_version=novelty_policy_for(route).policy_version,
+        subject_artifact_type=subject_artifact_type,
+        subject_artifact_id=subject_artifact_id,
+        subject_artifact_hash=subject_artifact_hash,
+        neighbor_evidence_set_id=evidence.search_id,
+        primary_reviewer=primary_reviewer_factory(route),
+        auditor_reviewer=auditor_reviewer_factory(route),
+        coverage_status=evidence.coverage_status,
+        nearest_overlap_refs=tuple(
+            neighbor.stable_identifier for neighbor in evidence.academic_neighbors[:2]
+        )
+        + tuple(neighbor.stable_identifier for neighbor in evidence.engineering_neighbors[:2]),
+        strongest_difference_refs=(scope.nearest_neighbor_difference,),
+        limitations=evidence.unsearched_areas,
+        at=now,
+    )
+    status, next_target, gate_type = novelty_next_target(review)
+    if next_target is None:
+        assert gate_type is not None
+        user_gate = open_low_novelty_research_gate(
+            review=review,
+            gate_id=f"{resolved_run_id}:gate-rq4",
+        )
+        assert user_gate.gate_type is gate_type
+        return QualificationRun(
+            run_id=resolved_run_id,
+            project_id=project_id,
+            research_spec_id=research_spec_id,
+            input_spec_hash=input_spec_hash,
+            capability_decision=capability_decision,
+            evidence=evidence,
+            feasibility_assessment=assessment,
+            route=route,
+            route_selection=route_selection,
+            formula_bundle=formula_bundle,
+            concept_bundle=concept_bundle,
+            user_formalization_approval=formalization_approval,
+            user_engineering_concept_approval=concept_approval,
+            novelty_review=review,
+            next_target=None,
+            user_gate=user_gate,
+            created_at=now,
+        )
+    del status
+    return QualificationRun(
+        run_id=resolved_run_id,
+        project_id=project_id,
+        research_spec_id=research_spec_id,
+        input_spec_hash=input_spec_hash,
+        capability_decision=capability_decision,
+        evidence=evidence,
+        feasibility_assessment=assessment,
+        route=route,
+        route_selection=route_selection,
+        formula_bundle=formula_bundle,
+        concept_bundle=concept_bundle,
+        user_formalization_approval=formalization_approval,
+        user_engineering_concept_approval=concept_approval,
+        novelty_review=review,
+        next_target=next_target,
+        user_gate=None,
+        created_at=now,
+    )
+
+
+def qualification_export_payload(run: QualificationRun) -> dict[str, Any]:
+    """M13.3 export: sources, feasibility matrix, route, formalization, scores, gate."""
+    assessment = run.feasibility_assessment
+    feasibility = {
+        "assessment_id": assessment.assessment_id,
+        "route_classification": assessment.route_classification.value,
+        "theory": [predicate.to_event_payload() for predicate in assessment.theory_predicates],
+        "engineering": [
+            predicate.to_event_payload() for predicate in assessment.engineering_predicates
+        ],
+    }
+    evidence = run.evidence
+    sources = {
+        "search_id": evidence.search_id,
+        "coverage_status": evidence.coverage_status.value,
+        "coverage_blockers": list(evidence.coverage_blockers),
+        "query_records": [record.to_event_payload() for record in evidence.query_records],
+        "academic_neighbors": [
+            neighbor.to_event_payload() for neighbor in evidence.academic_neighbors
+        ],
+        "engineering_neighbors": [
+            neighbor.to_event_payload() for neighbor in evidence.engineering_neighbors
+        ],
+        "metadata_verification_receipts": list(evidence.metadata_verification_receipts),
+        "unsearched_areas": list(evidence.unsearched_areas),
+    }
+    return {
+        "run_id": run.run_id,
+        "project_id": run.project_id,
+        "research_spec_id": run.research_spec_id,
+        "input_spec_hash": run.input_spec_hash,
+        "route": run.route.value if run.route else None,
+        "capability": run.capability_decision.to_event_payload(),
+        "sources": sources,
+        "feasibility_matrix": feasibility,
+        "formalization": (run.formula_bundle.to_event_payload() if run.formula_bundle else None),
+        "engineering_concept": (
+            run.concept_bundle.to_event_payload() if run.concept_bundle else None
+        ),
+        "scores": run.novelty_review.to_event_payload() if run.novelty_review else None,
+        "next_target": run.next_target.value if run.next_target else None,
+        "gate": run.user_gate.to_event_payload() if run.user_gate else None,
+        "exported_at": run.created_at.isoformat(),
+    }
+
+
 __all__ = [
     "MIN_ACADEMIC_NEIGHBORS",
+    "QualificationRun",
     "assess_formalization_feasibility",
     "build_early_formula_bundle",
     "open_early_engineering_concept_review",
@@ -763,6 +1284,8 @@ __all__ = [
     "MIN_ENGINEERING_SOURCE_CLASSES",
     "MIN_MATURITY_EVIDENCE_REFS",
     "neighbor_evidence_content_payload",
+    "qualification_export_payload",
     "run_prior_art_search",
+    "run_qualification_pipeline",
     "validate_prior_art_coverage",
 ]

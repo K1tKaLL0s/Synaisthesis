@@ -12,6 +12,7 @@ from synaisthesis.domain.enums import (
     PriorArtCoverageStatus,
     ProvenanceType,
     QualificationGateType,
+    QualifiedNextTarget,
     ResearchRoute,
 )
 from synaisthesis.domain.errors import DomainError
@@ -20,6 +21,21 @@ from synaisthesis.domain.novelty import (
     LowNoveltyOverride,
     NoveltyReview,
 )
+
+
+def novelty_next_target(
+    review: NoveltyReview,
+) -> tuple[NoveltyStatus, QualifiedNextTarget | None, QualificationGateType | None]:
+    """Map a frozen RQ4 review to the fixed route (03A, section 8.4).
+
+    70+ auto-continues to S5 (theory) or ENG0 (engineering); anything else
+    returns the run to the user through LOW_NOVELTY_RESEARCH_DECISION.
+    """
+    if review.status is NoveltyStatus.NOVELTY_QUALIFIED:
+        return review.status, QualifiedNextTarget.S5, None
+    if review.status is NoveltyStatus.ENGINEERING_NOVELTY_QUALIFIED:
+        return review.status, QualifiedNextTarget.ENG0, None
+    return review.status, None, QualificationGateType.LOW_NOVELTY_RESEARCH_DECISION
 
 
 def start_novelty_review(
@@ -181,6 +197,7 @@ def resolve_low_novelty_research_decision(
 
 
 __all__ = [
+    "novelty_next_target",
     "open_low_novelty_research_gate",
     "resolve_low_novelty_research_decision",
     "start_novelty_review",

@@ -3,6 +3,7 @@ from typing import Annotated
 import typer
 
 from synaisthesis.interfaces.cli.commands.project import app as project_app
+from synaisthesis.interfaces.cli.commands.qualify import app as qualify_app
 from synaisthesis.version import get_version
 
 app = typer.Typer(no_args_is_help=True)
@@ -30,3 +31,4 @@ def main(
 
 
 app.add_typer(project_app, name="project")
+app.add_typer(qualify_app, name="qualify")

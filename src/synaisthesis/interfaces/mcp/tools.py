@@ -25,6 +25,7 @@ from synaisthesis.domain.errors import DomainError
 TOOL_GET_PROJECT_STATE = "research_get_project_state"
 TOOL_GET_PENDING_GATES = "research_get_pending_gates"
 TOOL_GET_COMMAND_RECEIPT = "research_get_command_receipt"
+TOOL_QUALIFY_DESIGN = "research_qualify_design"
 TOOL_PREPARE_COMMAND = "research_prepare_command"
 TOOL_COMMIT_COMMAND = "research_commit_command"
 TOOL_CANCEL_PREPARED_COMMAND = "research_cancel_prepared_command"
@@ -33,6 +34,7 @@ READ_ONLY_TOOLS: tuple[str, ...] = (
     TOOL_GET_PROJECT_STATE,
     TOOL_GET_PENDING_GATES,
     TOOL_GET_COMMAND_RECEIPT,
+    TOOL_QUALIFY_DESIGN,
 )
 
 MUTATION_TOOLS: tuple[str, ...] = (
@@ -67,6 +69,25 @@ TOOL_DEFINITIONS: tuple[dict[str, Any], ...] = (
             "type": "object",
             "properties": {"receipt_id": {"type": "string"}},
             "required": ["receipt_id"],
+        },
+    },
+    {
+        "name": TOOL_QUALIFY_DESIGN,
+        "description": "Read-only route-aware RQ0-RQ4 qualification run (19 §5 M13.3)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_id": {"type": "string"},
+                "research_spec_id": {"type": "string"},
+                "spec": {"type": "object"},
+                "mechanism": {"type": "object"},
+                "scope": {"type": "object"},
+                "route_decision": {"type": "string"},
+                "review_decision": {"type": "string"},
+                "primary_scores": {"type": "object"},
+                "auditor_scores": {"type": "object"},
+            },
+            "required": ["project_id", "research_spec_id", "spec", "mechanism", "scope"],
         },
     },
     {
@@ -118,7 +139,114 @@ def _call_read_only(
             session, arguments.get("receipt_id", ""), artifact_root=artifact_root
         )
         return receipt.to_event_payload()
+    if tool_name == TOOL_QUALIFY_DESIGN:
+        return _qualify_design(arguments)
     raise DomainError(f"unknown read-only tool {tool_name!r}", error_code="MCP_METHOD_NOT_FOUND")
+
+
+def _qualify_design(arguments: dict[str, Any]) -> dict[str, Any]:
+    """Run one route-aware RQ0-RQ4 qualification over the fixture providers."""
+    from datetime import UTC, datetime, timedelta
+
+    from synaisthesis.agents.auditor import NoveltyAuditor
+    from synaisthesis.agents.novelty_reviewer import NoveltyReviewer
+    from synaisthesis.agents.schemas import (
+        MechanismSketch,
+        NaturalLanguageSpec,
+        ResearchScopeSpec,
+    )
+    from synaisthesis.application.qualification_service import (
+        qualification_export_payload,
+        run_qualification_pipeline,
+    )
+    from synaisthesis.domain.qualification import (
+        FormalizationCapabilityProfile,
+        PriorArtQueryRecord,
+    )
+    from synaisthesis.providers.prior_art.base import PriorArtQueryRequest
+    from synaisthesis.providers.prior_art.fake import (
+        fake_academic_providers,
+        fake_engineering_providers,
+    )
+
+    now = datetime.now(UTC)
+    queries = (
+        PriorArtQueryRequest(
+            query=PriorArtQueryRecord(
+                query_id="mcp-q-academic",
+                original_text="academic neighbors from S1/S4 fields",
+                generated_from=("S1.core_definition", "S4.central_claims"),
+                provider="fake-academic",
+                time_range="2015-2026",
+                filters=(),
+                page_count=1,
+                result_count=20,
+                executed_at=now,
+            ),
+            kind="academic",
+        ),
+        PriorArtQueryRequest(
+            query=PriorArtQueryRecord(
+                query_id="mcp-q-engineering",
+                original_text="mature engineering projects from S1/S4 fields",
+                generated_from=("S1.expected_functions", "S1.target_applications"),
+                provider="fake-engineering",
+                time_range="2015-2026",
+                filters=(),
+                page_count=1,
+                result_count=20,
+                executed_at=now,
+            ),
+            kind="engineering",
+        ),
+    )
+    primary_scores = arguments.get("primary_scores")
+    auditor_scores = arguments.get("auditor_scores")
+
+    def primary_factory(route):
+        return NoveltyReviewer.create(
+            session_id=f"mcp-primary-{route.value}",
+            route=route,
+            model_family="family-a",
+            scores=primary_scores,
+        )
+
+    def auditor_factory(route):
+        return NoveltyAuditor.create(
+            session_id=f"mcp-auditor-{route.value}",
+            route=route,
+            model_family="family-b",
+            scores=auditor_scores,
+        )
+
+    run = run_qualification_pipeline(
+        project_id=arguments.get("project_id", ""),
+        research_spec_id=arguments.get("research_spec_id", ""),
+        spec=NaturalLanguageSpec(**arguments["spec"]),
+        mechanism=MechanismSketch(**arguments["mechanism"]),
+        scope=ResearchScopeSpec(**arguments["scope"]),
+        capability_profile=FormalizationCapabilityProfile(
+            model_profile_id="mcp-profile",
+            capability_tier="ADVANCED",
+            formalization_eval_score=92.0,
+            math_schema_valid_rate=0.98,
+            source_citation_support=True,
+            structured_output_support=True,
+            context_budget_sufficient=True,
+            capability_evaluated_at=now - timedelta(days=1),
+        ),
+        academic_providers=fake_academic_providers(),
+        engineering_providers=fake_engineering_providers(),
+        queries=queries,
+        formalizer_session_id="mcp-formalizer",
+        assessor_session_id="mcp-assessor",
+        primary_reviewer_factory=primary_factory,
+        auditor_reviewer_factory=auditor_factory,
+        route_decision=arguments.get("route_decision"),
+        review_decision=arguments.get("review_decision", "APPROVE"),
+        user_event_id=f"mcp-user:{arguments.get('project_id', '')}",
+    )
+    return qualification_export_payload(run)
 
 
 def _pending_gates(session: Session, project_id: str | None, artifact_root: Path) -> dict[str, Any]:
@@ -275,6 +403,7 @@ __all__ = [
     "TOOL_GET_PENDING_GATES",
     "TOOL_GET_PROJECT_STATE",
     "TOOL_PREPARE_COMMAND",
+    "TOOL_QUALIFY_DESIGN",
     "TOOL_DEFINITIONS",
     "call_tool",
 ]
