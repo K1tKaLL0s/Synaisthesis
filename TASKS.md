@@ -34,10 +34,11 @@
 - [x] M6.2 — 三轨角色隔离（Stage 6 第 2 个 Task，提交 `8ecd361`，并行子 agent 实现、主 agent 复核接管提交）：IsolationLevel（BEHAVIORAL..CREDENTIAL）、CouncilRole（SUPPORT/OPPOSE/INDEPENDENT_REVIEWER）、ModelFamilyFingerprint/same_family/ModelIndependenceAssessment（同家族 degraded）、UntrustedExternalText + detect_injected_instructions（外部注入阻断）、CouncilRun/CouncilRound/RoleSession/VisibilityBundle（Phase A 产物仅生成方可见，assert_visibility_scope）、council_service（create run/round/register/issue/verify/load）、三轨 agent 骨架（12 个测试）
 - [x] M13.1 — 学术 Provider 生产适配（Stage 13 第 1 个 Task，提交 `7fb992a`，并行子 agent 实现）：OpenAlex/Crossref/arXiv 三个 PriorArtProvider 适配器（可注入 AcademicHttpTransport、零新依赖、receipt 含 query/time/page/metadata 可追溯）、deduplicate_academic_records 稳定去重（DOI/URL/stable_identifier）、normalization 学术元数据归一化扩展（不改 M2.4 既有行为）、失败 → BLOCKED_NETWORK/FAILED_PROVIDER 结构化 Blocker、外部文本保持 untrusted（12 个测试；全套 478 passed）
 - [x] M7.1 — Fake Council 状态图（Stage 7 第 1 个 Task，提交 `d16d467`）：有效轮五条件（03 §2，任一缺失不计数）、10 轮封顶（COUNCIL_COMPLETE）、每 5 轮 WIP_CHECKPOINT、第 20 轮 Mandatory Maturity Gate（MATURITY_GATE_REQUIRED，仅真实用户 CONTINUE_AFTER_ROUND_20 可通过）、pause/resume 状态图（RUNNING↔PAUSED）、checkpoint 恢复（不符即 CHECKPOINT_MISMATCH）、round 计划构建、council 节点（7 个测试，全套 485 passed）
+- [x] M8.1 — 真实 Z3 适配器（Stage 8 第 1 个 Task）：verifiers/z3/adapter.py（真实 `z3 -in` 调用、SAT/UNSAT/UNKNOWN 三分、内容绑定 receipt（input/output hash + tool version + exit code）、SAT witness 独立重验（模型标量赋值重检，非标量类型给 blocker 而非假通过）、超时 → UNKNOWN、输入只当数据永不当代码执行）、verifiers/registry.py（VerifierRegistry + z3_evidence_ok：UNKNOWN 永不为 PASS）、tests/external/test_z3_adapter.py 真实 smoke（Z3 5.0.0 经 N 盘 toolchain + WSL interop）（9 个测试，全套 494 passed）
 
 ## Next
 
-- [ ] M8.1.Z3.ADAPTER — 确定性验证器：SAT/UNSAT/UNKNOWN 分离、witness 独立重验、模型不可注入任意 Python（前置 M7.1）
+- [ ] M8.2.PYTHON.SANDBOX — Python 沙箱：无网络、无 secret、资源限制、超时和回执有效（前置 M8.1；Docker 隔离可验证）
 
 ## Backlog
 
