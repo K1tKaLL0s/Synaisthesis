@@ -28,6 +28,9 @@ MANIFEST_ROLE_MASTER_MANUSCRIPT = "master_manuscript"
 MANIFEST_ROLE_VENUE_ADAPTED = "venue_adapted"
 MANIFEST_ROLE_COMPLIANCE_MATRIX = "compliance_matrix"
 MANIFEST_ROLE_VENUE_PROFILE = "venue_profile"
+MANIFEST_ROLE_THEORY_MASTER = "theory_master_manuscript"
+MANIFEST_ROLE_PROOF_DEPENDENCY = "proof_dependency_graph"
+MANIFEST_ROLE_EVIDENCE_BASELINE = "evidence_baseline"
 
 
 def _sha256_bytes(content: bytes) -> str:
@@ -143,6 +146,12 @@ def _role_for_path(path: str) -> str:
             return MANIFEST_ROLE_COMPLIANCE_MATRIX
         if "venue_profile" in lowered or "profile" in lowered:
             return MANIFEST_ROLE_VENUE_PROFILE
+    if "proof_dependency_graph" in lowered:
+        return MANIFEST_ROLE_PROOF_DEPENDENCY
+    if "evidence_baseline" in lowered:
+        return MANIFEST_ROLE_EVIDENCE_BASELINE
+    if "theory_master" in lowered or "master.tex" in lowered:
+        return MANIFEST_ROLE_THEORY_MASTER
     if "master_manuscript" in lowered:
         return MANIFEST_ROLE_MASTER_MANUSCRIPT
     if "venue_adapted" in lowered or "adapted" in lowered:
@@ -196,6 +205,9 @@ __all__ = [
     "MANIFEST_ROLE_EXECUTIVE_SUMMARY",
     "MANIFEST_ROLE_MANIFEST",
     "MANIFEST_ROLE_MASTER_MANUSCRIPT",
+    "MANIFEST_ROLE_EVIDENCE_BASELINE",
+    "MANIFEST_ROLE_PROOF_DEPENDENCY",
+    "MANIFEST_ROLE_THEORY_MASTER",
     "MANIFEST_ROLE_TRACEABILITY",
     "MANIFEST_ROLE_VENUE_ADAPTED",
     "MANIFEST_ROLE_VENUE_PROFILE",

@@ -38,10 +38,11 @@
 - [x] M8.2 — 真实 Python 沙箱（Stage 8 第 2 个 Task，提交 `6cf2132`）：integrations/docker/policy.py（DockerSandboxPolicy：network=none、无 host mounts、只读根、内存/CPU/pids 限制、超时、allowed_env 白名单、policy_hash）、verifiers/python/sandbox.py（真实 `docker run --rm -i` 执行、内容绑定 receipt（exit/stdout/stderr/image_id/elapsed/policy·code hash）、超时 `docker rm -f` 杀容器无孤儿、Docker 不可用 → TOOL_UNAVAILABLE）、tests/external/test_python_sandbox.py 真实 smoke（基础执行/断网/无 secret/无挂载/pids 限制/OOM 137/超时清理/回执）（7 个测试，全套 501 passed）
 - [x] M8.3 — 真实 Lean 适配器（Stage 8 第 3 个 Task，提交 `5eb0896`）：verifiers/lean/adapter.py（真实 Lean 4.32.2 编译（~/.elan）、exit 0 才 E4-eligible、statement_hash_of_source（theorem/lemma/example 声明行 hash）与 assert_proof_loop_statement_unchanged（变化 → PROOF_LOOP_STATEMENT_CHANGED 退出 Proof Loop）、内容绑定 receipt（source/output/statement hash + tool version；临时文件路径从输出中消毒保证确定性；elapsed 不入 hash）、verifiers/registry.py lean_evidence_ok、tests/external/test_lean_adapter.py 真实 smoke（合法定理/错误证明/版本记录/hash 守卫/确定性/registry/不可用 Blocker）（7 个测试，全套 508 passed）
 - [x] M9.1 — 真实 Council 纵切片（Stage 9 第 1 个 Task，提交 `04c2b86`）：小 Claim 全链——Council run 启动（M6.2/M7.1 复用）→ 反例（确定性）→ repair 事件 → Semantic Gate（F4/F5 拒绝、仅真实用户 APPROVE）→ 真实 Lean 验证（exit 0 + receipt）→ 用户确认（绑定证据回执）→ Bundle 事件链（CouncilRunCreated/Started/RepairRecorded/SemanticGateResolved/EvidenceRecorded/SliceConfirmed）、regression 节点（statement hash 变化退出 Proof Loop）、council 验证/修复/语义/回归/确认节点（4 个测试，全套 512 passed）
+- [x] M9.2 — 理论论文交付（Stage 9 第 2 个 Task）：TheoryMasterManuscript（03C §5 全结构：定义/引理/定理/证明结构、MathematicalManuscriptClaim（kind/proof_status/statement hash/citation 强制，INCOMPLETE 不得标 THEOREM）、ProofDependencyGraph（无未声明循环，允许声明递归））、THEORY_MANUSCRIPT_AUDITOR 独立审计（statement hash 一致性/依赖闭合/义务未隐藏/引用存在；Major/Critical → WITH_FINDINGS）、FORMAL_MANUSCRIPT_DECISION（审计通过先交付后打开，绑定 master+evidence hash，KEEP_MASTER_ONLY 完整合法）、理论 Profile（MATH_ANNALS/JAMS/INVENTIONES/ACTA/ARXIV，MATH_ARXIV 恒 PREPRINT_REPOSITORY，STALE_GUIDANCE 阻断）、适配不改变 statement hash/量词/假设/结论/Evidence Scope、理论 Compliance（machine blocking 全 PASS；human blocking 未确认 → DRAFT）、交付 readiness、导出包 role 扩展、theory prompt assets（16 个测试，全套 528 passed）
 
 ## Next
 
-- [ ] M9.2.THEORY.PUBLICATION_DELIVERY — 理论论文交付：TheoryMasterManuscript、证明依赖图、theorem/claim 追踪、独立审计、FORMAL_MANUSCRIPT_DECISION、Profile 适配（前置 M9.1；必须读取 03C）
+- [ ] M10.CODEX.INBOUND — Codex 入站 MCP：经 Fidelity Gateway 创建/查询/启动/处理 Gate/导出（前置 M0.5+M9.1；MCP Inspector contract PASS）
 
 ## Backlog
 

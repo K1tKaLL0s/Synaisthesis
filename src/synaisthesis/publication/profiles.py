@@ -86,9 +86,9 @@ class PublicationProfile:
     profile_hash: str | None = None
 
     def __post_init__(self) -> None:
-        if self.route is not ResearchRoute.ENGINEERING:
+        if self.route not in {ResearchRoute.THEORY, ResearchRoute.ENGINEERING}:
             raise DomainError(
-                "engineering profile must bind ENGINEERING route",
+                "profile must bind THEORY or ENGINEERING route",
                 error_code="PROFILE_ROUTE_MISMATCH",
             )
         if self.freshness_days <= 0:
@@ -312,8 +312,115 @@ ENGINEERING_PROFILES: tuple[PublicationProfile, ...] = (
 )
 
 
+_THEORY_ACCESSED_AT = datetime(2026, 8, 17, 0, 0, 0, tzinfo=UTC)
+
+
+THEORY_PROFILES: tuple[PublicationProfile, ...] = (
+    PublicationProfile(
+        profile_id="MATH_ANNALS_OF_MATHEMATICS",
+        profile_version="1.0.0",
+        route=ResearchRoute.THEORY,
+        venue_kind=VenueKind.PEER_REVIEWED_JOURNAL,
+        venue_name="Annals of Mathematics",
+        publisher_or_operator="Princeton University / IAS",
+        scope_summary="具有广泛数学重要性的重大原创理论结果",
+        scope_fit_rules=("理论路线候选",),
+        official_author_guide_urls=("https://example.org/annals/guide",),
+        official_policy_urls=("https://example.org/annals/policy",),
+        accessed_at=_THEORY_ACCESSED_AT,
+        last_modified_if_available=_THEORY_ACCESSED_AT,
+        template_files=(_template("annals.tex", "t" * 64),),
+        article_types=("FULL_THEORY_ARTICLE",),
+        submission_format="TeX/LaTeX",
+        machine_checks=("statement hash 与冻结一致",),
+        human_only_checks=("作者责任与投稿独占性由用户确认",),
+        blocking_checks=("unsupported theorem claim 即阻断",),
+    ),
+    PublicationProfile(
+        profile_id="MATH_JAMS",
+        profile_version="1.0.0",
+        route=ResearchRoute.THEORY,
+        venue_kind=VenueKind.PEER_REVIEWED_JOURNAL,
+        venue_name="Journal of the American Mathematical Society",
+        publisher_or_operator="American Mathematical Society",
+        scope_summary="数学各领域高质量、广泛兴趣的研究文章",
+        scope_fit_rules=("理论路线候选",),
+        official_author_guide_urls=("https://example.org/jams/guide",),
+        official_policy_urls=("https://example.org/jams/policy",),
+        accessed_at=_THEORY_ACCESSED_AT,
+        last_modified_if_available=_THEORY_ACCESSED_AT,
+        template_files=(_template("jams.tex", "t" * 64),),
+        article_types=("FULL_THEORY_ARTICLE",),
+        submission_format="TeX/LaTeX",
+        machine_checks=("MSC/完整参考文献检查",),
+        human_only_checks=("作者包与责任字段由用户确认",),
+        blocking_checks=("statement hash 变化即阻断",),
+    ),
+    PublicationProfile(
+        profile_id="MATH_INVENTIONES",
+        profile_version="1.0.0",
+        route=ResearchRoute.THEORY,
+        venue_kind=VenueKind.PEER_REVIEWED_JOURNAL,
+        venue_name="Inventiones mathematicae",
+        publisher_or_operator="Springer",
+        scope_summary="具有显著新颖性和深度的纯数学研究",
+        scope_fit_rules=("理论路线候选",),
+        official_author_guide_urls=("https://example.org/inventiones/guide",),
+        official_policy_urls=("https://example.org/inventiones/policy",),
+        accessed_at=_THEORY_ACCESSED_AT,
+        last_modified_if_available=_THEORY_ACCESSED_AT,
+        template_files=(_template("inventiones.tex", "t" * 64),),
+        article_types=("FULL_THEORY_ARTICLE", "FORMALIZED_THEORY_ARTICLE"),
+        submission_format="TeX/LaTeX",
+        machine_checks=("proof dependency 闭合检查",),
+        human_only_checks=("伦理与作者确认",),
+        blocking_checks=("未解决义务被隐藏即阻断",),
+    ),
+    PublicationProfile(
+        profile_id="MATH_ACTA_MATHEMATICA",
+        profile_version="1.0.0",
+        route=ResearchRoute.THEORY,
+        venue_kind=VenueKind.PEER_REVIEWED_JOURNAL,
+        venue_name="Acta Mathematica",
+        publisher_or_operator="Institut Mittag-Leffler",
+        scope_summary="重要、完整且具有长期价值的数学研究",
+        scope_fit_rules=("理论路线候选",),
+        official_author_guide_urls=("https://example.org/acta/guide",),
+        official_policy_urls=("https://example.org/acta/policy",),
+        accessed_at=_THEORY_ACCESSED_AT,
+        last_modified_if_available=_THEORY_ACCESSED_AT,
+        template_files=(_template("acta.tex", "t" * 64),),
+        article_types=("FULL_THEORY_ARTICLE",),
+        submission_format="TeX/LaTeX",
+        machine_checks=("statement/evidence 追踪 100%",),
+        human_only_checks=("作者确认",),
+        blocking_checks=("引用捏造即阻断",),
+    ),
+    PublicationProfile(
+        profile_id="MATH_ARXIV_PREPRINT",
+        profile_version="1.0.0",
+        route=ResearchRoute.THEORY,
+        venue_kind=VenueKind.PREPRINT_REPOSITORY,
+        venue_name="arXiv Mathematics Preprint",
+        publisher_or_operator="arXiv",
+        scope_summary="math.* 预印本；arXiv 始终是 PREPRINT_REPOSITORY",
+        scope_fit_rules=("理论路线均可作为预印本候选",),
+        official_author_guide_urls=("https://example.org/arxiv/guide",),
+        official_policy_urls=("https://example.org/arxiv/policy",),
+        accessed_at=_THEORY_ACCESSED_AT,
+        last_modified_if_available=_THEORY_ACCESSED_AT,
+        template_files=(_template("arxiv.tex", "t" * 64),),
+        article_types=("FULL_THEORY_ARTICLE", "RESEARCH_NOTE"),
+        submission_format="TeX/LaTeX",
+        machine_checks=("metadata/TeX 源完整性检查",),
+        human_only_checks=("submitter/endorsement 由用户处理",),
+        blocking_checks=("不得标注 PEER_REVIEWED/ACCEPTED/PUBLISHED_IN_JOURNAL",),
+    ),
+)
+
+
 def profile_for(profile_id: str) -> PublicationProfile:
-    for profile in ENGINEERING_PROFILES:
+    for profile in (*ENGINEERING_PROFILES, *THEORY_PROFILES):
         if profile.profile_id == profile_id:
             return profile
     raise DomainError(
@@ -325,6 +432,7 @@ def profile_for(profile_id: str) -> PublicationProfile:
 __all__ = [
     "DEFAULT_FRESHNESS_DAYS",
     "ENGINEERING_PROFILES",
+    "THEORY_PROFILES",
     "FreshnessStatus",
     "ProfileTemplateFile",
     "PublicationProfile",

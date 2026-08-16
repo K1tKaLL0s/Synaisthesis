@@ -228,6 +228,15 @@ def qualification_next_target(
 # ---------------------------------------------------------------------------
 
 
+def publication_profile_allowed_decisions() -> tuple[str, ...]:
+    """All built-in publication profiles (engineering + theory routes)."""
+    from synaisthesis.publication.profiles import THEORY_PROFILES
+
+    engineering = tuple(member.value for member in EngineeringProfileChoice)
+    theory = tuple(profile.profile_id for profile in THEORY_PROFILES)
+    return tuple(dict.fromkeys(engineering + theory))
+
+
 def engineering_allowed_decisions_for_gate(
     gate_type: EngineeringGateType,
 ) -> tuple[str, ...]:
@@ -239,7 +248,7 @@ def engineering_allowed_decisions_for_gate(
     if gate_type is EngineeringGateType.FORMAL_MANUSCRIPT_DECISION:
         return tuple(member.value for member in FormalManuscriptDecision)
     if gate_type is EngineeringGateType.PUBLICATION_PROFILE_SELECTION:
-        return tuple(member.value for member in EngineeringProfileChoice)
+        return publication_profile_allowed_decisions()
     if gate_type is EngineeringGateType.ENGINEERING_DELIVERY_ACCEPTANCE:
         return tuple(member.value for member in EngineeringDeliveryAcceptanceDecision)
     raise DomainError(
@@ -377,5 +386,6 @@ __all__ = [
     "assert_claim_acceptance_decision",
     "claim_acceptance_allowed_decisions",
     "engineering_allowed_decisions_for_gate",
+    "publication_profile_allowed_decisions",
     "qualification_next_target",
 ]

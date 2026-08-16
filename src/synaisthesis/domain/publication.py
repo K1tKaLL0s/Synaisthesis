@@ -281,6 +281,66 @@ def master_manuscript_blockers(
     return tuple(blockers)
 
 
+class TheoryEvidenceTier(StrictStrEnum):
+    """Theory evidence tiers (03C, section 4.3)."""
+
+    PROVED_AND_SEMANTICALLY_ACCEPTED = "PROVED_AND_SEMANTICALLY_ACCEPTED"
+    FORMALLY_VERIFIED = "FORMALLY_VERIFIED"
+    COMPUTER_ASSISTED_PROOF = "COMPUTER_ASSISTED_PROOF"
+    COUNTEREXAMPLE_OR_NEGATIVE_RESULT = "COUNTEREXAMPLE_OR_NEGATIVE_RESULT"
+    PARTIAL_THEORY = "PARTIAL_THEORY"
+    DESIGN_ONLY = "DESIGN_ONLY"
+
+
+class TheoryPaperType(StrictStrEnum):
+    """Theory paper types (03C, section 4.3)."""
+
+    FULL_THEORY_ARTICLE = "FULL_THEORY_ARTICLE"
+    FORMALIZED_THEORY_ARTICLE = "FORMALIZED_THEORY_ARTICLE"
+    COMPUTER_ASSISTED_THEORY_ARTICLE = "COMPUTER_ASSISTED_THEORY_ARTICLE"
+    NEGATIVE_RESULT_ARTICLE = "NEGATIVE_RESULT_ARTICLE"
+    RESEARCH_NOTE = "RESEARCH_NOTE"
+    CONJECTURE_OR_OPEN_PROBLEM_ARTICLE = "CONJECTURE_OR_OPEN_PROBLEM_ARTICLE"
+    THEORY_PROTOCOL_OR_PROGRAMME_DRAFT = "THEORY_PROTOCOL_OR_PROGRAMME_DRAFT"
+
+
+THEORY_ALLOWED_PAPER_TYPES: dict[TheoryEvidenceTier, frozenset[TheoryPaperType]] = {
+    TheoryEvidenceTier.PROVED_AND_SEMANTICALLY_ACCEPTED: frozenset(
+        {TheoryPaperType.FULL_THEORY_ARTICLE}
+    ),
+    TheoryEvidenceTier.FORMALLY_VERIFIED: frozenset({TheoryPaperType.FORMALIZED_THEORY_ARTICLE}),
+    TheoryEvidenceTier.COMPUTER_ASSISTED_PROOF: frozenset(
+        {TheoryPaperType.COMPUTER_ASSISTED_THEORY_ARTICLE}
+    ),
+    TheoryEvidenceTier.COUNTEREXAMPLE_OR_NEGATIVE_RESULT: frozenset(
+        {TheoryPaperType.NEGATIVE_RESULT_ARTICLE}
+    ),
+    TheoryEvidenceTier.PARTIAL_THEORY: frozenset(
+        {
+            TheoryPaperType.RESEARCH_NOTE,
+            TheoryPaperType.CONJECTURE_OR_OPEN_PROBLEM_ARTICLE,
+        }
+    ),
+    TheoryEvidenceTier.DESIGN_ONLY: frozenset({TheoryPaperType.THEORY_PROTOCOL_OR_PROGRAMME_DRAFT}),
+}
+
+
+def theory_paper_type_allowed_by_evidence(
+    paper_type: TheoryPaperType, evidence_tier: TheoryEvidenceTier
+) -> bool:
+    """03C section 4.3: evidence tier decides the allowed theory paper type."""
+    return paper_type in THEORY_ALLOWED_PAPER_TYPES[evidence_tier]
+
+
+class TheoryManuscriptAuditStatus(StrictStrEnum):
+    """Theory master manuscript audit lifecycle (03C, section 6)."""
+
+    NOT_AUDITED = "NOT_AUDITED"
+    AUDITED_WITH_FINDINGS = "AUDITED_WITH_FINDINGS"
+    AUDITED_CLEAN = "AUDITED_CLEAN"
+    BLOCKED_THEORY_MASTER_MANUSCRIPT = "BLOCKED_THEORY_MASTER_MANUSCRIPT"
+
+
 class VenueComplianceStatus(StrictStrEnum):
     """Compliance matrix statuses (03B, section 12.3)."""
 
@@ -338,6 +398,11 @@ def compliance_blockers(matrix: VenueComplianceMatrix) -> tuple[str, ...]:
 
 __all__ = [
     "ALLOWED_PAPER_TYPES",
+    "THEORY_ALLOWED_PAPER_TYPES",
+    "TheoryEvidenceTier",
+    "TheoryManuscriptAuditStatus",
+    "TheoryPaperType",
+    "theory_paper_type_allowed_by_evidence",
     "AUTHOR_FIELDS",
     "AUTHOR_INPUT_NEEDS",
     "AUTHOR_INPUT_PROVIDED",
