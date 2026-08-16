@@ -129,7 +129,7 @@
 - M3.1 已提交：`275c9f9`。
 - M3.2 已提交：`b50cd3b`。
 - M4.1 已提交：`2de344d`（并行子 agent 实现，主 agent 复核）。
-- M4.2 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M4.2 已提交：`91b6a7e`。
 - M0.5.CODEX.FIDELITY 并行子 agent 进行中（fidelity/* + fidelity_service.py + 两个测试文件已在工作树，未提交）。
 - M2.11 蓝图缺口记录：GAP-1（“母稿交付用户”以 audit_status=AUDITED_CLEAN 为确定性代理，交付回执事件由后续 WorkUnit 补充）；GAP-2（JOSS/Nature venue_kind 03C 未枚举，定为 EXTENDED_PROFILE 并记录在案）。
 - M2.11 内置 Profile 为冻结 fixture（官方 URL 为示例域名）；真实指南刷新与模板 checksum 由后续生产级 WorkUnit 接入。
