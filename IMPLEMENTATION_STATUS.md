@@ -7,7 +7,7 @@
 `M2.10.ENGINEERING.MECHANICAL_BLUEPRINT`
 
 ## Last verified commit
-M2.10 已提交（见 M2.10 提交记录）
+`3070c49`（M2.10 已提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
@@ -119,7 +119,7 @@ M2.10 已提交（见 M2.10 提交记录）
 - M2.7 已提交：`0c4edeb`。
 - M2.8 已提交：`19be013`。
 - M2.9 已提交：`9d42022`。
-- M2.10 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M2.10 已提交：`3070c49`。
 - M2.10 WorkUnit 合同字段为 15 个（03B §8.2 第 1 项“稳定 Task ID 与唯一目标”拆分为 task_id + unique_objective 两个字段），golden 测试按 14 项合同逐一断言非空。
 - M2.9 蓝图缺口记录：GAP-1（真实 Mermaid/Graphviz 渲染依赖外部工具，M2.9 提供确定性内置文本源→SVG 渲染器作为合同，真实渲染器后续 WorkUnit 替换，合同不得放宽）；GAP-2（ENG0/ENG1 服务未单列于 19 §5 M2.9 文件清单，纳入 engineering_design_service 以支撑纵向切片前置）。
 - M2.9 事件负载为 dataclass canonical JSON，`rebuild_dataclass` 按字段注解重建枚举/嵌套 dataclass/datetime，round-trip 由 focused 测试覆盖。
