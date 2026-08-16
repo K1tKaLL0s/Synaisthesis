@@ -19,7 +19,7 @@
 - [x] M2.5B — RQ2E 工程概念形式化（Stage 2.5 第 5 个 Task）：TRY_ENGINEERING_PROJECT hash 绑定、I/O/状态/要求谓词/未决阈值/架构图候选/追踪/失败恢复验证、EARLY_ENGINEERING_CONCEPT_REVIEW 用户审批（9 个测试；全套 186 passed）
 - [x] M2.6 — Novelty 路线审验（Stage 2.5 第 6 个 Task）：两个隔离 Reviewer/Auditor、逐项近邻证据、独立性与 route/policy 校验、理论/工程 69/70 路由、低分用户 Gate 与绑定 override（9 个测试，全套 195 passed）
 - [x] M2.7 — S5 纵向切片（Stage 2.5 第 7 个 Task）：MinimalCaseBundle Schema/Prompt、RQ4M 前置强制、actually_executed/receipt 分离、事件溯源恢复一致、s5_qualification_node（7 个测试，全套 202 passed）
-- [x] M2.8 — 工程工作流领域（Stage 2.6 第 1 个 Task）：ENG0–ENG10 领域对象与状态事件（03B 全部阶段 Artifact）、ENG0 入口强制（用户 route/RQ3E/RQ4E 或绑定 override/S1·S4 hash 不变）、阶段 Artifact 不可变 + 内容 hash、S1/S4 与上游 hash 变化确定性回归、工程 Gate（架构评审/原型授权/母稿决策/Profile/交付验收）、requirements/architecture/traceability/publication 领域模块、migration 0004（66 个测试，全套 268 passed）
+- [x] M2.8 — 工程工作流领域（Stage 2.6 第 1 个 Task，提交 `19be013`）：ENG0–ENG10 领域对象与状态事件（03B 全部阶段 Artifact）、ENG0 入口强制（用户 route/RQ3E/RQ4E 或绑定 override/S1·S4 hash 不变）、阶段 Artifact 不可变 + 内容 hash、S1/S4 与上游 hash 变化确定性回归、工程 Gate（架构评审/原型授权/母稿决策/Profile/交付验收）、requirements/architecture/traceability/publication 领域模块、migration 0004（66 个测试，全套 268 passed）
 
 ## Next
 

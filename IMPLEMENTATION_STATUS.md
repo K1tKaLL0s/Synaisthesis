@@ -7,7 +7,7 @@
 `M2.8.ENGINEERING.WORKFLOW_DOMAIN`
 
 ## Last verified commit
-`M2.8` 已提交（见下方 M2.8 提交记录）
+`19be013`（M2.8 已提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
@@ -115,7 +115,7 @@
 - M2.5/M2.5B 已提交：`4609db8`。
 - M2.6 已提交：`1c2cb58`。
 - M2.7 已提交：`0c4edeb`。
-- M2.8 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M2.8 已提交：`19be013`。
 - M2.8 蓝图缺口记录：GAP-1（03B §14 回归表部分行给出多个回退点，领域层 `EARLIEST_ROLLBACK` 固定取最早保守回退点并注释在案）；GAP-2（06 §engineering_manuscripts 无 compliance 字段，ComplianceMatrix 由 `domain/publication.py` 领域对象承载，migration 0004 未加列）。
 - M2.8 工程枚举按 19 §5 M2.8 文件清单落在 `domain/engineering.py`（`domain/enums.py` 不在清单内），与 enums.py 模块 docstring 的“里程碑枚举归里程碑文件”约定一致。
 - M2.8 本会话期间 DSH 环境在仓库内创建未跟踪目录 `.dsh-upstream/`（modeltest 检查点），已在 `.gitignore` 追加忽略，避免误提交与本地 ruff 门禁污染；CI 全新检出不受影响。
