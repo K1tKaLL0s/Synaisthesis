@@ -141,6 +141,21 @@ class NoveltyScorecard:
 
 
 @dataclass(frozen=True, slots=True)
+class NoveltyItemEvidence:
+    """Per-item evidence citations required by 03A section 8.1."""
+
+    item_id: str
+    evidence_refs: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if not self.evidence_refs or any(not ref.strip() for ref in self.evidence_refs):
+            raise DomainError(
+                f"novelty item {self.item_id!r} must cite RQ1 neighbors or unsearched areas",
+                error_code="NOVELTY_EVIDENCE_MISSING",
+            )
+
+
+@dataclass(frozen=True, slots=True)
 class ConservativeNoveltyScores:
     """Item-wise min aggregation and the route-specific component totals."""
 
@@ -287,6 +302,7 @@ class NoveltyReview:
     limitations: tuple[str, ...]
     artifact_hash: str
     created_at: datetime
+    review_valid: bool = True
 
     def __post_init__(self) -> None:
         policy = novelty_policy_for(self.route)
@@ -322,10 +338,14 @@ class NoveltyReview:
                 "novelty_total must be in [0, 100]",
                 error_code="NOVELTY_TOTAL_INVALID",
             )
-        expected_status = _review_status(
-            coverage_status=self.coverage_status,
-            novelty_total=self.novelty_total,
-            route=self.route,
+        expected_status = (
+            NoveltyStatus.INCONCLUSIVE
+            if not self.review_valid
+            else _review_status(
+                coverage_status=self.coverage_status,
+                novelty_total=self.novelty_total,
+                route=self.route,
+            )
         )
         if self.status is not expected_status:
             raise DomainError(
@@ -364,6 +384,7 @@ class NoveltyReview:
         strongest_difference_refs: tuple[str, ...],
         limitations: tuple[str, ...],
         created_at: datetime,
+        review_valid: bool = True,
     ) -> NoveltyReview:
         """Build an immutable review with computed scores, status and hash."""
         policy = novelty_policy_for(route)
@@ -378,7 +399,7 @@ class NoveltyReview:
             auditor=auditor_scorecard,
         )
         decision = route_novelty_decision(
-            review_valid=True,
+            review_valid=review_valid,
             coverage_status=coverage_status,
             route=route,
             primary=primary_scorecard,
@@ -409,6 +430,7 @@ class NoveltyReview:
             "strongest_difference_refs": list(strongest_difference_refs),
             "limitations": list(limitations),
             "created_at": created_at.isoformat(),
+            "review_valid": review_valid,
         }
         return cls(
             review_id=review_id,
@@ -434,6 +456,7 @@ class NoveltyReview:
             limitations=limitations,
             artifact_hash=sha256_hex(content),
             created_at=created_at,
+            review_valid=review_valid,
         )
 
     def content_payload(self) -> dict[str, Any]:
@@ -469,6 +492,7 @@ class NoveltyReview:
             "strongest_difference_refs": self.strongest_difference_refs,
             "limitations": self.limitations,
             "created_at": self.created_at,
+            "review_valid": self.review_valid,
         }
         if include_artifact_hash:
             payload["artifact_hash"] = self.artifact_hash
@@ -518,6 +542,7 @@ __all__ = [
     "THEORY_NOVELTY_POLICY",
     "ConservativeNoveltyScores",
     "LowNoveltyOverride",
+    "NoveltyItemEvidence",
     "NoveltyPolicy",
     "NoveltyReview",
     "NoveltyRouteDecision",

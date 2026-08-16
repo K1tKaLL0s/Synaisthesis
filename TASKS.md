@@ -17,10 +17,11 @@
 - [x] M2.4A — RQ2F 双评估与强制分流（Stage 2.5 第 3 个 Task）：TFO–TFP / EFS–EFF 双评估、FAIL>UNKNOWN>PASS 聚合、固定真值表、ENGINEERING_ROUTE_DECISION / FORMALIZATION_FEASIBILITY_DECISION 用户 Gate、真实用户工程路线选择与 hash 绑定（17 个测试，全套 166 passed）
 - [x] M2.5 — RQ2M 早期数学形式化（Stage 2.5 第 4 个 Task）：能力门、10 类公式骨架、符号闭合/依赖无环/语义映射/失败公式/hash 验证、EARLY_FORMALIZATION_REVIEW 用户审批（11 个 golden 测试）
 - [x] M2.5B — RQ2E 工程概念形式化（Stage 2.5 第 5 个 Task）：TRY_ENGINEERING_PROJECT hash 绑定、I/O/状态/要求谓词/未决阈值/架构图候选/追踪/失败恢复验证、EARLY_ENGINEERING_CONCEPT_REVIEW 用户审批（9 个测试；全套 186 passed）
+- [x] M2.6 — Novelty 路线审验（Stage 2.5 第 6 个 Task）：两个隔离 Reviewer/Auditor、逐项近邻证据、独立性与 route/policy 校验、理论/工程 69/70 路由、低分用户 Gate 与绑定 override（9 个测试，全套 195 passed；验收通过，工作区未提交）
 
 ## Next
 
-- [ ] M2.6.RQ.NOVELTY_POLICY — 两个隔离 Reviewer、理论/工程路线评分、69/70 路由与低分用户 Gate（前置 M2.5/M2.5B 已 PASS 且已提交）
+- [ ] M2.7.S5.VERTICAL_SLICE — S5 Schema/Prompt、RQ 前置强制、DEMONSTRATED/EXECUTED 分离与恢复一致（前置 M2.6 已验收 PASS；开始前需先处理 M2.6 提交）
 
 ## Backlog
 
