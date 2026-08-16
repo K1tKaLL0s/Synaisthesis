@@ -39,10 +39,11 @@
 - [x] M8.3 — 真实 Lean 适配器（Stage 8 第 3 个 Task，提交 `5eb0896`）：verifiers/lean/adapter.py（真实 Lean 4.32.2 编译（~/.elan）、exit 0 才 E4-eligible、statement_hash_of_source（theorem/lemma/example 声明行 hash）与 assert_proof_loop_statement_unchanged（变化 → PROOF_LOOP_STATEMENT_CHANGED 退出 Proof Loop）、内容绑定 receipt（source/output/statement hash + tool version；临时文件路径从输出中消毒保证确定性；elapsed 不入 hash）、verifiers/registry.py lean_evidence_ok、tests/external/test_lean_adapter.py 真实 smoke（合法定理/错误证明/版本记录/hash 守卫/确定性/registry/不可用 Blocker）（7 个测试，全套 508 passed）
 - [x] M9.1 — 真实 Council 纵切片（Stage 9 第 1 个 Task，提交 `04c2b86`）：小 Claim 全链——Council run 启动（M6.2/M7.1 复用）→ 反例（确定性）→ repair 事件 → Semantic Gate（F4/F5 拒绝、仅真实用户 APPROVE）→ 真实 Lean 验证（exit 0 + receipt）→ 用户确认（绑定证据回执）→ Bundle 事件链（CouncilRunCreated/Started/RepairRecorded/SemanticGateResolved/EvidenceRecorded/SliceConfirmed）、regression 节点（statement hash 变化退出 Proof Loop）、council 验证/修复/语义/回归/确认节点（4 个测试，全套 512 passed）
 - [x] M9.2 — 理论论文交付（Stage 9 第 2 个 Task，提交 `e95b9ad`）：TheoryMasterManuscript（03C §5 全结构：定义/引理/定理/证明结构、MathematicalManuscriptClaim（kind/proof_status/statement hash/citation 强制，INCOMPLETE 不得标 THEOREM）、ProofDependencyGraph（无未声明循环，允许声明递归））、THEORY_MANUSCRIPT_AUDITOR 独立审计（statement hash 一致性/依赖闭合/义务未隐藏/引用存在；Major/Critical → WITH_FINDINGS）、FORMAL_MANUSCRIPT_DECISION（审计通过先交付后打开，绑定 master+evidence hash，KEEP_MASTER_ONLY 完整合法）、理论 Profile（MATH_ANNALS/JAMS/INVENTIONES/ACTA/ARXIV，MATH_ARXIV 恒 PREPRINT_REPOSITORY，STALE_GUIDANCE 阻断）、适配不改变 statement hash/量词/假设/结论/Evidence Scope、理论 Compliance（machine blocking 全 PASS；human blocking 未确认 → DRAFT）、交付 readiness、导出包 role 扩展、theory prompt assets（16 个测试，全套 528 passed）
+- [x] M10 — Codex 入站 MCP（Stage 10 第 1 个 Task）：stdio JSON-RPC 2.0 MCP server（Content-Length 帧、initialize 握手、tools/list、tools/call）、只读工具直接（project state/pending gates/command receipt）、三类 mutation 工具（prepare/commit/cancel）一律经 Fidelity Command Gateway（无 instruction_token → FIDELITY_CHANNEL_REQUIRED fail closed；token 签名/state version/幂等/ContextManifest 由 gateway 强制）、未知方法/工具 → -32601、plugin/manifest.json + PreToolUse hook 骨架（防御纵深，服务端独立复验）、MCP 帧协议 round-trip（7 个测试，全套 535 passed）
 
 ## Next
 
-- [ ] M10.CODEX.INBOUND — Codex 入站 MCP：经 Fidelity Gateway 创建/查询/启动/处理 Gate/导出（前置 M0.5+M9.1；MCP Inspector contract PASS）
+- [ ] M11.CODEX.OUTBOUND — Codex 出站：独立 worktree、受控文件、diff/test Receipt、适配器重验（前置 M10；安装 SDK 属单独依赖 Task）
 
 ## Backlog
 

@@ -13,10 +13,10 @@
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M9.2.THEORY.PUBLICATION_DELIVERY`
-- Milestone: `M9`（Stage 9 第 2 个 Task：理论论文交付）
-- WorkUnitContract: `workspace/workunit-contracts/M9.2.THEORY.PUBLICATION_DELIVERY.md`
-- 交付：TheoryMasterManuscript/审计/正式稿决策/理论 Profile/适配与合规/readiness。
+- Stable Task ID: `M10.CODEX.INBOUND`
+- Milestone: `M10`（Stage 10 第 1 个 Task：Codex 入站 MCP）
+- WorkUnitContract: `workspace/workunit-contracts/M10.CODEX.INBOUND.md`
+- 交付：stdio JSON-RPC MCP server + Fidelity Gateway 接线 + plugin manifest/hooks 骨架。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -102,6 +102,7 @@
 - M8.3：`workspace/.venv-m13/bin/python -m pytest tests/external/test_lean_adapter.py` 7 passed（真实 Lean 4.32.2 smoke：合法定理 exit 0 / 错误证明 exit 1 / 版本记录 / statement hash 守卫 / receipt 确定性 / registry / 不可用 Blocker）；全套 `workspace/.venv-m13/bin/python -m pytest` 508 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M9.1：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_real_council_smoke.py` 4 passed（真实 Lean 验证步骤在内）；全套 `workspace/.venv-m13/bin/python -m pytest` 512 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M9.2：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_theory_claim_manuscript_trace.py tests/unit/application/test_theory_master_manuscript.py tests/integration/test_theory_publication_delivery.py` 16 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 528 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M10：`workspace/.venv-m13/bin/python -m pytest tests/contract/mcp/test_mcp_server.py` 7 passed（握手/tools 列表/未知方法 fail-closed/无 token mutation 阻断/prepare 经 gateway/只读 gates/帧 round-trip）；全套 `workspace/.venv-m13/bin/python -m pytest` 535 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M0.5（并入 d6dbfbe）：`workspace/.venv-m13/bin/python -m pytest tests/security/test_codex_fidelity.py tests/integration/test_prepare_commit.py` 29 passed；`ruff check --no-cache src/synaisthesis/fidelity/ src/synaisthesis/application/fidelity_service.py` 通过；format 通过
 
 ## Known failures
@@ -112,7 +113,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M10.CODEX.INBOUND`（前置 M0.5+M9.1 已 PASS；必须读取 05A §18 与 07 §MCP；Codex 经 Fidelity Gateway 的入站 MCP）
+- 代码方面：`M11.CODEX.OUTBOUND`（前置 M10 已 PASS；必须读取 19 §5 M11；独立 worktree/受控文件/diff·test Receipt/适配器重验；安装 SDK 属单独依赖 Task）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -153,6 +154,8 @@
 - M8.3 已提交：`5eb0896`。
 - M9.1 已提交：`04c2b86`。
 - M9.2 已提交：`e95b9ad`。
+- M10 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M10 说明：MCP Inspector（外部 UI 工具）不在本环境，协议合同以 JSON-RPC 帧与工具级 contract tests 覆盖（19 §5 M10 的 Inspector PASS 留待真实 Inspector 环境）；Hook 为骨架 + 服务端独立复验（05A §19）。
 - M9.2 说明：理论 Profile 为冻结 fixture（官方 URL 示例域名），真实指南刷新留给生产级 WorkUnit；TeX/PDF 真实编译回执后续 WorkUnit 接线（本任务为领域与服务合同）。
 - M9.1 说明：模型角色为确定性实现（付费调用手动，符合 19 §5 M9.1）；Lean 步骤为真实工具调用（自足定理，Mathlib 集成在后续 WorkUnit）。
 - M8.3 环境：Lean 4.32.2 / Lake 5.0.0 经 ~/.elan（WSL 原生二进制）；Mathlib 集成留给 M9.1（本任务为自足定理编译合同）。

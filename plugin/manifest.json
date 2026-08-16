@@ -1,0 +1,23 @@
+{
+  "name": "synaisthesis",
+  "version": "0.1.0",
+  "description": "Synaisthesis MCP server: read-only research tools plus Fidelity-gated mutations",
+  "mcpServers": {
+    "synaisthesis": {
+      "command": "synaisthesis-mcp",
+      "args": [],
+      "env": {}
+    }
+  },
+  "hooks": {
+    "UserPromptSubmit": "plugin/hooks/user_prompt_submit.py",
+    "PreToolUse": "plugin/hooks/pre_tool_use.py",
+    "PostToolUse": "plugin/hooks/post_tool_use.py",
+    "Stop": "plugin/hooks/stop.py"
+  },
+  "notes": [
+    "Mutations (research_prepare_command/research_commit_command/research_cancel_prepared_command) are served only through the Fidelity Command Gateway; without a valid instruction token they fail closed with FIDELITY_CHANNEL_REQUIRED.",
+    "Hook 是重要防线但不是唯一防线；MCP server 必须独立验证 token/hash/state version（05A §19）。",
+    "Real hook installation and doctor verification are environment wiring; the fidelity contract is enforced server-side regardless."
+  ]
+}
