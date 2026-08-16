@@ -152,7 +152,7 @@
 - M8.2 已提交：`6cf2132`。
 - M8.3 已提交：`5eb0896`。
 - M9.1 已提交：`04c2b86`。
-- M9.2 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M9.2 已提交：`e95b9ad`。
 - M9.2 说明：理论 Profile 为冻结 fixture（官方 URL 示例域名），真实指南刷新留给生产级 WorkUnit；TeX/PDF 真实编译回执后续 WorkUnit 接线（本任务为领域与服务合同）。
 - M9.1 说明：模型角色为确定性实现（付费调用手动，符合 19 §5 M9.1）；Lean 步骤为真实工具调用（自足定理，Mathlib 集成在后续 WorkUnit）。
 - M8.3 环境：Lean 4.32.2 / Lake 5.0.0 经 ~/.elan（WSL 原生二进制）；Mathlib 集成留给 M9.1（本任务为自足定理编译合同）。
