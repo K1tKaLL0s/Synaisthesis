@@ -30,10 +30,11 @@
 - [x] M5.1 — ActionBroker/Gate 策略（Stage 5 第 1 个 Task，提交 `d6dbfbe`）：A0–A3 委托 × R0–R6 风险确定性路由（R0 自动；R1 需 A2/A3+路径 allowlist；R2 域名 allowlist；R3 预算；R4–R6 恒 Human Gate）、Semantic Delta F4→GATE/F5→REJECT、模型/工作流/默认超时不能批准（CONFIRMATION_REQUIRES_USER_EVENT）、ActionRequest/ExecutionReceipt（08 §12 全字段，request/result hash 缺失即 RECEIPT_HASH_MISSING、绑定不符即 RECEIPT_HASH_MISMATCH）、无 Receipt 不形成 Tool Evidence、通用 gate_service 持久化任意 Gate（15 个测试）
 - [x] M0.5 — Codex 指令忠实通道（P0；并行子 agent 实现，随 `d6dbfbe` 合并提交）：fidelity 10 模块 + fidelity_service（Capsule/Token/SessionBinding/ContextManifest/Delta/prepare-commit/CommandReceipt/DisplayContract/command_gateway，fail-closed 无 token、state version + idempotency、非用户确认拒绝）、29 个 security/integration 测试全绿（并入提交说明见 IMPLEMENTATION_STATUS.md）
 - [x] M6.1 — LLM Provider 层（Stage 6 第 1 个 Task，提交 `cd62a2f`）：Provider 无关接口（LLMProvider Protocol）、FakeLLMProvider 确定性（同请求同响应同 usage hash）、结构化输出严格解析（缺失/未知键/非法 JSON → STRUCTURED_OUTPUT_INVALID，不写领域状态）、UsageRecord（tokens/cost/request·response hash 内容绑定）、零新依赖（8 个测试，全套 460 passed）
+- [x] M6.3 — RQ 角色接入模型路由（Stage 6 第 3 个 Task）：LLMRouter（role→provider 绑定、结构化输出强制、reviewer_independence 同家族 degraded）、capability_profile_from_llm（RQ0 能力证据；无证据/非 ADVANCED → CAPABILITY_UNAVAILABLE，绝不无证据标记 ADVANCED）、early_formalizer.build_formula_items_from_llm 与 novelty_reviewer.review_scorecard_from_llm（Fake 骨架保留 CI）（9 个测试，全套 469 passed）
 
 ## Next
 
-- [ ] M6.2.ROLE.ISOLATION — 三轨隔离：Phase A 互不可见、同家族 degraded、违规阻断（前置 M6.1）
+- [ ] M6.2.ROLE.ISOLATION — 三轨隔离：Phase A 互不可见、同家族 degraded、违规阻断（前置 M6.1；并行子 agent 实现中）
 
 ## Backlog
 

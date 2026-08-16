@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from synaisthesis.agents.schemas import MechanismSketch, NaturalLanguageSpec, ResearchScopeSpec
 from synaisthesis.domain.enums import FormulaOrigin, PredicateVerdict
@@ -454,3 +455,75 @@ def validate_formula_items(
     if any(visit(node) for node in formula_dependency_graph):
         issues.append("公式依赖图存在环")
     return tuple(issues)
+
+
+# ---------------------------------------------------------------------------
+# M6.3 — LLM-routed formula generation (03A sections 5, 19 §5 M6.3)
+# ---------------------------------------------------------------------------
+
+FORMULA_ITEMS_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "required": ["formulas"],
+    "additionalProperties": False,
+    "properties": {"formulas": {"type": "array"}},
+}
+
+
+def build_formula_items_from_llm(
+    *,
+    router: Any,
+    session_id: str,
+    spec: NaturalLanguageSpec,
+    mechanism: MechanismSketch,
+    scope: ResearchScopeSpec,
+    evidence: NeighborEvidenceSet,
+) -> tuple[FormulaItem, ...]:
+    """Build RQ2M formula items through the LLM router (Fake path preserved).
+
+    The router enforces strict structured output: any parsing failure raises
+    StructuredOutputError and nothing is written to domain state.  The
+    deterministic skeleton in ``build_formula_items`` remains untouched for CI.
+    """
+    from synaisthesis.providers.llm.base import LLMRequest, StructuredOutputError
+    from synaisthesis.providers.llm.router import ROLE_EARLY_FORMALIZER
+
+    response = router.complete_for(
+        ROLE_EARLY_FORMALIZER,
+        LLMRequest(
+            prompt=(
+                "把冻结的 S1/S2/S4 材料转换为 RQ2M 公式清单。"
+                f"object_domain={scope.object_domain}; "
+                f"mechanism={mechanism.state_change}; "
+                f"evidence_set={evidence.search_id}"
+            ),
+            structured_schema=FORMULA_ITEMS_SCHEMA,
+        ),
+    )
+    if response.structured is None:
+        raise StructuredOutputError(
+            "LLM 公式生成缺少结构化输出",
+            error_code="STRUCTURED_OUTPUT_INVALID",
+        )
+    items: list[FormulaItem] = []
+    for raw in response.structured["formulas"]:
+        items.append(
+            FormulaItem(
+                formula_id=str(raw["formula_id"]),
+                formula_type=str(raw["formula_type"]),
+                latex=str(raw["latex"]),
+                normalized_math_ast=raw.get("normalized_math_ast"),
+                symbols_used=tuple(raw.get("symbols_used", ())),
+                source_spec_fields=tuple(raw.get("source_spec_fields", ())),
+                assumption_formula_ids=tuple(raw.get("assumption_formula_ids", ())),
+                neighbor_refs=tuple(raw.get("neighbor_refs", ())),
+                origin=FormulaOrigin(
+                    raw.get("origin", "MODEL_PROPOSAL")
+                ),
+                confidence=raw.get("confidence"),
+                known_ambiguities=tuple(raw.get("known_ambiguities", ())),
+                falsification_or_failure_formula_id=str(
+                    raw.get("falsification_or_failure_formula_id", "")
+                ),
+            )
+        )
+    return tuple(items)
