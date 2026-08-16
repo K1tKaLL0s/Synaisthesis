@@ -11,10 +11,30 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import replace
 from datetime import datetime
+from uuid import uuid4
 
-from synaisthesis.domain.enums import PriorArtCoverageStatus
+from synaisthesis.agents.early_formalizer import EarlyFormalizer
+from synaisthesis.agents.engineering_feasibility_assessor import EngineeringFeasibilityAssessor
+from synaisthesis.agents.schemas import MechanismSketch, NaturalLanguageSpec, ResearchScopeSpec
+from synaisthesis.domain.enums import (
+    EngineeringRouteDecision,
+    PriorArtCoverageStatus,
+    ProvenanceType,
+    QualificationGateType,
+)
+from synaisthesis.domain.errors import DomainError
 from synaisthesis.domain.event import sha256_hex
-from synaisthesis.domain.qualification import NeighborEvidenceSet
+from synaisthesis.domain.gate import Gate, GateBinding
+from synaisthesis.domain.qualification import (
+    EngineeringRouteSelection,
+    FeasibilityPredicateMatrix,
+    FormalizationFeasibilityAssessment,
+    NeighborEvidenceSet,
+    classify_formalization_feasibility,
+    engineering_fit,
+    merge_feasibility_matrices,
+    theory_fit,
+)
 from synaisthesis.providers.prior_art.base import (
     PriorArtProvider,
     PriorArtQueryRequest,
@@ -232,8 +252,190 @@ def run_prior_art_search(
     )
 
 
+def assess_formalization_feasibility_from_matrices(
+    *,
+    assessment_id: str,
+    version: int,
+    research_spec_id: str,
+    input_spec_hash: str,
+    neighbor_evidence_set_id: str,
+    assessor_session_ids: tuple[str, ...],
+    early_matrix: FeasibilityPredicateMatrix,
+    engineering_matrix: FeasibilityPredicateMatrix,
+    public_explanation: tuple[str, ...],
+) -> FormalizationFeasibilityAssessment:
+    """Merge two assessor matrices conservatively and freeze an RQ2F assessment."""
+    merged, disagreements = merge_feasibility_matrices(early_matrix, engineering_matrix)
+    classification = classify_formalization_feasibility(
+        theory_fit(merged.theory),
+        engineering_fit(merged.engineering),
+    )
+    missing_information = tuple(
+        f"{predicate.predicate_id}=UNKNOWN"
+        for predicate in merged.theory.as_tuple() + merged.engineering.as_tuple()
+        if predicate.verdict.value == "UNKNOWN"
+    )
+    return FormalizationFeasibilityAssessment.create(
+        assessment_id=assessment_id,
+        version=version,
+        research_spec_id=research_spec_id,
+        input_spec_hash=input_spec_hash,
+        neighbor_evidence_set_id=neighbor_evidence_set_id,
+        assessor_session_ids=assessor_session_ids,
+        theory_predicates=merged.theory.as_tuple(),
+        engineering_predicates=merged.engineering.as_tuple(),
+        disagreements=disagreements,
+        missing_information=missing_information,
+        route_classification=classification,
+        public_explanation=public_explanation,
+    )
+
+
+def assess_formalization_feasibility(
+    *,
+    assessment_id: str,
+    version: int,
+    research_spec_id: str,
+    input_spec_hash: str,
+    neighbor_evidence_set_id: str,
+    early_formalizer: EarlyFormalizer,
+    engineering_assessor: EngineeringFeasibilityAssessor,
+    spec: NaturalLanguageSpec,
+    mechanism: MechanismSketch,
+    scope: ResearchScopeSpec,
+    evidence: NeighborEvidenceSet,
+    public_explanation: tuple[str, ...],
+) -> FormalizationFeasibilityAssessment:
+    """Run two isolated RQ2F assessor sessions and merge their matrices."""
+    return assess_formalization_feasibility_from_matrices(
+        assessment_id=assessment_id,
+        version=version,
+        research_spec_id=research_spec_id,
+        input_spec_hash=input_spec_hash,
+        neighbor_evidence_set_id=neighbor_evidence_set_id,
+        assessor_session_ids=(
+            early_formalizer.session_id,
+            engineering_assessor.session_id,
+        ),
+        early_matrix=early_formalizer.assess(spec, mechanism, scope, evidence),
+        engineering_matrix=engineering_assessor.assess(spec, mechanism, scope, evidence),
+        public_explanation=public_explanation,
+    )
+
+
+def open_formalization_feasibility_gate(
+    *,
+    assessment: FormalizationFeasibilityAssessment,
+    gate_id: str,
+) -> Gate | None:
+    """Open only the RQ2F Gate required by the fixed route classification."""
+    gate_type: QualificationGateType | None = None
+    if assessment.route_classification.value == "ENGINEERING_PROJECT_CANDIDATE":
+        gate_type = QualificationGateType.ENGINEERING_ROUTE_DECISION
+    elif assessment.route_classification.value in {
+        "NEITHER_CURRENTLY_FIT",
+        "INCONCLUSIVE",
+    }:
+        gate_type = QualificationGateType.FORMALIZATION_FEASIBILITY_DECISION
+    if gate_type is None:
+        return None
+    return Gate(
+        gate_id=gate_id,
+        project_id=assessment.research_spec_id,
+        gate_type=gate_type,
+        binding=GateBinding(
+            gate_type=gate_type,
+            artifact_id=assessment.assessment_id,
+            version=assessment.version,
+            artifact_hash=assessment.artifact_hash,
+            input_spec_hash=assessment.input_spec_hash,
+        ),
+        reason=assessment.route_classification.value,
+    )
+
+
+def _check_current_binding(
+    *,
+    gate: Gate,
+    current_input_spec_hash: str,
+) -> None:
+    if gate.binding.input_spec_hash != current_input_spec_hash:
+        raise DomainError(
+            "current S1/S4 hash does not match the gate binding",
+            error_code="STALE_FEASIBILITY_BINDING",
+        )
+
+
+def resolve_engineering_route_decision(
+    *,
+    gate: Gate,
+    decision: str,
+    actor: ProvenanceType,
+    user_event_id: str,
+    current_input_spec_hash: str,
+    at: datetime,
+    selection_id: str | None = None,
+) -> tuple[Gate, EngineeringRouteSelection | None]:
+    """Resolve ENGINEERING_ROUTE_DECISION; only TRY_ENGINEERING_PROJECT creates a selection."""
+    if gate.gate_type is not QualificationGateType.ENGINEERING_ROUTE_DECISION:
+        raise DomainError(
+            f"gate type {gate.gate_type.value} cannot resolve an engineering route decision",
+            error_code="GATE_TYPE_MISMATCH",
+        )
+    _check_current_binding(gate=gate, current_input_spec_hash=current_input_spec_hash)
+    resolved = gate.resolve(
+        decision=decision,
+        actor=actor,
+        user_event_id=user_event_id,
+        at=at,
+    )
+    if decision != EngineeringRouteDecision.TRY_ENGINEERING_PROJECT.value:
+        return resolved, None
+    selection = EngineeringRouteSelection(
+        id=selection_id or uuid4().hex,
+        project_id=gate.project_id,
+        feasibility_assessment_id=gate.binding.artifact_id,
+        decision=EngineeringRouteDecision.TRY_ENGINEERING_PROJECT,
+        user_actor_id=actor.value,
+        decision_event_id=user_event_id,
+        bound_assessment_hash=gate.binding.artifact_hash,
+        input_spec_hash=gate.binding.input_spec_hash,
+        created_at=at,
+    )
+    return resolved, selection
+
+
+def resolve_formalization_feasibility_decision(
+    *,
+    gate: Gate,
+    decision: str,
+    actor: ProvenanceType,
+    user_event_id: str,
+    current_input_spec_hash: str,
+    at: datetime,
+) -> Gate:
+    """Resolve FORMALIZATION_FEASIBILITY_DECISION with current-hash binding."""
+    if gate.gate_type is not QualificationGateType.FORMALIZATION_FEASIBILITY_DECISION:
+        raise DomainError(
+            f"gate type {gate.gate_type.value} cannot resolve a formalization feasibility decision",
+            error_code="GATE_TYPE_MISMATCH",
+        )
+    _check_current_binding(gate=gate, current_input_spec_hash=current_input_spec_hash)
+    return gate.resolve(
+        decision=decision,
+        actor=actor,
+        user_event_id=user_event_id,
+        at=at,
+    )
+
+
 __all__ = [
     "MIN_ACADEMIC_NEIGHBORS",
+    "assess_formalization_feasibility",
+    "assess_formalization_feasibility_from_matrices",
+    "open_formalization_feasibility_gate",
+    "resolve_engineering_route_decision",
+    "resolve_formalization_feasibility_decision",
     "MIN_ACADEMIC_SOURCE_CLASSES",
     "MIN_ENGINEERING_NEIGHBORS",
     "MIN_ENGINEERING_SOURCE_CLASSES",

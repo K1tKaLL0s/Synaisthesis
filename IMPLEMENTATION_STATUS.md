@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2.5 进行中：M2.3 与 M2.4 均已提交 PASS）
+`M2`（Stage 2.5 进行中：M2.3/M2.4 已提交 PASS；M2.4A 验收通过，工作区变更尚未提交）
 
 ## Current task
-`M2.4.RQ.FAKE_RETRIEVAL_COMPLETE`
+`M2.4A.RQ.FEASIBILITY_COMPLETE`
 
 ## Last verified commit
-`4ea5912`（M2.4 已提交）
+`5ee77d7`（M2.4A 变更已通过全部检查，尚未提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M2.4.RQ.FAKE_RETRIEVAL`
-- Milestone: `M2`（Stage 2.5 第 2 个 Task：Fake 学术/工程近邻检索；不持久化、不接真实 Provider）
-- WorkUnitContract: `workspace/workunit-contracts/M2.4.RQ.FAKE_RETRIEVAL.md`（含 GAP-1/GAP-2/GAP-3/GAP-4/GAP-5/GAP-6/GAP-7 七处已解决记录）
-- 交付：`PriorArtProvider` Protocol + `ExternalText` 隔离；相似度权重计算（理论/应用）与证据引用强制；稳定去重、排序、rank；Fake 学术/工程 Provider 语料；`run_prior_art_search`/`validate_prior_art_coverage` 生成不可变 `NeighborEvidenceSet` 并计算 coverage/artifact_hash。
+- Stable Task ID: `M2.4A.RQ.FEASIBILITY`
+- Milestone: `M2`（Stage 2.5 第 3 个 Task：RQ2F 双评估与强制分流 Gate；确定性结构评估器，暂不接真实 LLM）
+- WorkUnitContract: `workspace/workunit-contracts/M2.4A.RQ.FEASIBILITY.md`（含 GAP-1/GAP-2/GAP-3/GAP-4/GAP-5 五处已解决记录）
+- 交付：`FeasibilityPredicateMatrix` + `merge_feasibility_matrices`（FAIL > UNKNOWN > PASS）；`EarlyFormalizer`/`EngineeringFeasibilityAssessor` 两个隔离 Session 确定性评估；`assess_formalization_feasibility*` 冻结 RQ2F assessment；`open_formalization_feasibility_gate` 按真值表只开对应 Gate；`resolve_engineering_route_decision` 只允许真实用户选择 TRY_ENGINEERING_PROJECT 并创建 Selection；`resolve_formalization_feasibility_decision` 校验当前 S1/S4 hash；两个 feasibility Prompt Asset；migration 0003 `role_sessions`。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -49,6 +49,7 @@
 - M2.2 S2–S4 合同与设计完成门：`domain/stage.py` 新增 `S2_STAGE_CONTRACT`/`S3_STAGE_CONTRACT`/`S4_STAGE_CONTRACT` + `validate_mechanism_sketch`/`validate_prior_work_map`/`validate_research_scope_spec`；`agents/schemas.py`（MechanismSketch、PriorWorkMap、ResearchScopeSpec，Pydantic v2，extra="forbid"；`search_queries` 用稳定键 `academic`/`engineering`）；`application/incubation_service.py`（S2/S3/S4 propose/load、S4 真实用户确认、`ResearchSpecBound` 事件绑定 S1/S4 hash + content_hash、`evaluate_natural_language_design_ready` 纯函数/事件流版本、`derive_natural_language_design_ready` 追加 Project 生命周期事件）；`prompts/incubator/s2_mechanism_sketch.md`、`s3_prior_work_map.md`、`s4_research_scope_spec.md`（prompt_key/version/golden/forbidden）
 - M2.3 RQ 领域底座：`domain/enums.py` 追加 21 个 M2.3 稳定枚举；`domain/qualification.py`（ModelProfile、FormalizationCapabilityProfile/Decision、PriorArtQueryRecord/PriorArtNeighbor/NeighborEvidenceSet、T*/E* 谓词、FormalizationFeasibilityAssessment、EngineeringRouteSelection、FormulaItem/EarlyFormalizationBundle/EngineeringConceptBundle、RQ3 审批、19 个事件名 + build_qualification_event）；`domain/novelty.py`（THEORY_NOVELTY_POLICY/ENGINEERING_NOVELTY_POLICY、NoveltyScorecard、保守 min 聚合、route_novelty_decision、NoveltyReview、LowNoveltyOverride）；`domain/gate.py`（GateBinding、Gate、allowed_decisions_for_gate、qualification_next_target）；migration 0002（12 张表）
 - M2.4 Fake 检索纵切片：`providers/prior_art/base.py`（PriorArtProvider Protocol、ExternalText、ProximityFeature、ProviderNeighborRecord、PriorArtQueryRequest）；`providers/prior_art/normalization.py`（相似度权重计算、去重、排序、rank）；`providers/prior_art/fake.py`（确定性 Fake 学术/工程语料，去重后 5 学术 + 3 工程，来源 3+2）；`application/qualification_service.py`（run_prior_art_search、validate_prior_art_coverage、neighbor_evidence_content_payload）
+- M2.4A RQ2F 双评估与 Gate：`domain/qualification.py`（FeasibilityPredicate 强制证据引用、FeasibilityPredicateMatrix、merge_feasibility_matrices、FeasibilityAssessmentSession、assessment_context_hash）；`agents/early_formalizer.py` + `agents/engineering_feasibility_assessor.py`（确定性 T*/E* 矩阵）；`application/qualification_service.py`（assess_formalization_feasibility_from_matrices/assess_formalization_feasibility/open_formalization_feasibility_gate/resolve_engineering_route_decision/resolve_formalization_feasibility_decision）；`prompts/formalization/feasibility_*`；migration 0003（role_sessions）
 
 ## Verified
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
@@ -73,6 +74,7 @@
 - M2.2：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_s2_s4.py` 18 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 113 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（88 files）；`UV_CACHE_DIR=/tmp /home/chaos/.venvs/synaisthesis/bin/basedpyright --pythonpath /mnt/e/Synaisthesis/workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.3：`workspace/.venv-m13/bin/python -m pytest tests/unit/domain/test_research_qualification.py` 22 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 135 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（93 files）；`UV_CACHE_DIR=/tmp /home/chaos/.venvs/synaisthesis/bin/basedpyright --pythonpath /mnt/e/Synaisthesis/workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.4：`workspace/.venv-m13/bin/python -m pytest tests/contract/prior_art/test_fake_prior_art.py` 14 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 149 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（100 files）；`UV_CACHE_DIR=/tmp /home/chaos/.venvs/synaisthesis/bin/basedpyright --pythonpath /mnt/e/Synaisthesis/workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
+- M2.4A：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_formalization_feasibility.py tests/golden/test_engineering_route_gate.py` 17 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 166 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（107 files）；`UV_CACHE_DIR=/tmp /home/chaos/.venvs/synaisthesis/bin/basedpyright --pythonpath /mnt/e/Synaisthesis/workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -82,7 +84,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.4A.RQ.FEASIBILITY`（前置 M2.4 已 PASS 且已提交；必须读取 03A RQ2F）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
+- 代码方面：`M2.5.RQ.FORMALIZATION`（前置 M2.4A 已验收 PASS；开始前必须先处理 M2.4A 工作区变更的提交，并读取 03A RQ2M）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -98,5 +100,7 @@
 - M2.3 已提交：`e86f28a`。
 - M2.4 只返回内存中的 `NeighborEvidenceSet`，未写 DomainEvent/Artifact；持久化需后续含 storage 文件的 Task 接入。
 - M2.4 已提交：`4ea5912`。
+- M2.4A 的两个 Assessor 是确定性结构评估器；真实 LLM 接入在 M6.x，但 `assess()` 契约、谓词证据引用与 FAIL > UNKNOWN > PASS 聚合不得放宽。
+- M2.4A 验收已通过但尚未提交；按 Git safety，未经用户明确指令不自动 commit。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。

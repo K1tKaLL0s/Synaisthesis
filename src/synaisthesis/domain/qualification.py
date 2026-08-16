@@ -33,6 +33,9 @@ CAPABILITY_TIER_ADVANCED = "ADVANCED"
 CAPABILITY_EVAL_TTL_DAYS = 90
 MAX_PUBLIC_EXPLANATION_ITEMS = 12
 
+ASSESSMENT_ROLE_EARLY_FORMALIZER = "EARLY_FORMALIZER"
+ASSESSMENT_ROLE_ENGINEERING_FEASIBILITY_ASSESSOR = "ENGINEERING_FEASIBILITY_ASSESSOR"
+
 EVENT_NATURAL_LANGUAGE_DESIGN_READY = "NaturalLanguageDesignReady"
 EVENT_FORMALIZATION_CAPABILITY_SELECTED = "FormalizationCapabilitySelected"
 EVENT_NEIGHBOR_SEARCH_COMPLETED = "NeighborSearchCompleted"
@@ -274,6 +277,19 @@ class FeasibilityPredicate:
     verdict: PredicateVerdict
     evidence_refs: tuple[str, ...]
 
+    def __post_init__(self) -> None:
+        if not self.predicate_id.strip():
+            raise DomainError(
+                "feasibility predicate id must not be blank",
+                error_code="FEASIBILITY_PREDICATE_ID_REQUIRED",
+            )
+        if not self.evidence_refs or any(not ref.strip() for ref in self.evidence_refs):
+            raise DomainError(
+                f"feasibility predicate {self.predicate_id!r} must have non-empty "
+                "S1/S4 or RQ1 evidence references",
+                error_code="FEASIBILITY_PREDICATE_EVIDENCE_REQUIRED",
+            )
+
     def to_event_payload(self) -> dict[str, Any]:
         return _canonical_payload(asdict(self))
 
@@ -293,6 +309,14 @@ class TheoryFitPredicates:
 
 
 @dataclass(frozen=True, slots=True)
+class FeasibilityPredicateMatrix:
+    """One assessor session's complete T*/E* predicate matrix (03A, section 4.4)."""
+
+    theory: TheoryFitPredicates
+    engineering: EngineeringFitPredicates
+
+
+@dataclass(frozen=True, slots=True)
 class EngineeringFitPredicates:
     """EFS/EFI/EFA/EFM/EFF matrix (03A, section 4.3)."""
 
@@ -304,6 +328,102 @@ class EngineeringFitPredicates:
 
     def as_tuple(self) -> tuple[FeasibilityPredicate, ...]:
         return (self.efs, self.efi, self.efa, self.efm, self.eff)
+
+
+def _merge_predicate_tuple(
+    left: tuple[FeasibilityPredicate, ...],
+    right: tuple[FeasibilityPredicate, ...],
+) -> tuple[tuple[FeasibilityPredicate, ...], tuple[str, ...]]:
+    merged: list[FeasibilityPredicate] = []
+    disagreements: list[str] = []
+    for left_predicate, right_predicate in zip(left, right, strict=True):
+        if left_predicate.predicate_id != right_predicate.predicate_id:
+            raise DomainError(
+                "predicate matrices do not align",
+                error_code="FEASIBILITY_MATRIX_MISALIGNED",
+            )
+        if left_predicate.verdict is not right_predicate.verdict:
+            disagreements.append(
+                f"{left_predicate.predicate_id}:"
+                f"{left_predicate.verdict.value}!={right_predicate.verdict.value}"
+            )
+        merged.append(
+            FeasibilityPredicate(
+                predicate_id=left_predicate.predicate_id,
+                verdict=predicate_merge(left_predicate.verdict, right_predicate.verdict),
+                evidence_refs=tuple(
+                    dict.fromkeys(left_predicate.evidence_refs + right_predicate.evidence_refs)
+                ),
+            )
+        )
+    return tuple(merged), tuple(disagreements)
+
+
+def merge_feasibility_matrices(
+    first: FeasibilityPredicateMatrix,
+    second: FeasibilityPredicateMatrix,
+) -> tuple[FeasibilityPredicateMatrix, tuple[str, ...]]:
+    """Conservative dual-assessment merge: FAIL > UNKNOWN > PASS per predicate."""
+    merged_theory, theory_disagreements = _merge_predicate_tuple(
+        first.theory.as_tuple(), second.theory.as_tuple()
+    )
+    merged_engineering, engineering_disagreements = _merge_predicate_tuple(
+        first.engineering.as_tuple(), second.engineering.as_tuple()
+    )
+    return (
+        FeasibilityPredicateMatrix(
+            theory=TheoryFitPredicates(
+                tfo=merged_theory[0],
+                tfr=merged_theory[1],
+                tfc=merged_theory[2],
+                tfw=merged_theory[3],
+                tfp=merged_theory[4],
+            ),
+            engineering=EngineeringFitPredicates(
+                efs=merged_engineering[0],
+                efi=merged_engineering[1],
+                efa=merged_engineering[2],
+                efm=merged_engineering[3],
+                eff=merged_engineering[4],
+            ),
+        ),
+        theory_disagreements + engineering_disagreements,
+    )
+
+
+def feasibility_matrix_disagreements(
+    first: FeasibilityPredicateMatrix,
+    second: FeasibilityPredicateMatrix,
+) -> tuple[str, ...]:
+    """Return predicate-level disagreements without changing verdicts."""
+    return merge_feasibility_matrices(first, second)[1]
+
+
+@dataclass(frozen=True, slots=True)
+class FeasibilityAssessmentSession:
+    """Isolated RQ2F assessment session (06 role_sessions subset)."""
+
+    id: str
+    role: str
+    isolated_context_hash: str
+
+
+def assessment_context_hash(
+    *,
+    role: str,
+    session_id: str,
+    input_spec_hash: str,
+    neighbor_evidence_set_id: str,
+) -> str:
+    """Deterministic isolation hash for one assessor session."""
+    return sha256_hex(
+        {
+            "role": role,
+            "session_id": session_id,
+            "input_spec_hash": input_spec_hash,
+            "neighbor_evidence_set_id": neighbor_evidence_set_id,
+        }
+    )
 
 
 def predicate_merge(left: PredicateVerdict, right: PredicateVerdict) -> PredicateVerdict:
@@ -702,10 +822,17 @@ __all__ = [
     "EVENT_NOVELTY_RESEARCH_REQUESTED",
     "EVENT_NOVELTY_THRESHOLD_PASSED",
     "EngineeringConceptBundle",
+    "ASSESSMENT_ROLE_EARLY_FORMALIZER",
+    "ASSESSMENT_ROLE_ENGINEERING_FEASIBILITY_ASSESSOR",
     "EngineeringFitPredicates",
     "EngineeringRouteSelection",
     "EarlyFormalizationBundle",
+    "FeasibilityAssessmentSession",
     "FeasibilityPredicate",
+    "FeasibilityPredicateMatrix",
+    "assessment_context_hash",
+    "feasibility_matrix_disagreements",
+    "merge_feasibility_matrices",
     "FormalizationCapabilityDecision",
     "FormalizationCapabilityProfile",
     "FormalizationFeasibilityAssessment",

@@ -14,10 +14,11 @@
 - [x] M2.2 — S2–S4 合同与 NATURAL_LANGUAGE_DESIGN_READY 派生（Stage 2 最后一个 Task）：MechanismSketch/PriorWorkMap/ResearchScopeSpec Schema 与验证器；S3 学术+工程双查询种子；S4 真实用户确认并绑定 S1/S4 hash；事件流派生设计完成门并推进 Project 生命周期；s2/s3/s4 Prompt Asset（18 个 golden 测试，全套 113 passed）
 - [x] M2.3 — RQ 领域底座（Stage 2.5 第 1 个 Task）：RQ0–RQ4 不可变领域 Artifact；RQ2F 谓词保守聚合与固定真值表；理论 50+50 / 工程 60+40 两套评分 policy、逐项取小、69/70 固定路由；Gate 绑定与未通过 RQ 禁止转 S5/ENG0；19 个 RQ 事件名；migration 0002（22 个单元测试，全套 135 passed）
 - [x] M2.4 — Fake 检索纵切片（Stage 2.5 第 2 个 Task）：PriorArtProvider Protocol、ExternalText 隔离、相似度证据引用、去重/排序/rank、Fake 学术+工程语料、coverage 门槛与 NeighborEvidenceSet 生成（14 个 contract 测试，全套 149 passed）
+- [x] M2.4A — RQ2F 双评估与强制分流（Stage 2.5 第 3 个 Task）：TFO–TFP / EFS–EFF 双评估、FAIL>UNKNOWN>PASS 聚合、固定真值表、ENGINEERING_ROUTE_DECISION / FORMALIZATION_FEASIBILITY_DECISION 用户 Gate、真实用户工程路线选择与 hash 绑定（17 个测试，全套 166 passed；验收通过，工作区未提交）
 
 ## Next
 
-- [ ] M2.4A.RQ.FEASIBILITY — TFO–TFP / EFS–EFF 双评估与保守聚合、ENGINEERING_ROUTE_DECISION / FORMALIZATION_FEASIBILITY_DECISION（前置 M2.4 已 PASS 且已提交）
+- [ ] M2.5.RQ.FORMALIZATION — 能力 Profile 门、数学公式化 EarlyFormalizationBundle、符号/语义/失败公式/hash 验证（前置 M2.4A 已验收 PASS；开始前需先处理 M2.4A 提交）
 
 ## Backlog
 
