@@ -5,12 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from synaisthesis.agents.schemas import MechanismSketch, NaturalLanguageSpec, ResearchScopeSpec
-from synaisthesis.domain.enums import PredicateVerdict
+from synaisthesis.domain.enums import FormulaOrigin, PredicateVerdict
 from synaisthesis.domain.qualification import (
     ASSESSMENT_ROLE_EARLY_FORMALIZER,
     EngineeringFitPredicates,
     FeasibilityPredicate,
     FeasibilityPredicateMatrix,
+    FormulaItem,
     NeighborEvidenceSet,
     TheoryFitPredicates,
     assessment_context_hash,
@@ -214,3 +215,242 @@ class EarlyFormalizer:
 
 
 __all__ = ["EarlyFormalizer", "assess_feasibility_matrix"]
+
+
+# ---------------------------------------------------------------------------
+# RQ2M formula skeleton (deterministic pre-LLM builder; see M2.5 contract)
+# ---------------------------------------------------------------------------
+
+FORMULA_TYPE_OBJECT_DOMAIN = "OBJECT_DOMAIN"
+FORMULA_TYPE_IO_MAP = "INPUT_OUTPUT_MAP"
+FORMULA_TYPE_STATE_TRANSITION = "STATE_TRANSITION"
+FORMULA_TYPE_ASSUMPTION = "ASSUMPTION"
+FORMULA_TYPE_INVARIANT = "INVARIANT"
+FORMULA_TYPE_CORE_CLAIM = "CORE_CLAIM"
+FORMULA_TYPE_OBJECTIVE = "OBJECTIVE"
+FORMULA_TYPE_FAILURE_WITNESS = "FAILURE_WITNESS"
+FORMULA_TYPE_APPLICATION_MAP = "THEORY_APPLICATION_MAP"
+FORMULA_TYPE_VERIFICATION_OBLIGATION = "VERIFICATION_OBLIGATION"
+
+REQUIRED_FORMULA_TYPES = frozenset(
+    {
+        FORMULA_TYPE_OBJECT_DOMAIN,
+        FORMULA_TYPE_ASSUMPTION,
+        FORMULA_TYPE_CORE_CLAIM,
+        FORMULA_TYPE_FAILURE_WITNESS,
+        FORMULA_TYPE_APPLICATION_MAP,
+    }
+)
+
+
+def build_formula_items(
+    *,
+    spec: NaturalLanguageSpec,
+    mechanism: MechanismSketch,
+    scope: ResearchScopeSpec,
+    evidence: NeighborEvidenceSet,
+) -> tuple[FormulaItem, ...]:
+    """Build the deterministic RQ2M formula skeleton.
+
+    This is not a mathematical proof generator. It converts the frozen S1/S2/S4
+    materials into the ten 03A formula-type slots with LaTeX placeholders and
+    source-field references; later M6.x may replace generation while keeping
+    the validation invariants unchanged.
+    """
+    del evidence  # real evidence-aware generation arrives with LLM providers
+    core_claim_latex = r"\forall x\in D,\ A(x)\Rightarrow C(x)"
+    return (
+        FormulaItem(
+            formula_id="f-object-domain",
+            formula_type=FORMULA_TYPE_OBJECT_DOMAIN,
+            latex=r"x \in \mathcal{X}",
+            normalized_math_ast=None,
+            symbols_used=("X",),
+            source_spec_fields=("S4.object_domain", "S1.object_candidates"),
+            assumption_formula_ids=(),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=1.0,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-assumption",
+            formula_type=FORMULA_TYPE_ASSUMPTION,
+            latex=r"A(x,\theta)=\bigwedge_i A_i(x,\theta)",
+            normalized_math_ast=None,
+            symbols_used=("A", "X", "theta"),
+            source_spec_fields=("S1.boundary_conditions", "S1.operational_constraints"),
+            assumption_formula_ids=(),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=1.0,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-io-map",
+            formula_type=FORMULA_TYPE_IO_MAP,
+            latex=r"f: \mathcal{X} \to \mathcal{Y}",
+            normalized_math_ast=None,
+            symbols_used=("X", "Y"),
+            source_spec_fields=("S2.inputs", "S2.outputs"),
+            assumption_formula_ids=("f-assumption",),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=1.0,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-state",
+            formula_type=FORMULA_TYPE_STATE_TRANSITION,
+            latex=r"s_{t+1}=T(s_t,u_t;\theta)",
+            normalized_math_ast=None,
+            symbols_used=("s", "u", "theta"),
+            source_spec_fields=("S2.state_change",),
+            assumption_formula_ids=("f-assumption",),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=0.9,
+            known_ambiguities=tuple(mechanism.uncertainty_register),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-invariant",
+            formula_type=FORMULA_TYPE_INVARIANT,
+            latex=r"\forall t,\ I(s_t)=1",
+            normalized_math_ast=None,
+            symbols_used=("I", "s"),
+            source_spec_fields=("S2.invariants",),
+            assumption_formula_ids=("f-assumption",),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=0.9,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-core-claim",
+            formula_type=FORMULA_TYPE_CORE_CLAIM,
+            latex=core_claim_latex,
+            normalized_math_ast=None,
+            symbols_used=("A", "C"),
+            source_spec_fields=("S1.core_definition", "S4.central_claims"),
+            assumption_formula_ids=("f-assumption",),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=0.9,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="f-failure-witness",
+        ),
+        FormulaItem(
+            formula_id="f-objective",
+            formula_type=FORMULA_TYPE_OBJECTIVE,
+            latex=r"\theta^*=\arg\min_\theta L(\theta)",
+            normalized_math_ast=None,
+            symbols_used=("theta",),
+            source_spec_fields=("S1.success_metrics",),
+            assumption_formula_ids=("f-assumption",),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=0.9,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-failure-witness",
+            formula_type=FORMULA_TYPE_FAILURE_WITNESS,
+            latex=r"\exists x\in D,\ A(x)\land\neg C(x)",
+            normalized_math_ast=None,
+            symbols_used=("A", "C"),
+            source_spec_fields=("S2.failure_conditions", "S4.stop_conditions"),
+            assumption_formula_ids=("f-assumption",),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=1.0,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-application-map",
+            formula_type=FORMULA_TYPE_APPLICATION_MAP,
+            latex=r"\Phi:\mathcal{M}\to\mathcal{A}",
+            normalized_math_ast=None,
+            symbols_used=("M", "Aspace"),
+            source_spec_fields=("S1.target_applications", "S4.engineering_relevance"),
+            assumption_formula_ids=(),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=0.8,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+        FormulaItem(
+            formula_id="f-verification",
+            formula_type=FORMULA_TYPE_VERIFICATION_OBLIGATION,
+            latex=r"O=\{O_1,\ldots,O_n\}",
+            normalized_math_ast=None,
+            symbols_used=("O",),
+            source_spec_fields=("S4.evidence_requirements", "S4.stop_conditions"),
+            assumption_formula_ids=(),
+            neighbor_refs=(),
+            origin=FormulaOrigin.DERIVED,
+            confidence=1.0,
+            known_ambiguities=(),
+            falsification_or_failure_formula_id="",
+        ),
+    )
+
+
+def validate_formula_items(
+    *,
+    formula_items: tuple[FormulaItem, ...],
+    notation_table: tuple[str, ...],
+    formula_dependency_graph: dict[str, tuple[str, ...]],
+) -> tuple[str, ...]:
+    """Deterministic RQ2M formula validation issues (empty means clean)."""
+    issues: list[str] = []
+    defined_symbols = {
+        entry.split(":", 1)[0].strip()
+        for entry in notation_table
+        if ":" in entry and entry.split(":", 1)[0].strip()
+    }
+    items_by_id = {item.formula_id: item for item in formula_items}
+    types = {item.formula_type for item in formula_items}
+    for required in REQUIRED_FORMULA_TYPES:
+        if required not in types:
+            issues.append(f"缺少必需公式类型 {required}")
+
+    for item in formula_items:
+        unknown_symbols = sorted(set(item.symbols_used) - defined_symbols)
+        if unknown_symbols:
+            issues.append(f"公式 {item.formula_id} 使用了未定义符号: {', '.join(unknown_symbols)}")
+        if not item.source_spec_fields:
+            issues.append(f"核心公式 {item.formula_id} 缺少源语义字段引用")
+        if item.formula_type == FORMULA_TYPE_CORE_CLAIM:
+            if "\\" not in item.latex or "Rightarrow" not in item.latex:
+                issues.append(f"核心公式 {item.formula_id} 不是 LaTeX 公式")
+            failure_id = item.falsification_or_failure_formula_id
+            if not failure_id or failure_id not in items_by_id:
+                issues.append(f"核心主张 {item.formula_id} 缺少失败/证伪公式")
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def visit(node: str) -> bool:
+        if node in visiting:
+            return True
+        if node in visited:
+            return False
+        visiting.add(node)
+        for child in formula_dependency_graph.get(node, ()):
+            if visit(child):
+                return True
+        visiting.remove(node)
+        visited.add(node)
+        return False
+
+    if any(visit(node) for node in formula_dependency_graph):
+        issues.append("公式依赖图存在环")
+    return tuple(issues)

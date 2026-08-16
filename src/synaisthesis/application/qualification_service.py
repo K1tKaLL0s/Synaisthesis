@@ -10,28 +10,44 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import replace
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import uuid4
 
-from synaisthesis.agents.early_formalizer import EarlyFormalizer
-from synaisthesis.agents.engineering_feasibility_assessor import EngineeringFeasibilityAssessor
+from synaisthesis.agents.early_formalizer import (
+    EarlyFormalizer,
+    build_formula_items,
+    validate_formula_items,
+)
+from synaisthesis.agents.engineering_feasibility_assessor import (
+    EngineeringFeasibilityAssessor,
+    engineering_concept_content_payload,
+)
 from synaisthesis.agents.schemas import MechanismSketch, NaturalLanguageSpec, ResearchScopeSpec
 from synaisthesis.domain.enums import (
+    EarlyFormalizationStatus,
+    EngineeringConceptStatus,
     EngineeringRouteDecision,
     PriorArtCoverageStatus,
     ProvenanceType,
     QualificationGateType,
+    ResearchRoute,
 )
 from synaisthesis.domain.errors import DomainError
 from synaisthesis.domain.event import sha256_hex
 from synaisthesis.domain.gate import Gate, GateBinding
 from synaisthesis.domain.qualification import (
+    EarlyFormalizationBundle,
+    EngineeringConceptBundle,
     EngineeringRouteSelection,
     FeasibilityPredicateMatrix,
+    FormalizationCapabilityProfile,
     FormalizationFeasibilityAssessment,
     NeighborEvidenceSet,
+    UserEngineeringConceptApproval,
+    UserFormalizationApproval,
     classify_formalization_feasibility,
     engineering_fit,
+    evaluate_formalizer_capability,
     merge_feasibility_matrices,
     theory_fit,
 )
@@ -429,9 +445,315 @@ def resolve_formalization_feasibility_decision(
     )
 
 
+def early_formula_bundle_content_payload(bundle: EarlyFormalizationBundle) -> dict[str, object]:
+    """Return the hash-covered RQ2M content (derived fields excluded)."""
+    payload = bundle.to_event_payload()
+    for key in ("artifact_hash", "status", "validator_results"):
+        payload.pop(key, None)
+    return payload
+
+
+def build_early_formula_bundle(
+    *,
+    capability_profile: FormalizationCapabilityProfile,
+    feasibility_assessment: FormalizationFeasibilityAssessment,
+    spec: NaturalLanguageSpec,
+    mechanism: MechanismSketch,
+    scope: ResearchScopeSpec,
+    evidence: NeighborEvidenceSet,
+    formalizer_session_id: str,
+    formalization_id: str | None = None,
+    version: int = 1,
+    now: datetime | None = None,
+) -> EarlyFormalizationBundle:
+    """Build an RQ2M bundle; capability-gate failure blocks construction.
+
+    The bundle is always a CANDIDATE. Invalid formula material fails closed
+    here and never reaches a caller as a malformed bundle.
+    """
+    capability_status, blockers = evaluate_formalizer_capability(
+        capability_profile,
+        evaluated_at=now or datetime.now(UTC),
+    )
+    if capability_status.value != "CAPABILITY_READY":
+        raise DomainError(
+            "formalizer capability gate failed: " + "; ".join(blockers),
+            error_code="FORMALIZER_CAPABILITY_UNAVAILABLE",
+        )
+    formula_items = build_formula_items(
+        spec=spec,
+        mechanism=mechanism,
+        scope=scope,
+        evidence=evidence,
+    )
+    notation_table = (
+        "X: object domain element",
+        "Y: output object",
+        "A: core assumption predicate",
+        "C: core conclusion predicate",
+        "I: invariant predicate",
+        "s: state",
+        "u: control input",
+        "theta: parameters",
+        "M: theory model space",
+        "Aspace: application space",
+        "O: verification obligations",
+    )
+    dependency_graph = {
+        "f-io-map": ("f-assumption",),
+        "f-state": ("f-assumption",),
+        "f-invariant": ("f-assumption",),
+        "f-core-claim": ("f-assumption", "f-failure-witness"),
+        "f-objective": ("f-assumption",),
+        "f-failure-witness": ("f-assumption",),
+    }
+    bundle = EarlyFormalizationBundle(
+        formalization_id=formalization_id or uuid4().hex,
+        version=version,
+        research_spec_id=feasibility_assessment.research_spec_id,
+        input_spec_hash=feasibility_assessment.input_spec_hash,
+        feasibility_assessment_id=feasibility_assessment.assessment_id,
+        neighbor_evidence_set_id=evidence.search_id,
+        formalizer_profile_or_import_id=capability_profile.model_profile_id,
+        notation_table=notation_table,
+        formula_items=formula_items,
+        formula_dependency_graph=dependency_graph,
+        semantic_alignment_matrix=(
+            "S1.core_definition -> f-core-claim",
+            "S4.object_domain -> f-object-domain",
+            "S4.central_claims -> f-core-claim",
+            "S4.evidence_requirements -> f-verification",
+        ),
+        neighbor_difference_matrix=(f"{scope.nearest_neighbor_difference} -> f-core-claim",),
+        uncertainty_register=tuple(mechanism.uncertainty_register),
+        plain_language_explanation=("bundle is a formalization candidate, not a proof",),
+        validator_results=(),
+        artifact_hash="0" * 64,
+        status=EarlyFormalizationStatus.EARLY_FORMALIZATION_CANDIDATE,
+    )
+    issues = validate_formula_items(
+        formula_items=bundle.formula_items,
+        notation_table=bundle.notation_table,
+        formula_dependency_graph=bundle.formula_dependency_graph,
+    )
+    if issues:
+        raise DomainError(
+            "RQ2M bundle invalid: " + "; ".join(issues),
+            error_code="FORMULA_BUNDLE_INVALID",
+        )
+    return replace(
+        bundle,
+        artifact_hash=sha256_hex(early_formula_bundle_content_payload(bundle)),
+    )
+
+
+def validate_early_formula_bundle(
+    bundle: EarlyFormalizationBundle,
+) -> tuple[EarlyFormalizationStatus, tuple[str, ...]]:
+    """Validate an RQ2M bundle and map issues to a deterministic status."""
+    expected_hash = sha256_hex(early_formula_bundle_content_payload(bundle))
+    if bundle.artifact_hash != expected_hash:
+        return (
+            EarlyFormalizationStatus.SCHEMA_INVALID,
+            ("artifact_hash 与 bundle 内容不一致",),
+        )
+    issues = validate_formula_items(
+        formula_items=bundle.formula_items,
+        notation_table=bundle.notation_table,
+        formula_dependency_graph=bundle.formula_dependency_graph,
+    )
+    if not issues:
+        return EarlyFormalizationStatus.EARLY_FORMALIZATION_CANDIDATE, ()
+    if any("不是 LaTeX" in issue for issue in issues):
+        return EarlyFormalizationStatus.SEMANTIC_GAP, issues
+    if any("缺少失败" in issue or "缺少必需" in issue or "缺少源" in issue for issue in issues):
+        return EarlyFormalizationStatus.FORMULA_COVERAGE_INCOMPLETE, issues
+    return EarlyFormalizationStatus.SCHEMA_INVALID, issues
+
+
+def open_early_formalization_review(
+    *,
+    bundle: EarlyFormalizationBundle,
+    gate_id: str,
+) -> Gate:
+    """Open EARLY_FORMALIZATION_REVIEW bound to formula/spec hash."""
+    return Gate(
+        gate_id=gate_id,
+        project_id=bundle.research_spec_id,
+        gate_type=QualificationGateType.EARLY_FORMALIZATION_REVIEW,
+        binding=GateBinding(
+            gate_type=QualificationGateType.EARLY_FORMALIZATION_REVIEW,
+            artifact_id=bundle.formalization_id,
+            version=bundle.version,
+            artifact_hash=bundle.artifact_hash,
+            input_spec_hash=bundle.input_spec_hash,
+            route=ResearchRoute.THEORY,
+        ),
+    )
+
+
+def resolve_early_formalization_review(
+    *,
+    gate: Gate,
+    decision: str,
+    actor: ProvenanceType,
+    user_event_id: str,
+    current_bundle_hash: str,
+    at: datetime,
+) -> tuple[Gate, UserFormalizationApproval | None]:
+    """Resolve EARLY_FORMALIZATION_REVIEW; APPROVE records a user approval."""
+    if gate.gate_type is not QualificationGateType.EARLY_FORMALIZATION_REVIEW:
+        raise DomainError(
+            f"gate type {gate.gate_type.value} cannot resolve a formalization review",
+            error_code="GATE_TYPE_MISMATCH",
+        )
+    if gate.binding.artifact_hash != current_bundle_hash:
+        raise DomainError(
+            "current formula bundle hash does not match the review binding",
+            error_code="STALE_FORMALIZATION_BINDING",
+        )
+    resolved = gate.resolve(
+        decision=decision,
+        actor=actor,
+        user_event_id=user_event_id,
+        at=at,
+    )
+    if decision != "APPROVE":
+        return resolved, None
+    approval = UserFormalizationApproval(
+        formalization_id=gate.binding.artifact_id,
+        version=gate.binding.version or 0,
+        formalization_hash=gate.binding.artifact_hash,
+        input_spec_hash=gate.binding.input_spec_hash,
+        route=ResearchRoute.THEORY,
+        actor=actor,
+        user_event_id=user_event_id,
+        decided_at=at,
+    )
+    return resolved, approval
+
+
+def validate_engineering_concept_bundle(
+    bundle: EngineeringConceptBundle,
+) -> tuple[EngineeringConceptStatus, tuple[str, ...]]:
+    """Validate an RQ2E concept candidate and map issues deterministically."""
+    issues: list[str] = []
+    forbidden_terms = ("IMPLEMENTED", "VALIDATED", "PRODUCTION_READY", "NOVEL")
+    inspected_text = " ".join(
+        (
+            *bundle.plain_language_explanation,
+            *bundle.requirement_predicates,
+            *bundle.quality_metric_formulas,
+        )
+    )
+    for term in forbidden_terms:
+        if term in inspected_text:
+            issues.append(f"概念 bundle 包含越权状态 {term}")
+
+    if not bundle.input_output_contracts:
+        issues.append("缺少 input_output_contracts")
+    if not bundle.state_transition_formulas:
+        issues.append("缺少 state_transition_formulas")
+    if not bundle.requirement_predicates:
+        issues.append("缺少 requirement_predicates")
+    if not bundle.quality_metric_formulas:
+        issues.append("缺少 quality_metric_formulas")
+    if bundle.architecture_graph_candidate.get("type") != "component_graph":
+        issues.append("architecture_graph_candidate 缺少 component_graph type")
+    if not bundle.verification_obligations:
+        issues.append("缺少 verification_obligations")
+    for requirement in bundle.requirement_predicates:
+        requirement_id = requirement.split(":", 1)[0].strip()
+        trace = bundle.traceability_relation.get(requirement_id)
+        if not isinstance(trace, tuple) or len(trace) < 2:
+            issues.append(f"requirement {requirement_id} 缺少 design/verification trace")
+
+    if issues:
+        if any("越权状态" in issue for issue in issues):
+            return EngineeringConceptStatus.SCHEMA_INVALID, tuple(issues)
+        return EngineeringConceptStatus.REQUIREMENT_COVERAGE_INCOMPLETE, tuple(issues)
+
+    expected_hash = sha256_hex(engineering_concept_content_payload(bundle))
+    if bundle.artifact_hash != expected_hash:
+        return EngineeringConceptStatus.SCHEMA_INVALID, ("artifact_hash 与 bundle 内容不一致",)
+    return EngineeringConceptStatus.ENGINEERING_CONCEPT_CANDIDATE, ()
+
+
+def open_early_engineering_concept_review(
+    *,
+    bundle: EngineeringConceptBundle,
+    gate_id: str,
+) -> Gate:
+    """Open EARLY_ENGINEERING_CONCEPT_REVIEW bound to concept/route/spec hash."""
+    return Gate(
+        gate_id=gate_id,
+        project_id=bundle.research_spec_id,
+        gate_type=QualificationGateType.EARLY_ENGINEERING_CONCEPT_REVIEW,
+        binding=GateBinding(
+            gate_type=QualificationGateType.EARLY_ENGINEERING_CONCEPT_REVIEW,
+            artifact_id=bundle.concept_id,
+            version=bundle.version,
+            artifact_hash=bundle.artifact_hash,
+            input_spec_hash=bundle.input_spec_hash,
+            route=ResearchRoute.ENGINEERING,
+            route_selection_id=bundle.route_selection_id,
+        ),
+    )
+
+
+def resolve_early_engineering_concept_review(
+    *,
+    gate: Gate,
+    decision: str,
+    actor: ProvenanceType,
+    user_event_id: str,
+    current_concept_hash: str,
+    at: datetime,
+) -> tuple[Gate, UserEngineeringConceptApproval | None]:
+    """Resolve EARLY_ENGINEERING_CONCEPT_REVIEW; APPROVE records approval."""
+    if gate.gate_type is not QualificationGateType.EARLY_ENGINEERING_CONCEPT_REVIEW:
+        raise DomainError(
+            f"gate type {gate.gate_type.value} cannot resolve an engineering concept review",
+            error_code="GATE_TYPE_MISMATCH",
+        )
+    if gate.binding.artifact_hash != current_concept_hash:
+        raise DomainError(
+            "current concept hash does not match the review binding",
+            error_code="STALE_CONCEPT_BINDING",
+        )
+    resolved = gate.resolve(
+        decision=decision,
+        actor=actor,
+        user_event_id=user_event_id,
+        at=at,
+    )
+    if decision != "APPROVE":
+        return resolved, None
+    approval = UserEngineeringConceptApproval(
+        concept_id=gate.binding.artifact_id,
+        version=gate.binding.version or 0,
+        concept_hash=gate.binding.artifact_hash,
+        route_selection_id=gate.binding.route_selection_id or "",
+        input_spec_hash=gate.binding.input_spec_hash,
+        route=ResearchRoute.ENGINEERING,
+        actor=actor,
+        user_event_id=user_event_id,
+        decided_at=at,
+    )
+    return resolved, approval
+
+
 __all__ = [
     "MIN_ACADEMIC_NEIGHBORS",
     "assess_formalization_feasibility",
+    "build_early_formula_bundle",
+    "open_early_engineering_concept_review",
+    "resolve_early_engineering_concept_review",
+    "validate_engineering_concept_bundle",
+    "early_formula_bundle_content_payload",
+    "open_early_formalization_review",
+    "resolve_early_formalization_review",
+    "validate_early_formula_bundle",
     "assess_formalization_feasibility_from_matrices",
     "open_formalization_feasibility_gate",
     "resolve_engineering_route_decision",

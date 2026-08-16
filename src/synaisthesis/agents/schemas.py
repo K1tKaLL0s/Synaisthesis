@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from synaisthesis.domain.enums import EarlyFormalizationStatus, FormulaOrigin
+
 
 class SeedRecord(BaseModel):
     """S0 output: the user's raw inspiration, faithfully preserved (03, S0)."""
@@ -110,3 +112,46 @@ class ResearchScopeSpec(BaseModel):
     engineering_relevance: str = Field(min_length=1)
     stop_conditions: list[str]
     user_confirmed_scope: bool = False
+
+
+class FormulaItemModel(BaseModel):
+    """RQ2M formula item schema (03A, section 5.3)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    formula_id: str = Field(min_length=1)
+    formula_type: str = Field(min_length=1)
+    latex: str = Field(min_length=1)
+    normalized_math_ast: str | None = None
+    symbols_used: list[str]
+    source_spec_fields: list[str]
+    assumption_formula_ids: list[str]
+    neighbor_refs: list[str]
+    origin: FormulaOrigin = FormulaOrigin.MODEL_PROPOSAL
+    confidence: float | None = None
+    known_ambiguities: list[str]
+    falsification_or_failure_formula_id: str
+
+
+class EarlyFormalizationBundleModel(BaseModel):
+    """RQ2M bundle schema (03A, section 5.2)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    formalization_id: str = Field(min_length=1)
+    version: int = Field(ge=1)
+    research_spec_id: str = Field(min_length=1)
+    input_spec_hash: str = Field(min_length=64)
+    feasibility_assessment_id: str = Field(min_length=1)
+    neighbor_evidence_set_id: str = Field(min_length=1)
+    formalizer_profile_or_import_id: str = Field(min_length=1)
+    notation_table: list[str]
+    formula_items: list[FormulaItemModel]
+    formula_dependency_graph: dict[str, list[str]]
+    semantic_alignment_matrix: list[str]
+    neighbor_difference_matrix: list[str]
+    uncertainty_register: list[str]
+    plain_language_explanation: list[str]
+    validator_results: list[str]
+    artifact_hash: str = Field(min_length=64)
+    status: EarlyFormalizationStatus
