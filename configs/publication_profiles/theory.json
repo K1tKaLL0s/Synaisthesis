@@ -1,0 +1,175 @@
+[
+  {
+    "profile_id": "MATH_ANNALS_OF_MATHEMATICS",
+    "profile_version": "1.0.0",
+    "route": "THEORY",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "Annals of Mathematics",
+    "publisher_or_operator": "Princeton University / IAS",
+    "scope_summary": "具有广泛数学重要性的重大原创理论结果",
+    "scope_fit_rules": [
+      "理论路线候选"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/annals/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/annals/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "annals.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "FULL_THEORY_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "statement hash 与冻结一致"
+    ],
+    "human_only_checks": [
+      "作者责任与投稿独占性由用户确认"
+    ],
+    "blocking_checks": [
+      "unsupported theorem claim 即阻断"
+    ],
+    "profile_hash": "0f35355ad0fd13059eeda213ee031b719a8e20e515e1a2d2e902ac4d4408adfb"
+  },
+  {
+    "profile_id": "MATH_JAMS",
+    "profile_version": "1.0.0",
+    "route": "THEORY",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "Journal of the American Mathematical Society",
+    "publisher_or_operator": "American Mathematical Society",
+    "scope_summary": "数学各领域高质量、广泛兴趣的研究文章",
+    "scope_fit_rules": [
+      "理论路线候选"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/jams/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/jams/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "jams.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "FULL_THEORY_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "MSC/完整参考文献检查"
+    ],
+    "human_only_checks": [
+      "作者包与责任字段由用户确认"
+    ],
+    "blocking_checks": [
+      "statement hash 变化即阻断"
+    ],
+    "profile_hash": "370bf642e12f53279af18d2ac4efc4fa61ce408894f0f7ec6698d751969d5079"
+  },
+  {
+    "profile_id": "MATH_INVENTIONES",
+    "profile_version": "1.0.0",
+    "route": "THEORY",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "Inventiones mathematicae",
+    "publisher_or_operator": "Springer",
+    "scope_summary": "具有显著新颖性和深度的纯数学研究",
+    "scope_fit_rules": [
+      "理论路线候选"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/inventiones/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/inventiones/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "inventiones.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "FULL_THEORY_ARTICLE",
+      "FORMALIZED_THEORY_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "proof dependency 闭合检查"
+    ],
+    "human_only_checks": [
+      "伦理与作者确认"
+    ],
+    "blocking_checks": [
+      "未解决义务被隐藏即阻断"
+    ],
+    "profile_hash": "e28598ad4149b37df546c0f4a4e39ee82d2a2146f10d78ef5f0be1c2c6dda24d"
+  },
+  {
+    "profile_id": "MATH_ACTA_MATHEMATICA",
+    "profile_version": "1.0.0",
+    "route": "THEORY",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "Acta Mathematica",
+    "publisher_or_operator": "Institut Mittag-Leffler",
+    "scope_summary": "重要、完整且具有长期价值的数学研究",
+    "scope_fit_rules": [
+      "理论路线候选"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/acta/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/acta/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "acta.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "FULL_THEORY_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "statement/evidence 追踪 100%"
+    ],
+    "human_only_checks": [
+      "作者确认"
+    ],
+    "blocking_checks": [
+      "引用捏造即阻断"
+    ],
+    "profile_hash": "54c5323501ba6010bcebc2657b488e0d84eadbbab60fd758e33d41fc032c9fe4"
+  }
+]

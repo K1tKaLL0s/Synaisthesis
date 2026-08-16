@@ -1,0 +1,295 @@
+[
+  {
+    "profile_id": "ENG_IEEE_TSE",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "IEEE Transactions on Software Engineering",
+    "publisher_or_operator": "IEEE",
+    "scope_summary": "软件工程方法、理论、工具与有证据的系统研究",
+    "scope_fit_rules": [
+      "project_kind 必须是 software，否则 SCOPE_MISMATCH"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/ieee-tse/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/ieee-tse/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "ieee-tse.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "SYSTEMS_ARTICLE",
+      "METHODS_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "title/abstract/references 结构化检查"
+    ],
+    "human_only_checks": [
+      "作者顺序与利益冲突由用户确认"
+    ],
+    "blocking_checks": [
+      "证据类型与 article_type 不匹配即阻断"
+    ],
+    "profile_hash": "794067a156f252b5ddc0cc5e7906005ddaf7af6601a85e6f36ce6a1435dbbdea"
+  },
+  {
+    "profile_id": "ENG_ACM_TOSEM",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "ACM Transactions on Software Engineering and Methodology",
+    "publisher_or_operator": "ACM",
+    "scope_summary": "重要、可复现的软件工程方法与系统成果",
+    "scope_fit_rules": [
+      "project_kind 必须是 software，否则 SCOPE_MISMATCH"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/acm-tosem/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/acm-tosem/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "tosem.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "SYSTEMS_ARTICLE",
+      "METHODS_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "ACM 模板字段检查"
+    ],
+    "human_only_checks": [
+      "作者贡献声明由用户确认"
+    ],
+    "blocking_checks": [
+      "复现工件缺失即阻断"
+    ],
+    "profile_hash": "0efd4955e59ef70cb5b0ddf5f7f689dc31bcff0e17b64f250a1709390d8ef768"
+  },
+  {
+    "profile_id": "ENG_EMSE",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "Empirical Software Engineering",
+    "publisher_or_operator": "Springer",
+    "scope_summary": "实证研究、研究设计、数据与可复现评价",
+    "scope_fit_rules": [
+      "project_kind 必须是 software，否则 SCOPE_MISMATCH"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/emse/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/emse/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "emse.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "FULL_ENGINEERING_RESEARCH_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "数据可用性声明检查"
+    ],
+    "human_only_checks": [
+      "伦理与数据许可由用户确认"
+    ],
+    "blocking_checks": [
+      "无实证数据即阻断"
+    ],
+    "profile_hash": "304d48d657a3f251b677056b759f89c6e3701b17e367480ba38896fb8f27b6c8"
+  },
+  {
+    "profile_id": "ENG_JSS",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "PEER_REVIEWED_JOURNAL",
+    "venue_name": "Journal of Systems and Software",
+    "publisher_or_operator": "Elsevier",
+    "scope_summary": "软件系统、架构、要求、V&V、维护及系统证据",
+    "scope_fit_rules": [
+      "project_kind 必须是 software，否则 SCOPE_MISMATCH"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/jss/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/jss/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "jss.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "SYSTEMS_ARTICLE",
+      "METHODS_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "系统证据与图源检查"
+    ],
+    "human_only_checks": [
+      "系统描述准确性由作者确认"
+    ],
+    "blocking_checks": [
+      "无系统证据即阻断"
+    ],
+    "profile_hash": "6b1b4b72173d22a6574cd7b22663307b7194b73a67b4e397271e36483e287c5b"
+  },
+  {
+    "profile_id": "JOSS_RESEARCH_SOFTWARE",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "EXTENDED_PROFILE",
+    "venue_name": "Journal of Open Source Software",
+    "publisher_or_operator": "JOSS",
+    "scope_summary": "研究软件论文：真实软件、可浏览源码、许可证、文档与测试",
+    "scope_fit_rules": [
+      "project_kind 必须是 software；软件必须真实存在"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/joss/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/joss/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "joss-paper.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "RESEARCH_SOFTWARE_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX + paper.md",
+    "machine_checks": [
+      "软件存在/许可证/自动化测试检查"
+    ],
+    "human_only_checks": [
+      "作者责任与软件维护承诺由用户确认"
+    ],
+    "blocking_checks": [
+      "无开源许可证或自动化测试即阻断"
+    ],
+    "profile_hash": "0bae4dd838104382f791688fc3222320f17fb7f9da5ddf4fb32be33d350cf078"
+  },
+  {
+    "profile_id": "NATURE_PORTFOLIO_METHODS_OR_SOFTWARE",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "EXTENDED_PROFILE",
+    "venue_name": "Nature Portfolio (Methods / Scientific Software)",
+    "publisher_or_operator": "Springer Nature",
+    "scope_summary": "方法或科研软件类扩展 Profile",
+    "scope_fit_rules": [
+      "project_kind 必须是 software 或 methods，否则 SCOPE_MISMATCH"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/nature/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/nature/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "nature.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "METHODS_ARTICLE",
+      "RESEARCH_SOFTWARE_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "方法可复现性检查"
+    ],
+    "human_only_checks": [
+      "伦理与数据可用性由用户确认"
+    ],
+    "blocking_checks": [
+      "无方法/软件证据即阻断"
+    ],
+    "profile_hash": "87176c6b37d462f9b1ed0160f9d8d656629cb3c6bafd29d4bb1e771980459571"
+  },
+  {
+    "profile_id": "CUSTOM_VENUE",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "CUSTOM_VENUE",
+    "venue_name": "Custom Venue",
+    "publisher_or_operator": "user-defined",
+    "scope_summary": "非软件工程或其他自定义目标场合",
+    "scope_fit_rules": [
+      "始终候选；由用户提供 venue 元数据"
+    ],
+    "official_author_guide_urls": [],
+    "official_policy_urls": [],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": null,
+    "freshness_days": 30,
+    "template_files": [],
+    "article_types": [
+      "DESIGN_ARTICLE",
+      "PROTOCOL_ARTICLE"
+    ],
+    "submission_format": "user-defined",
+    "machine_checks": [],
+    "human_only_checks": [
+      "venue 元数据与指南由用户提供"
+    ],
+    "blocking_checks": [
+      "无用户提供指南时只能生成草稿"
+    ],
+    "profile_hash": "94c3f0fdf3329aa3eae45c0b34f7ebd1f38e8991974b281446f6eabeabe8fa73"
+  }
+]

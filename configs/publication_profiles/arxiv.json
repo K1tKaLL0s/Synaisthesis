@@ -1,0 +1,91 @@
+[
+  {
+    "profile_id": "MATH_ARXIV_PREPRINT",
+    "profile_version": "1.0.0",
+    "route": "THEORY",
+    "venue_kind": "PREPRINT_REPOSITORY",
+    "venue_name": "arXiv Mathematics Preprint",
+    "publisher_or_operator": "arXiv",
+    "scope_summary": "math.* 预印本；arXiv 始终是 PREPRINT_REPOSITORY",
+    "scope_fit_rules": [
+      "理论路线均可作为预印本候选"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/arxiv/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/arxiv/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "arxiv.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "FULL_THEORY_ARTICLE",
+      "RESEARCH_NOTE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "metadata/TeX 源完整性检查"
+    ],
+    "human_only_checks": [
+      "submitter/endorsement 由用户处理"
+    ],
+    "blocking_checks": [
+      "不得标注 PEER_REVIEWED/ACCEPTED/PUBLISHED_IN_JOURNAL"
+    ],
+    "profile_hash": "5d742095b57dc89781d39d4b93c849c63d67ad04ba59f0c53ee0db8c0438bf28"
+  },
+  {
+    "profile_id": "ENG_ARXIV_PREPRINT",
+    "profile_version": "1.0.0",
+    "route": "ENGINEERING",
+    "venue_kind": "PREPRINT_REPOSITORY",
+    "venue_name": "arXiv Engineering/Computing Preprint",
+    "publisher_or_operator": "arXiv",
+    "scope_summary": "cs.*/eess.* 预印本；arXiv 始终是 PREPRINT_REPOSITORY",
+    "scope_fit_rules": [
+      "任何工程路线项目均可作为预印本候选"
+    ],
+    "official_author_guide_urls": [
+      "https://example.org/arxiv/guide"
+    ],
+    "official_policy_urls": [
+      "https://example.org/arxiv/policy"
+    ],
+    "accessed_at": "2026-08-17T00:00:00+00:00",
+    "last_modified_if_available": "2026-08-17T00:00:00+00:00",
+    "freshness_days": 30,
+    "template_files": [
+      {
+        "path": "arxiv.tex",
+        "sha256": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+        "license": null,
+        "source_url": null
+      }
+    ],
+    "article_types": [
+      "DESIGN_ARTICLE",
+      "PROTOCOL_ARTICLE",
+      "SYSTEMS_ARTICLE"
+    ],
+    "submission_format": "TeX/LaTeX",
+    "machine_checks": [
+      "metadata/title/abstract/authors/category/license 结构化检查"
+    ],
+    "human_only_checks": [
+      "submitter 注册、endorsement、moderation 由用户处理"
+    ],
+    "blocking_checks": [
+      "不得标注 PEER_REVIEWED/ACCEPTED/PUBLISHED_IN_JOURNAL"
+    ],
+    "profile_hash": "79dbe4ee6f6f1effb36c69b90ca9a8e2f9ced0cefe030747763c7798ea6539e7"
+  }
+]
