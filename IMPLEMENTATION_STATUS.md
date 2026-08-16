@@ -97,6 +97,7 @@
 - M6.2：`workspace/.venv-m13/bin/python -m pytest tests/security/test_role_isolation.py` 12 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 通过（见最终计数）；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M13.1：`workspace/.venv-m13/bin/python -m pytest tests/contract/prior_art/test_academic_providers.py` 12 passed（contract/prior_art 全目录 26 passed，M2.4 未破坏）；全套 `workspace/.venv-m13/bin/python -m pytest` 478 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M13.2：`workspace/.venv-m13/bin/python -m pytest tests/contract/prior_art/test_engineering_neighbors.py` 14 passed（工程近邻 Provider 合同：功能/应用特征强制证据引用、成熟度 ≥2 项且 popularity 单独不足、跨 Provider 去重、外部文本隔离）；全套 `workspace/.venv-m13/bin/python -m pytest` 561 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M13.3：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_research_qualification_e2e.py` 8 passed（真实自然语言设计 route-aware RQ0–RQ4：理论 70 自动进 S5、工程 70 自动进 ENG0、理论 69 返回用户 LOW_NOVELTY_RESEARCH_DECISION、工程候选未选 route 交还用户、PARTIAL 覆盖 fail-closed、节点/CLI/MCP 适配器、导出全字段；MCP 合同 7 passed 未破坏）；全套 `workspace/.venv-m13/bin/python -m pytest` 570 tests exit 0；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M7.1：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_fake_council.py` 7 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 485 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M8.1：`workspace/.venv-m13/bin/python -m pytest tests/external/test_z3_adapter.py` 9 passed（真实 Z3 5.0.0 smoke：sat/unsat/unknown、witness 重验、篡改检测、注入惰性、receipt 确定性、registry）；全套 `workspace/.venv-m13/bin/python -m pytest` 494 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M8.2：`workspace/.venv-m13/bin/python -m pytest tests/external/test_python_sandbox.py` 7 passed（真实 Docker 29.7.2 + ghcr python:3.13 镜像 smoke：执行/断网/无 secret/无挂载/pids/OOM/超时清理/回执）；全套 `workspace/.venv-m13/bin/python -m pytest` 501 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
@@ -116,7 +117,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M13.3.RQ.PRODUCTION_E2E`（前置 M6.3、M13.2 已 PASS；必须读取 19 §5 M13.3 与 03B；真实自然语言设计完成 route-aware RQ0–RQ4，理论/工程路线 70 分别自动进入 S5/ENG0，69 返回用户，导出含来源/可行性矩阵/route/形式化/评分/Gate）
+- 代码方面：`M13.4.DUAL_TRACK.REFERENCE_AND_PUBLICATION_PROFILES`（前置 M13.3、M2.11、M9.2 已 PASS；必须读取 19 §5 M13.4、03B 与 03C；ENG3 仓库/标准/参考架构证据可追溯；理论四刊、工程四刊和双路线 arXiv Profile 均有 route/venue_kind/官方 URL/访问时间/template checksum/freshness/scope/机器/人工检查；Profile contract tests 用冻结 fixture，真实刷新 smoke 手动；arXiv 永远是 PREPRINT_REPOSITORY；软件工程四刊对非软件项目返回 SCOPE_MISMATCH）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -152,6 +153,7 @@
 - M6.2 已提交：`8ecd361`（并行子 agent 实现，主 agent 复核；子 agent 多轮未提交，主 agent 按预案中断并以其已验证工作树内容提交）。
 - M13.1 已提交：`7fb992a`（并行子 agent 实现，提交纪律到位：仅自己的 6 文件）。
 - M13.2 已提交：`604208d`（feat）＋本 chore(status) 提交；合同 `workspace/workunit-contracts/M13.2.ENGINEERING.PROVIDERS.md`。
+- M13.3 已提交：`f52b294`（feat）＋本 chore(status) 提交；合同 `workspace/workunit-contracts/M13.3.RQ.PRODUCTION_E2E.md`。
 - M7.1 已提交：`d16d467`。
 - M8.1 已提交：`e6de495`。
 - M8.2 已提交：`6cf2132`。

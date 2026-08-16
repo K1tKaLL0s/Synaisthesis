@@ -46,6 +46,7 @@
 ## Next
 
 - [x] M13.2.ENGINEERING.PROVIDERS — 工程近邻生产 Provider（提交见下）：`engineering_base.py`（EngineeringNeighborHit/Query/Provider、特征证据引用强制、POPULARITY_MARKERS）、`repository_registry.py`/`package_registry.py`/`official_docs.py`（可注入 fixture 语料、每个 hit 3 项成熟度证据、popularity 只进 untrusted 隔离区）、`maturity.py`（成熟度 ≥2 项证据、popularity 单独不足 → MATURITY_EVIDENCE_INSUFFICIENT；功能/应用加权排序每分有来源 → NEIGHBOR_RANK_UNSOURCED；跨 Provider 去重、外部文本隔离收集）；14 个 focused 测试；全套 561 passed
+- [x] M13.3.RQ.PRODUCTION_E2E — route-aware RQ0–RQ4 生产编排（提交见下）：`qualification_service.run_qualification_pipeline`（RQ0 CAPABILITY_READY→RQ1 COMPLETE→RQ2F 固定分类→RQ2M/RQ2E→RQ3 审查→RQ4 固定路由：70 自动进 S5/ENG0、<70 或未决 Gate 交还用户；PARTIAL 覆盖 fail-closed RQ1_COVERAGE_INCOMPLETE）、`novelty_service.novelty_next_target`、`qualification_nodes.qualification_pipeline_node`、CLI `qualify` 命令与 MCP 只读工具 `research_qualify_design`（intent 适配器）、`qualification_export_payload`（来源/可行性矩阵/route/形式化/评分/Gate）；8 个 E2E 测试；全套 570 tests passed
 
 ## Backlog
 
