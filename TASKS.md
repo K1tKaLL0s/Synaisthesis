@@ -22,10 +22,11 @@
 - [x] M2.8 — 工程工作流领域（Stage 2.6 第 1 个 Task，提交 `19be013`）：ENG0–ENG10 领域对象与状态事件（03B 全部阶段 Artifact）、ENG0 入口强制（用户 route/RQ3E/RQ4E 或绑定 override/S1·S4 hash 不变）、阶段 Artifact 不可变 + 内容 hash、S1/S4 与上游 hash 变化确定性回归、工程 Gate（架构评审/原型授权/母稿决策/Profile/交付验收）、requirements/architecture/traceability/publication 领域模块、migration 0004（66 个测试，全套 268 passed）
 - [x] M2.9 — 需求与架构设计服务（Stage 2.6 第 2 个 Task，提交 `9d42022`）：ENG0–ENG4 事件溯源纵切片（charter/ConOps/Requirements Baseline/Trade Study/Architecture Baseline 全部持久化可重放）、ConOps source coverage 100%、Critical 阈值/验收/验证方法强制、工程深检索 5 类来源去重、Trade Study Critical 硬淘汰 + 权重冻结、确定性图源→SVG 渲染器（稳定 ID/双 hash/回执/断链）、Architecture Gate 三 hash 绑定且仅真实用户可批准、eng2/eng3/eng4 节点与节点前置、eng2/eng3/eng4 prompt assets（25 个测试，全套 293 passed）
 - [x] M2.10 — 机械工程蓝图（Stage 2.6 第 3 个 Task，提交 `3070c49`）：ENG5 蓝图服务（未批准架构/三 hash 失配/追踪缺口/无停止条件 WorkUnit/上抛普通选择 全部 BLUEPRINT_GAP 或 ENGINEERING_ARCHITECTURE_REVIEW_REQUIRED）、Blueprint Completeness Gate 指标化、决策上抛范围规则（69/70 无关的普通实现选择不得上抛）、WorkUnit 14 项合同完备 golden、storage/export_bundle.py 确定性导出（manifest/checksums/篡改检测）、blueprint prompt asset（15 个测试，全套 308 passed）
+- [x] M2.11 — 工程论文与交付（Stage 2.6 第 4 个 Task）：ENG8 母稿服务（BLUEPRINT_ONLY 不产生完成态结果、claim 真实回执、作者输入 NEEDS_AUTHOR_INPUT）、独立母稿审计（不得审自己初稿、Major/Critical 阻断）、FORMAL_MANUSCRIPT_DECISION Gate（先审计交付后打开、仅用户决议、KEEP_MASTER_ONLY 完整合法）、ENG9 Profile Registry（8 个内置工程 Profile、profile_hash 内容绑定、freshness、scope-fit、arXiv 恒为 PREPRINT_REPOSITORY、JOSS 软件门、ComplianceMatrix）、ENG10 独立交付审计 + ENGINEERING_DELIVERY_ACCEPTANCE（manifest hash 绑定、变更即失效）+ 03B §13.3 readiness 全条件、导出包 role/checksums 扩展、eng8/eng10 prompt assets（31 个测试，全套 339 passed）
 
 ## Next
 
-- [ ] M2.11.ENGINEERING.PUBLICATION_DELIVERY — ENG8 母稿/ENG10 交付审计与导出：BLUEPRINT_ONLY 证据策略、ClaimEvidenceMatrix 真实回执、独立审计、FORMAL_MANUSCRIPT_DECISION、Profile 与合规矩阵（前置 M2.10）
+- [ ] M3.1.S6_S7.THEORY_FORMAL_PLAN — 理论路线 S6/S7：S7 消费已批准早期公式生成独立 FormalizationPlan、语义变化回退 S1/S4/RQ（前置 M2.7，理论路线；M2.11 后理论/工程双路线可并行）
 
 ## Backlog
 

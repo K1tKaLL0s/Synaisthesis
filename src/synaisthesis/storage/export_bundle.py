@@ -24,6 +24,10 @@ MANIFEST_ROLE_DIAGRAM_SOURCE = "diagram_source"
 MANIFEST_ROLE_DIAGRAM_RENDERED = "diagram_rendered"
 MANIFEST_ROLE_CHECKSUMS = "checksums"
 MANIFEST_ROLE_MANIFEST = "manifest"
+MANIFEST_ROLE_MASTER_MANUSCRIPT = "master_manuscript"
+MANIFEST_ROLE_VENUE_ADAPTED = "venue_adapted"
+MANIFEST_ROLE_COMPLIANCE_MATRIX = "compliance_matrix"
+MANIFEST_ROLE_VENUE_PROFILE = "venue_profile"
 
 
 def _sha256_bytes(content: bytes) -> str:
@@ -130,6 +134,19 @@ class ExportBundle:
 
 def _role_for_path(path: str) -> str:
     lowered = path.lower()
+    if lowered.endswith(".sha256"):
+        return MANIFEST_ROLE_CHECKSUMS
+    if lowered.endswith((".yaml", ".yml")):
+        if lowered.startswith("00_manifest"):
+            return MANIFEST_ROLE_MANIFEST
+        if "compliance" in lowered:
+            return MANIFEST_ROLE_COMPLIANCE_MATRIX
+        if "venue_profile" in lowered or "profile" in lowered:
+            return MANIFEST_ROLE_VENUE_PROFILE
+    if "master_manuscript" in lowered:
+        return MANIFEST_ROLE_MASTER_MANUSCRIPT
+    if "venue_adapted" in lowered or "adapted" in lowered:
+        return MANIFEST_ROLE_VENUE_ADAPTED
     if lowered.endswith((".md",)) and "summary" in lowered:
         return MANIFEST_ROLE_EXECUTIVE_SUMMARY
     if lowered.endswith(".svg") or lowered.endswith(".png"):
@@ -173,11 +190,15 @@ def export_bundle_manifest_json(bundle: ExportBundle) -> str:
 __all__ = [
     "MANIFEST_ROLE_BLUEPRINT",
     "MANIFEST_ROLE_CHECKSUMS",
+    "MANIFEST_ROLE_COMPLIANCE_MATRIX",
     "MANIFEST_ROLE_DIAGRAM_RENDERED",
     "MANIFEST_ROLE_DIAGRAM_SOURCE",
     "MANIFEST_ROLE_EXECUTIVE_SUMMARY",
     "MANIFEST_ROLE_MANIFEST",
+    "MANIFEST_ROLE_MASTER_MANUSCRIPT",
     "MANIFEST_ROLE_TRACEABILITY",
+    "MANIFEST_ROLE_VENUE_ADAPTED",
+    "MANIFEST_ROLE_VENUE_PROFILE",
     "MANIFEST_ROLE_WORK_UNIT",
     "ExportBundle",
     "ExportBundleItem",
