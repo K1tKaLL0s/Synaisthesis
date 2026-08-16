@@ -13,10 +13,10 @@
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M4.2.CLAIM.FREEZE`
-- Milestone: `M4`（Stage 4 第 2 个 Task：Claim 冻结与不可变合同）
-- WorkUnitContract: `workspace/workunit-contracts/M4.2.CLAIM.FREEZE.md`
-- 交付：ClaimContract（04 §2 全字段 + contract_hash 覆盖语义/工具/预算/策略）；仅真实用户事件冻结/修订；修订生成新版本、旧版保留；gate.py CLAIM_ACCEPTANCE 决策。
+- Stable Task ID: `M5.1.GATE.ACTION.POLICY`
+- Milestone: `M5`（Stage 5 第 1 个 Task：ActionBroker、Gate 与委托）
+- WorkUnitContract: `workspace/workunit-contracts/M5.1.GATE.ACTION.POLICY.md`
+- 交付：A0–A3 × R0–R6 确定性路由；ActionGate（仅真实用户决议）；ExecutionReceipt hash 强制；gate_service 通用 Gate 持久化。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -91,6 +91,7 @@
 - M3.2：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_incubator_s6_s10.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 370 passed；`ruff check .` 通过；`ruff format --check .` 通过（160 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M4.1：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_claim_compiler.py` 16 passed；`ruff/basedpyright` 由主 agent 复核通过（提交 `2de344d`）
 - M4.2：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_claim_freeze.py` 7 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 437 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M5.1：`workspace/.venv-m13/bin/python -m pytest tests/security/test_action_gate_policy.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 452 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -100,7 +101,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M5.1.GATE.ACTION.POLICY`（前置 M4.2 已 PASS；必须读取 08 §1/§2/§12/§15 与 05A §11；ActionBroker/Gate/委托）
+- 代码方面：`M6.1.LLM.PROVIDER`（前置 M5.1 已 PASS；必须读取 02 §provider 架构与 08 §5/§13；Provider 无关 LLM 层）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -130,6 +131,8 @@
 - M3.2 已提交：`b50cd3b`。
 - M4.1 已提交：`2de344d`（并行子 agent 实现，主 agent 复核）。
 - M4.2 已提交：`91b6a7e`。
+- M5.1 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M5.1 记录：ActionGate 与其决策常量按架构放在 `domain/action.py`（gate.py 无需改动，M4.2 已为其加入 CLAIM_ACCEPTANCE 决策），合同 GAP-1 注明。
 - M0.5.CODEX.FIDELITY 并行子 agent 进行中（fidelity/* + fidelity_service.py + 两个测试文件已在工作树，未提交）。
 - M2.11 蓝图缺口记录：GAP-1（“母稿交付用户”以 audit_status=AUDITED_CLEAN 为确定性代理，交付回执事件由后续 WorkUnit 补充）；GAP-2（JOSS/Nature venue_kind 03C 未枚举，定为 EXTENDED_PROFILE 并记录在案）。
 - M2.11 内置 Profile 为冻结 fixture（官方 URL 为示例域名）；真实指南刷新与模板 checksum 由后续生产级 WorkUnit 接入。
