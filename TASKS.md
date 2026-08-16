@@ -18,11 +18,11 @@
 - [x] M2.5 — RQ2M 早期数学形式化（Stage 2.5 第 4 个 Task）：能力门、10 类公式骨架、符号闭合/依赖无环/语义映射/失败公式/hash 验证、EARLY_FORMALIZATION_REVIEW 用户审批（11 个 golden 测试）
 - [x] M2.5B — RQ2E 工程概念形式化（Stage 2.5 第 5 个 Task）：TRY_ENGINEERING_PROJECT hash 绑定、I/O/状态/要求谓词/未决阈值/架构图候选/追踪/失败恢复验证、EARLY_ENGINEERING_CONCEPT_REVIEW 用户审批（9 个测试；全套 186 passed）
 - [x] M2.6 — Novelty 路线审验（Stage 2.5 第 6 个 Task）：两个隔离 Reviewer/Auditor、逐项近邻证据、独立性与 route/policy 校验、理论/工程 69/70 路由、低分用户 Gate 与绑定 override（9 个测试，全套 195 passed）
-- [x] M2.7 — S5 纵向切片（Stage 2.5 第 7 个 Task）：MinimalCaseBundle Schema/Prompt、RQ4M 前置强制、actually_executed/receipt 分离、事件溯源恢复一致、s5_qualification_node（7 个测试，全套 202 passed；验收通过，工作区未提交）
+- [x] M2.7 — S5 纵向切片（Stage 2.5 第 7 个 Task）：MinimalCaseBundle Schema/Prompt、RQ4M 前置强制、actually_executed/receipt 分离、事件溯源恢复一致、s5_qualification_node（7 个测试，全套 202 passed）
 
 ## Next
 
-- [ ] M2.8.ENGINEERING.WORKFLOW_DOMAIN — ENG0–ENG10 领域对象、工程 route 入口与 S1/S4 hash 回归（前置 M2.6 工程 route；开始前需先处理 M2.7 提交）
+- [ ] M2.8.ENGINEERING.WORKFLOW_DOMAIN — ENG0–ENG10 领域对象、工程 route 入口与 S1/S4 hash 回归（前置 M2.6 工程 route 已 PASS）
 
 ## Backlog
 
