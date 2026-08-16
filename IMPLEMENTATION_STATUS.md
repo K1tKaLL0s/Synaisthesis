@@ -91,7 +91,8 @@
 - M3.2：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_incubator_s6_s10.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 370 passed；`ruff check .` 通过；`ruff format --check .` 通过（160 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M4.1：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_claim_compiler.py` 16 passed；`ruff/basedpyright` 由主 agent 复核通过（提交 `2de344d`）
 - M4.2：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_claim_freeze.py` 7 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 437 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
-- M5.1：`workspace/.venv-m13/bin/python -m pytest tests/security/test_action_gate_policy.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 452 passed；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M5.1：`workspace/.venv-m13/bin/python -m pytest tests/security/test_action_gate_policy.py` 15 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 452 passed（含 M0.5 的 29 个）；`ruff check --no-cache` 通过；`ruff format --check` 通过；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M0.5（并入 d6dbfbe）：`workspace/.venv-m13/bin/python -m pytest tests/security/test_codex_fidelity.py tests/integration/test_prepare_commit.py` 29 passed；`ruff check --no-cache src/synaisthesis/fidelity/ src/synaisthesis/application/fidelity_service.py` 通过；format 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -131,8 +132,9 @@
 - M3.2 已提交：`b50cd3b`。
 - M4.1 已提交：`2de344d`（并行子 agent 实现，主 agent 复核）。
 - M4.2 已提交：`91b6a7e`。
-- M5.1 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M5.1 已提交：`d6dbfbe`（注意：该提交因并发暂存竞争一并包含 M0.5 的文件；按仓库规则不做历史改写，M0.5 里程碑随此提交记录）。
 - M5.1 记录：ActionGate 与其决策常量按架构放在 `domain/action.py`（gate.py 无需改动，M4.2 已为其加入 CLAIM_ACCEPTANCE 决策），合同 GAP-1 注明。
+- 并发协作记录：M0.5 子 agent 已 `git add` 暂存其文件后，主 agent 的 `git commit` 将暂存区一并提交；后续并行批次将要求子 agent 在提交前检查 `git status` 暂存区并改用 `git commit -- <files>` 精确路径提交，避免再次混入。
 - M0.5.CODEX.FIDELITY 并行子 agent 进行中（fidelity/* + fidelity_service.py + 两个测试文件已在工作树，未提交）。
 - M2.11 蓝图缺口记录：GAP-1（“母稿交付用户”以 audit_status=AUDITED_CLEAN 为确定性代理，交付回执事件由后续 WorkUnit 补充）；GAP-2（JOSS/Nature venue_kind 03C 未枚举，定为 EXTENDED_PROFILE 并记录在案）。
 - M2.11 内置 Profile 为冻结 fixture（官方 URL 为示例域名）；真实指南刷新与模板 checksum 由后续生产级 WorkUnit 接入。
