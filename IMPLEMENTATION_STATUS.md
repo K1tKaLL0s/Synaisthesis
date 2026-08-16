@@ -158,7 +158,7 @@
 - M9.2 已提交：`e95b9ad`。
 - M10 已提交：`d1bf78b`。
 - M11 已提交：`7f6ae23`。
-- M12 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M12 已提交：`b253b19`。
 - M11 说明：Codex SDK 安装为单独依赖 Human Gate（19 §5 M11），本任务以 stdlib + 真实 git 实现合同，零新依赖；真实 Codex worker 适配在 SDK 决策后接入。
 - M10 说明：MCP Inspector（外部 UI 工具）不在本环境，协议合同以 JSON-RPC 帧与工具级 contract tests 覆盖（19 §5 M10 的 Inspector PASS 留待真实 Inspector 环境）；Hook 为骨架 + 服务端独立复验（05A §19）。
 - M9.2 说明：理论 Profile 为冻结 fixture（官方 URL 示例域名），真实指南刷新留给生产级 WorkUnit；TeX/PDF 真实编译回执后续 WorkUnit 接线（本任务为领域与服务合同）。
