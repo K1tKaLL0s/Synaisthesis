@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2.5 进行中：M2.3–M2.6 均已提交 PASS）
+`M2`（Stage 2.5 进行中：M2.3–M2.6 已提交 PASS；M2.7 验收通过，工作区变更尚未提交）
 
 ## Current task
-`M2.6.RQ.NOVELTY_POLICY_COMPLETE`
+`M2.7.S5.VERTICAL_SLICE_COMPLETE`
 
 ## Last verified commit
-`1c2cb58`（M2.6 已提交）
+`a870903`（M2.7 变更已通过全部检查，尚未提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M2.6.RQ.NOVELTY_POLICY`
-- Milestone: `M2`（Stage 2.5 第 6 个 Task：路线化新颖性审验）
-- WorkUnitContract: `workspace/workunit-contracts/M2.6.RQ.NOVELTY_POLICY.md`
-- 交付：NoveltyReviewer/NoveltyAuditor 两个隔离评分 Session；NoveltyItemEvidence 逐项近邻引用；start_novelty_review 校验独立性、覆盖、route/policy 后保守 min 与 69/70 路由；LOW_NOVELTY_RESEARCH_DECISION 用户 Gate 与绑定 review hash 的 LowNoveltyOverride。
+- Stable Task ID: `M2.7.S5.VERTICAL_SLICE`
+- Milestone: `M2`（Stage 2.5 收口：理论路线 S5 纵向切片）
+- WorkUnitContract: `workspace/workunit-contracts/M2.7.S5.VERTICAL_SLICE.md`
+- 交付：MinimalCaseBundle Schema/Prompt；`propose_minimal_case_bundle` 强制 RQ4M 前置并校验 actually_executed/receipt；事件溯源 `MinimalCaseProposed` 可重放；`s5_qualification_node` 复用同一前置路径。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -53,6 +53,7 @@
 - M2.5 RQ2M：`agents/schemas.py`（FormulaItemModel/EarlyFormalizationBundleModel）；`agents/early_formalizer.py`（10 类公式类型常量、build_formula_items、validate_formula_items）；`application/qualification_service.py`（build_early_formula_bundle、validate_early_formula_bundle、open/resolve_early_formalization_review）；`prompts/formalization/early_formalization.md`
 - M2.5B RQ2E：`agents/engineering_feasibility_assessor.py`（build_engineering_concept_bundle、engineering_concept_content_payload）；`application/qualification_service.py`（validate_engineering_concept_bundle、open/resolve_early_engineering_concept_review）；`prompts/engineering/concept_engineering.md`
 - M2.6 Novelty 服务：`domain/novelty.py`（NoveltyItemEvidence、NoveltyReview.create review_valid）；`agents/novelty_reviewer.py` + `agents/auditor.py`（隔离 Reviewer/Auditor）；`application/novelty_service.py`（start_novelty_review、open/resolve_low_novelty_research_decision）
+- M2.7 S5 纵切片：`agents/schemas.py`（MinimalCaseBundle）；`application/incubation_service.py`（propose/load_minimal_case_bundle、MinimalCaseProposed）；`orchestration/nodes/incubator_nodes.py`（s5_qualification_node）；`prompts/incubator/s5_minimal_case.md`
 
 ## Verified
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
@@ -80,6 +81,7 @@
 - M2.4A：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_formalization_feasibility.py tests/golden/test_engineering_route_gate.py` 17 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 166 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（107 files）；`UV_CACHE_DIR=/tmp /home/chaos/.venvs/synaisthesis/bin/basedpyright --pythonpath /mnt/e/Synaisthesis/workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.5：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_early_formalization.py` 11 passed；M2.5B：`tests/golden/test_engineering_concept.py tests/unit/application/test_engineering_concept_review.py` 9 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 186 passed；`ruff check .` 通过；`ruff format --check .` 通过（112 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.6：`workspace/.venv-m13/bin/python -m pytest tests/unit/application/test_novelty_service.py tests/golden/test_novelty_gate.py` 9 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 195 passed；`ruff check .` 通过；`ruff format --check .` 通过（117 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
+- M2.7：`workspace/.venv-m13/bin/python -m pytest tests/integration/test_qualification_to_s5.py` 7 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 202 passed；`ruff check .` 通过；`ruff format --check .` 通过（122 files）；`basedpyright` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -89,7 +91,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.7.S5.VERTICAL_SLICE`（前置 M2.6 已 PASS 且已提交）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
+- 代码方面：`M2.8.ENGINEERING.WORKFLOW_DOMAIN`（前置 M2.6 的工程 route；必须读取 03B；开始前先处理 M2.7 提交）
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -110,5 +112,6 @@
 - M2.5/M2.5B 仍为确定性骨架（真实 LLM 在 M6.x 接入）；验证不变量不得放宽。
 - M2.5/M2.5B 已提交：`4609db8`。
 - M2.6 已提交：`1c2cb58`。
+- M2.7 验收已通过但尚未提交。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。

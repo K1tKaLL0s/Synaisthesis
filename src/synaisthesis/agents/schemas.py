@@ -155,3 +155,23 @@ class EarlyFormalizationBundleModel(BaseModel):
     validator_results: list[str]
     artifact_hash: str = Field(min_length=64)
     status: EarlyFormalizationStatus
+
+
+class MinimalCaseBundle(BaseModel):
+    """S5 output schema (03, S5)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input: str = Field(min_length=1)
+    control_or_baseline: str = Field(min_length=1)
+    expected_output: str = Field(min_length=1)
+    failure_condition: str = Field(min_length=1)
+    reproduction_steps: list[str]
+    actually_executed: bool = False
+    execution_receipt_id: str | None = None
+    toy_or_real: str = Field(min_length=1)
+    limitations: list[str]
+
+
+class MinimalCaseBundleModel(MinimalCaseBundle):
+    """Alias retaining the schema name used by prompt/API contracts."""

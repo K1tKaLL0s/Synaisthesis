@@ -23,19 +23,25 @@ from sqlalchemy.orm import Session
 
 from synaisthesis.agents.schemas import (
     MechanismSketch,
+    MinimalCaseBundle,
     NaturalLanguageSpec,
     PriorWorkMap,
     ResearchScopeSpec,
     SeedRecord,
 )
 from synaisthesis.domain.enums import (
+    NoveltyStatus,
     ProjectLifecycleStatus,
     ProvenanceType,
+    QualifiedNextTarget,
+    ResearchRoute,
     StageGateStatus,
     StageId,
 )
 from synaisthesis.domain.errors import DomainError
 from synaisthesis.domain.event import DomainEvent, sha256_hex
+from synaisthesis.domain.gate import qualification_next_target
+from synaisthesis.domain.novelty import LowNoveltyOverride
 from synaisthesis.domain.research_spec import ResearchSpec
 from synaisthesis.domain.stage import (
     validate_mechanism_sketch,
@@ -58,6 +64,7 @@ MECHANISM_AGGREGATE_TYPE = "MechanismSketch"
 PRIOR_WORK_AGGREGATE_TYPE = "PriorWorkMap"
 SCOPE_AGGREGATE_TYPE = "ResearchScopeSpec"
 RESEARCH_SPEC_AGGREGATE_TYPE = "ResearchSpec"
+S5_AGGREGATE_TYPE = "MinimalCaseBundle"
 
 EVENT_SEED_CAPTURED = "SeedCaptured"
 EVENT_SPEC_PROPOSED = "NaturalLanguageSpecProposed"
@@ -67,6 +74,7 @@ EVENT_PRIOR_WORK_PROPOSED = "PriorWorkMapProposed"
 EVENT_SCOPE_PROPOSED = "ResearchScopeSpecProposed"
 EVENT_SCOPE_CONFIRMED = "ResearchScopeSpecConfirmed"
 EVENT_RESEARCH_SPEC_BOUND = "ResearchSpecBound"
+EVENT_MINIMAL_CASE_PROPOSED = "MinimalCaseProposed"
 
 USER_ACTOR_PROVENANCE = frozenset({ProvenanceType.USER_INPUT, ProvenanceType.USER_DECISION})
 
@@ -859,6 +867,73 @@ def derive_natural_language_design_ready(
     return status, issues
 
 
+def propose_minimal_case_bundle(
+    session: Session,
+    *,
+    project_id: str,
+    bundle: MinimalCaseBundle,
+    qualification_route: ResearchRoute,
+    novelty_status: NoveltyStatus,
+    qualification_review_hash: str,
+    override: LowNoveltyOverride | None = None,
+    artifact_root: Path,
+    bundle_id: str | None = None,
+) -> MinimalCaseBundle:
+    """Persist S5 only after RQ4M qualification; no path may bypass RQ3/RQ4."""
+    target = qualification_next_target(
+        route=qualification_route,
+        novelty_status=novelty_status,
+        override=override,
+        review_artifact_hash=qualification_review_hash,
+    )
+    if target is not QualifiedNextTarget.S5:
+        raise DomainError(
+            f"qualified target {target.value} is not S5",
+            error_code="EARLY_QUALIFICATION_REQUIRED",
+        )
+    if bundle.actually_executed and not bundle.execution_receipt_id:
+        raise DomainError(
+            "actually_executed=true requires execution_receipt_id",
+            error_code="EXECUTION_RECEIPT_REQUIRED",
+        )
+    event = DomainEvent(
+        aggregate_type=S5_AGGREGATE_TYPE,
+        aggregate_id=bundle_id or uuid.uuid4().hex,
+        event_type=EVENT_MINIMAL_CASE_PROPOSED,
+        payload={"minimal_case": bundle.model_dump()},
+        sequence=1,
+    )
+    append_domain_event(session, event, project_id=project_id, artifact_root=artifact_root)
+    return bundle
+
+
+def load_minimal_case_bundle(
+    session: Session, bundle_id: str, *, artifact_root: Path
+) -> MinimalCaseBundle:
+    """Replay an S5 MinimalCaseBundle from its hash-verified event payload."""
+    records = _event_stream(session, S5_AGGREGATE_TYPE, bundle_id)
+    if not records:
+        raise DomainError(
+            f"minimal case bundle {bundle_id!r} has no events",
+            error_code="PROJECT_NOT_FOUND",
+        )
+    bundle: MinimalCaseBundle | None = None
+    for record in records:
+        payload = _verified_payload(session, record, artifact_root)
+        if record.event_type != EVENT_MINIMAL_CASE_PROPOSED:
+            raise DomainError(
+                f"unknown event type {record.event_type!r} for {bundle_id!r}; state unrecoverable",
+                error_code="PROJECT_STATE_UNRECOVERABLE",
+            )
+        bundle = MinimalCaseBundle.model_validate(payload["minimal_case"])
+    if bundle is None:
+        raise DomainError(
+            f"state of {bundle_id!r} is unrecoverable",
+            error_code="PROJECT_STATE_UNRECOVERABLE",
+        )
+    return bundle
+
+
 __all__ = [
     "capture_seed",
     "confirm_natural_language_spec",
@@ -871,7 +946,9 @@ __all__ = [
     "load_natural_language_spec",
     "load_prior_work_map",
     "load_research_scope_spec",
+    "load_minimal_case_bundle",
     "load_seed",
+    "propose_minimal_case_bundle",
     "propose_mechanism_sketch",
     "propose_natural_language_spec",
     "propose_prior_work_map",
