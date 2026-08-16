@@ -15,5 +15,6 @@ htmlcov/
 workspace/
 node_modules/
 .dsh-upstream/
+.dsh-probe/
 .DS_Store
 Thumbs.db

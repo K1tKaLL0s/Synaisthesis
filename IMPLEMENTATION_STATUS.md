@@ -7,7 +7,7 @@
 `M2.9.ENGINEERING.REQUIREMENTS_ARCHITECTURE`
 
 ## Last verified commit
-M2.9 已提交（见 M2.9 提交记录）
+`9d42022`（M2.9 已提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
@@ -117,11 +117,11 @@ M2.9 已提交（见 M2.9 提交记录）
 - M2.6 已提交：`1c2cb58`。
 - M2.7 已提交：`0c4edeb`。
 - M2.8 已提交：`19be013`。
-- M2.9 已提交：见 commit 记录（feat + chore(status) 两提交）。
+- M2.9 已提交：`9d42022`。
 - M2.9 蓝图缺口记录：GAP-1（真实 Mermaid/Graphviz 渲染依赖外部工具，M2.9 提供确定性内置文本源→SVG 渲染器作为合同，真实渲染器后续 WorkUnit 替换，合同不得放宽）；GAP-2（ENG0/ENG1 服务未单列于 19 §5 M2.9 文件清单，纳入 engineering_design_service 以支撑纵向切片前置）。
 - M2.9 事件负载为 dataclass canonical JSON，`rebuild_dataclass` 按字段注解重建枚举/嵌套 dataclass/datetime，round-trip 由 focused 测试覆盖。
 - M2.8 蓝图缺口记录：GAP-1（03B §14 回归表部分行给出多个回退点，领域层 `EARLIEST_ROLLBACK` 固定取最早保守回退点并注释在案）；GAP-2（06 §engineering_manuscripts 无 compliance 字段，ComplianceMatrix 由 `domain/publication.py` 领域对象承载，migration 0004 未加列）。
 - M2.8 工程枚举按 19 §5 M2.8 文件清单落在 `domain/engineering.py`（`domain/enums.py` 不在清单内），与 enums.py 模块 docstring 的“里程碑枚举归里程碑文件”约定一致。
-- M2.8 本会话期间 DSH 环境在仓库内创建未跟踪目录 `.dsh-upstream/`（modeltest 检查点），已在 `.gitignore` 追加忽略，避免误提交与本地 ruff 门禁污染；CI 全新检出不受影响。
+- M2.8/M2.9 本会话期间 DSH 环境在仓库内创建未跟踪目录 `.dsh-upstream/` 与 `.dsh-probe/`（modeltest 检查点），已在 `.gitignore` 追加忽略，避免误提交与本地 ruff 门禁污染；CI 全新检出不受影响。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。
