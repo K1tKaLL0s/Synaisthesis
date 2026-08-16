@@ -1,13 +1,13 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2：M2.1 已提交 PASS；M2.2 验收通过，工作区变更尚未提交）
+`M2`（Stage 2 完成：M2.1 与 M2.2 均已提交 PASS）
 
 ## Current task
 `M2.2.S2_S4.CONTRACTS_COMPLETE`
 
 ## Last verified commit
-`bfc4327`（M2.1 状态提交；M2.2 验证基于当前工作区，尚未提交）
+`5c880ee`（M2.2 已提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
@@ -78,7 +78,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.3.RQ.DOMAIN`（前置 M2.2 已验收 PASS；开始前必须先处理 M2.2 工作区变更的提交，并读取 03A）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
+- 代码方面：`M2.3.RQ.DOMAIN`（前置 M2.2 已 PASS 且已提交；必须读取 03A）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -89,6 +89,6 @@
 - M1.4 采用事件溯源持久化（Project 状态 = canonical JSON payload Artifact + 有序 DomainEvent 流），未新建 `projects` 表；三处蓝图缺口记录见 `workspace/workunit-contracts/M1.4.PROJECT.VERTICAL_SLICE.md`（GAP-1 注册点、GAP-2 无 projects migration、SCOPE-1 幂等 envelope 延后）。
 - M2.1 沿用事件溯源（Seed/NaturalLanguageSpec 聚合）；issue→Gate 状态映射、07 §2 函数家族范围（create_stage_run/execute_stage/advance_stage 延后到 M2.2）、source_type 不发明枚举三处缺口记录见 `workspace/workunit-contracts/M2.1.S0_S1.CONTRACTS.md`。
 - M2.2 沿用事件溯源（MechanismSketch/PriorWorkMap/ResearchScopeSpec/ResearchSpec 聚合）；S1/S4 hash 覆盖语义内容，排除 `assistant_proposed`/`user_confirmed`/`user_confirmed_scope` 确认标记，确认 provenance 由事件流单独恢复。07 §2 的 `create_stage_run`/`execute_stage`/`advance_stage` 不在 19 §5 M2.2 文件与验收内，且真实 execute 依赖 M6 Provider，故继续延后（GAP-4 见 M2.2 WorkUnitContract）。
-- M2.2 验收已通过但尚未提交；按 Git safety，未经用户明确指令不自动 commit。
+- M2.2 已提交：`5c880ee`。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。
