@@ -1,22 +1,22 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2 完成：M2.1 与 M2.2 均已提交 PASS）
+`M2`（Stage 2.5 进行中：M2.3 已 PASS，变更尚未提交）
 
 ## Current task
-`M2.2.S2_S4.CONTRACTS_COMPLETE`
+`M2.3.RQ.DOMAIN_COMPLETE`
 
 ## Last verified commit
-`5c880ee`（M2.2 已提交）
+`b64ab8f`（M2.3 变更已通过全部检查，尚未提交）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M2.2.S2_S4.CONTRACTS`
-- Milestone: `M2`（Stage 2：搬运 S0–S4 并形成自然语言设计完成门；本 Task 做 S2–S4 与设计门派生）
-- WorkUnitContract: `workspace/workunit-contracts/M2.2.S2_S4.CONTRACTS.md`（含 GAP-1/GAP-2/GAP-3/GAP-4/GAP-5 五处已解决记录）
-- 交付：S2 MechanismSketch / S3 PriorWorkMap / S4 ResearchScopeSpec Schema 与领域验证器；S3 学术+工程双查询种子；S4 真实用户事件确认 + provenance 落库；`ResearchSpecBound` 事件绑定 S1/S4 语义内容 hash 与 content_hash；`evaluate_natural_language_design_ready` 从事件流计算设计完成门；PASS 时通过既有 Project 事件流追加 `NATURAL_LANGUAGE_DESIGN_READY` 生命周期事件；s2/s3/s4 Prompt Asset。
+- Stable Task ID: `M2.3.RQ.DOMAIN`
+- Milestone: `M2`（Stage 2.5：RQ0–RQ4 早期形式化与新颖性资格；本 Task 只做领域底座）
+- WorkUnitContract: `workspace/workunit-contracts/M2.3.RQ.DOMAIN.md`（含 GAP-1/GAP-2/GAP-3/GAP-4/GAP-5/GAP-6/GAP-7 七处已解决记录）
+- 交付：RQ0–RQ4 不可变领域 Artifact；RQ0 能力门；RQ1 NeighborEvidenceSet；RQ2F 谓词保守聚合 + 固定真值表 + 派生状态；RQ2M/RQ2E Artifact 骨架；RQ3 用户审批绑定；19 个 RQ 事件名 + 通用事件构造器；理论 50+50 / 工程 60+40 两套评分 policy、逐项取小、69/70 固定路由；Gate 绑定与 `qualification_next_target`（未通过 RQ 不可转 S5/ENG0）；migration 0002（12 张 RQ 域表，可 upgrade/downgrade）。
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -47,6 +47,7 @@
 - M1.4 Project 纵向切片：`storage/repositories/project_repository.py`（事件溯源 save_project/load_project、ProjectCreated/ProjectLifecycleChanged、project_state_dict/project_from_state）、`application/project_service.py`（create_project/get_project）、`interfaces/cli/commands/project.py`（`project create`/`project show`，schema 自动 upgrade，DomainError → exit 1）、`interfaces/cli/main.py` 注册 project 子命令
 - M2.1 S0–S1 合同：`domain/stage.py` 新增 StageContract 15 字段合同 + `S0_STAGE_CONTRACT`/`S1_STAGE_CONTRACT` + `validate_seed_record`/`validate_natural_language_spec`（duck-typed，领域层零框架依赖）；`agents/schemas.py`（SeedRecord、NaturalLanguageSpec，Pydantic v2，extra="forbid"，13 必填字段强制）；`application/incubation_service.py`（capture_seed/load_seed 带 raw_hash 校验、propose/confirm/load_natural_language_spec 带真实用户事件 provenance、validate_stage_output、evaluate_stage_gate）；`prompts/incubator/s0_capture_seed.md`、`s1_natural_language_spec.md`（prompt_key/version/golden/forbidden）
 - M2.2 S2–S4 合同与设计完成门：`domain/stage.py` 新增 `S2_STAGE_CONTRACT`/`S3_STAGE_CONTRACT`/`S4_STAGE_CONTRACT` + `validate_mechanism_sketch`/`validate_prior_work_map`/`validate_research_scope_spec`；`agents/schemas.py`（MechanismSketch、PriorWorkMap、ResearchScopeSpec，Pydantic v2，extra="forbid"；`search_queries` 用稳定键 `academic`/`engineering`）；`application/incubation_service.py`（S2/S3/S4 propose/load、S4 真实用户确认、`ResearchSpecBound` 事件绑定 S1/S4 hash + content_hash、`evaluate_natural_language_design_ready` 纯函数/事件流版本、`derive_natural_language_design_ready` 追加 Project 生命周期事件）；`prompts/incubator/s2_mechanism_sketch.md`、`s3_prior_work_map.md`、`s4_research_scope_spec.md`（prompt_key/version/golden/forbidden）
+- M2.3 RQ 领域底座：`domain/enums.py` 追加 21 个 M2.3 稳定枚举；`domain/qualification.py`（ModelProfile、FormalizationCapabilityProfile/Decision、PriorArtQueryRecord/PriorArtNeighbor/NeighborEvidenceSet、T*/E* 谓词、FormalizationFeasibilityAssessment、EngineeringRouteSelection、FormulaItem/EarlyFormalizationBundle/EngineeringConceptBundle、RQ3 审批、19 个事件名 + build_qualification_event）；`domain/novelty.py`（THEORY_NOVELTY_POLICY/ENGINEERING_NOVELTY_POLICY、NoveltyScorecard、保守 min 聚合、route_novelty_decision、NoveltyReview、LowNoveltyOverride）；`domain/gate.py`（GateBinding、Gate、allowed_decisions_for_gate、qualification_next_target）；migration 0002（12 张表）
 
 ## Verified
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
@@ -69,6 +70,7 @@
 - M1.4 CLI 真实 smoke：`workspace/.venv-m13/bin/synaisthesis --version` 输出 `0.1.0.dev0`；在 `/tmp` 独立目录真实执行 `project create --name "联觉纵向切片 smoke" --description "M1.4 real CLI"` 后：输出单行 canonical JSON、payload Artifact 落盘（`events/{id}/{event_id}.json`）、`project show` 输出与 create 逐字节一致（ROUNDTRIP OK）、不存在的 project 输出 `PROJECT_NOT_FOUND` 且 exit=1；测试目录随后已清理
 - M2.1：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_s0_s1.py` 14 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 95 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（84 files）；`UV_CACHE_DIR=/tmp basedpyright --pythonpath workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
 - M2.2：`workspace/.venv-m13/bin/python -m pytest tests/golden/test_s2_s4.py` 18 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 113 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（88 files）；`UV_CACHE_DIR=/tmp /home/chaos/.venvs/synaisthesis/bin/basedpyright --pythonpath /mnt/e/Synaisthesis/workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
+- M2.3：`workspace/.venv-m13/bin/python -m pytest tests/unit/domain/test_research_qualification.py` 22 passed；全套 `workspace/.venv-m13/bin/python -m pytest` 135 passed；`workspace/.venv-m13/bin/ruff check .` 通过；`workspace/.venv-m13/bin/ruff format --check .` 通过（93 files）；`UV_CACHE_DIR=/tmp /home/chaos/.venvs/synaisthesis/bin/basedpyright --pythonpath /mnt/e/Synaisthesis/workspace/.venv-m13/bin/python` 0 errors, 0 warnings；`git diff --check` 通过
 
 ## Known failures
 - 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
@@ -78,7 +80,7 @@
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M2.3.RQ.DOMAIN`（前置 M2.2 已 PASS 且已提交；必须读取 03A）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
+- 代码方面：`M2.4.RQ.FAKE_RETRIEVAL`（前置 M2.3 已验收 PASS；开始前必须先处理 M2.3 工作区变更的提交）；开始前按 AGENTS.md 和文档 19 建立完整 WorkUnitContract。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -90,5 +92,7 @@
 - M2.1 沿用事件溯源（Seed/NaturalLanguageSpec 聚合）；issue→Gate 状态映射、07 §2 函数家族范围（create_stage_run/execute_stage/advance_stage 延后到 M2.2）、source_type 不发明枚举三处缺口记录见 `workspace/workunit-contracts/M2.1.S0_S1.CONTRACTS.md`。
 - M2.2 沿用事件溯源（MechanismSketch/PriorWorkMap/ResearchScopeSpec/ResearchSpec 聚合）；S1/S4 hash 覆盖语义内容，排除 `assistant_proposed`/`user_confirmed`/`user_confirmed_scope` 确认标记，确认 provenance 由事件流单独恢复。07 §2 的 `create_stage_run`/`execute_stage`/`advance_stage` 不在 19 §5 M2.2 文件与验收内，且真实 execute 依赖 M6 Provider，故继续延后（GAP-4 见 M2.2 WorkUnitContract）。
 - M2.2 已提交：`5c880ee`。
+- M2.3 领域层保持零 Web/数据库/MCP/Provider 依赖（migration 文件除外）；RQ Artifact 与 Gate 均为 frozen dataclass。`FormalizationFeasibilityAssessment.status`/`recommended_route` 为 GAP-2 派生映射；`GateStatus` 为 GAP-4 保守映射；migration 表清单为 GAP-5 按 06 §1 推导。
+- M2.3 验收已通过但尚未提交；按 Git safety，未经用户明确指令不自动 commit。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。

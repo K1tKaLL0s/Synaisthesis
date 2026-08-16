@@ -12,10 +12,11 @@
 - [x] M1.4 — Project 纵向切片（Stage 1 最后一个 Task）：CLI `project create` 产生 Project、Artifact、DomainEvent，`project show`/服务可从有序事件流完整重读；payload 缺失/篡改可检测并 fail closed（8 个集成测试，全套 81 passed）
 - [x] M2.1 — S0–S1 合同（Stage 2 第 1 个 Task）：S0 SeedRecord 原文逐字节保留 + raw_hash 可复算校验；S1 NaturalLanguageSpec 13 必填字段 Schema 强制、验证器判定，确认只接受真实用户事件并落库 provenance；evaluate_stage_gate 按 Schema + 验证器 + 用户确认计算；s0/s1 Prompt Asset（14 个 golden 测试，全套 95 passed）
 - [x] M2.2 — S2–S4 合同与 NATURAL_LANGUAGE_DESIGN_READY 派生（Stage 2 最后一个 Task）：MechanismSketch/PriorWorkMap/ResearchScopeSpec Schema 与验证器；S3 学术+工程双查询种子；S4 真实用户确认并绑定 S1/S4 hash；事件流派生设计完成门并推进 Project 生命周期；s2/s3/s4 Prompt Asset（18 个 golden 测试，全套 113 passed）
+- [x] M2.3 — RQ 领域底座（Stage 2.5 第 1 个 Task）：RQ0–RQ4 不可变领域 Artifact；RQ2F 谓词保守聚合与固定真值表；理论 50+50 / 工程 60+40 两套评分 policy、逐项取小、69/70 固定路由；Gate 绑定与未通过 RQ 禁止转 S5/ENG0；19 个 RQ 事件名；migration 0002（22 个单元测试，全套 135 passed；验收通过，工作区未提交）
 
 ## Next
 
-- [ ] M2.3.RQ.DOMAIN — RQ0–RQ4 领域对象、可行性/route、状态、Gate、Event 与两套评分 Schema（前置 M2.2 已 PASS 且已提交）
+- [ ] M2.4.RQ.FAKE_RETRIEVAL — Fake 学术/工程近邻检索 Provider、去重/排序/coverage 计算（前置 M2.3 已验收 PASS；开始前需先处理 M2.3 提交）
 
 ## Backlog
 

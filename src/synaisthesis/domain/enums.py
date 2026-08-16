@@ -192,3 +192,220 @@ class IndependenceStatus(StrictStrEnum):
     CONTEXT_LEAK_SUSPECTED = "CONTEXT_LEAK_SUSPECTED"
     ISOLATION_VIOLATION = "ISOLATION_VIOLATION"
     NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class FormalizationExecutionRoute(StrictStrEnum):
+    """RQ0 execution routes (03A, section 2.2)."""
+
+    PLATFORM_ADVANCED_FORMALIZER = "PLATFORM_ADVANCED_FORMALIZER"
+    EXTERNAL_ADVANCED_MODEL_IMPORT = "EXTERNAL_ADVANCED_MODEL_IMPORT"
+
+
+class ResearchRoute(StrictStrEnum):
+    """Research route selected for novelty scoring and downstream entry (03A, section 8)."""
+
+    THEORY = "THEORY"
+    ENGINEERING = "ENGINEERING"
+
+
+class CapabilityStatus(StrictStrEnum):
+    """RQ0 capability decision statuses (03A, section 2.4)."""
+
+    CAPABILITY_READY = "CAPABILITY_READY"
+    CAPABILITY_UNAVAILABLE = "CAPABILITY_UNAVAILABLE"
+    EXTERNAL_IMPORT_PENDING = "EXTERNAL_IMPORT_PENDING"
+    BLOCKED_BUDGET = "BLOCKED_BUDGET"
+    BLOCKED_PRIVACY = "BLOCKED_PRIVACY"
+
+
+class PriorArtCoverageStatus(StrictStrEnum):
+    """RQ1 coverage statuses (03A, section 3.5)."""
+
+    COMPLETE = "COMPLETE"
+    PARTIAL = "PARTIAL"
+    INCONCLUSIVE = "INCONCLUSIVE"
+    FAILED_PROVIDER = "FAILED_PROVIDER"
+    BLOCKED_NETWORK = "BLOCKED_NETWORK"
+
+
+class PredicateVerdict(StrictStrEnum):
+    """Feasibility predicate verdicts (03A, section 4.2/4.3)."""
+
+    PASS = "PASS"
+    FAIL = "FAIL"
+    UNKNOWN = "UNKNOWN"
+
+
+class RouteClassification(StrictStrEnum):
+    """RQ2F conservative route classifications (03A, section 4.4)."""
+
+    HYBRID_FIT = "HYBRID_FIT"
+    PURE_THEORY_FIT = "PURE_THEORY_FIT"
+    ENGINEERING_PROJECT_CANDIDATE = "ENGINEERING_PROJECT_CANDIDATE"
+    NEITHER_CURRENTLY_FIT = "NEITHER_CURRENTLY_FIT"
+    INCONCLUSIVE = "INCONCLUSIVE"
+
+
+class FeasibilityAssessmentStatus(StrictStrEnum):
+    """RQ2F assessment statuses derived from route classification.
+
+    Values are the exact status names used in 03A sections 1 and 10; 03A does
+    not define a separate enumeration for the assessment.status field, so this
+    mapping is documented in the M2.3 WorkUnitContract (GAP-2).
+    """
+
+    THEORY_OR_HYBRID_FIT = "THEORY_OR_HYBRID_FIT"
+    ENGINEERING_ROUTE_DECISION_REQUIRED = "ENGINEERING_ROUTE_DECISION_REQUIRED"
+    FORMALIZATION_FEASIBILITY_USER_DECISION_REQUIRED = (
+        "FORMALIZATION_FEASIBILITY_USER_DECISION_REQUIRED"
+    )
+    FEASIBILITY_INCONCLUSIVE = "FEASIBILITY_INCONCLUSIVE"
+
+
+class EngineeringRouteDecision(StrictStrEnum):
+    """Legal ENGINEERING_ROUTE_DECISION choices (03A, section 4.6)."""
+
+    REVISE_FOR_THEORY = "REVISE_FOR_THEORY"
+    TRY_ENGINEERING_PROJECT = "TRY_ENGINEERING_PROJECT"
+    PAUSE = "PAUSE"
+    ARCHIVE = "ARCHIVE"
+
+
+class FormalizationFeasibilityDecision(StrictStrEnum):
+    """Legal FORMALIZATION_FEASIBILITY_DECISION choices (03A, section 4.6)."""
+
+    REVISE_DESIGN = "REVISE_DESIGN"
+    RESEARCH_MORE = "RESEARCH_MORE"
+    PAUSE = "PAUSE"
+    ARCHIVE = "ARCHIVE"
+
+
+class EarlyFormalizationReviewDecision(StrictStrEnum):
+    """Legal EARLY_FORMALIZATION_REVIEW choices (03A, section 7.1)."""
+
+    APPROVE = "APPROVE"
+    REQUEST_REVISION = "REQUEST_REVISION"
+    RESEARCH_MORE = "RESEARCH_MORE"
+    REVISE_DESIGN = "REVISE_DESIGN"
+    REJECT = "REJECT"
+    PAUSE = "PAUSE"
+
+
+class EngineeringConceptReviewDecision(StrictStrEnum):
+    """Legal EARLY_ENGINEERING_CONCEPT_REVIEW choices (03A, section 7.2)."""
+
+    APPROVE = "APPROVE"
+    REQUEST_REVISION = "REQUEST_REVISION"
+    RESEARCH_MORE = "RESEARCH_MORE"
+    RETURN_TO_ROUTE_DECISION = "RETURN_TO_ROUTE_DECISION"
+    REJECT = "REJECT"
+    PAUSE = "PAUSE"
+
+
+class EarlyFormalizationStatus(StrictStrEnum):
+    """RQ2M bundle statuses (03A, section 5.5)."""
+
+    EARLY_FORMALIZATION_CANDIDATE = "EARLY_FORMALIZATION_CANDIDATE"
+    SCHEMA_INVALID = "SCHEMA_INVALID"
+    SEMANTIC_GAP = "SEMANTIC_GAP"
+    FORMULA_COVERAGE_INCOMPLETE = "FORMULA_COVERAGE_INCOMPLETE"
+    READY_FOR_USER_REVIEW = "READY_FOR_USER_REVIEW"
+    SUPERSEDED = "SUPERSEDED"
+
+
+class EngineeringConceptStatus(StrictStrEnum):
+    """RQ2E bundle statuses (03A, section 6.4)."""
+
+    ENGINEERING_CONCEPT_CANDIDATE = "ENGINEERING_CONCEPT_CANDIDATE"
+    SCHEMA_INVALID = "SCHEMA_INVALID"
+    SEMANTIC_GAP = "SEMANTIC_GAP"
+    REQUIREMENT_COVERAGE_INCOMPLETE = "REQUIREMENT_COVERAGE_INCOMPLETE"
+    UNRESOLVED_THRESHOLD = "UNRESOLVED_THRESHOLD"
+    READY_FOR_USER_REVIEW = "READY_FOR_USER_REVIEW"
+    SUPERSEDED = "SUPERSEDED"
+
+
+class NoveltyStatus(StrictStrEnum):
+    """RQ4 review/route statuses (03A, section 8.4 and 06, section 9)."""
+
+    NOVELTY_QUALIFIED = "NOVELTY_QUALIFIED"
+    ENGINEERING_NOVELTY_QUALIFIED = "ENGINEERING_NOVELTY_QUALIFIED"
+    NOVELTY_RESEARCH_REQUIRED = "NOVELTY_RESEARCH_REQUIRED"
+    INCONCLUSIVE = "INCONCLUSIVE"
+    USER_OVERRIDDEN_BELOW_THRESHOLD = "USER_OVERRIDDEN_BELOW_THRESHOLD"
+
+
+class NoveltyResearchDecision(StrictStrEnum):
+    """Legal LOW_NOVELTY_RESEARCH_DECISION choices (03A, section 8.4)."""
+
+    RERUN_RESEARCH = "RERUN_RESEARCH"
+    REVISE_DESIGN = "REVISE_DESIGN"
+    CONTINUE_WITH_RECORDED_OVERRIDE = "CONTINUE_WITH_RECORDED_OVERRIDE"
+    RETURN_TO_ROUTE_DECISION = "RETURN_TO_ROUTE_DECISION"
+    ARCHIVE = "ARCHIVE"
+    PAUSE = "PAUSE"
+
+
+class EarlyQualificationStatus(StrictStrEnum):
+    """Early qualification status axis (blueprint 06, section 9)."""
+
+    NOT_STARTED = "NOT_STARTED"
+    CAPABILITY_PENDING = "CAPABILITY_PENDING"
+    RETRIEVAL_RUNNING = "RETRIEVAL_RUNNING"
+    FEASIBILITY_REVIEWING = "FEASIBILITY_REVIEWING"
+    ENGINEERING_ROUTE_USER_DECISION = "ENGINEERING_ROUTE_USER_DECISION"
+    FORMALIZATION_FEASIBILITY_USER_DECISION = "FORMALIZATION_FEASIBILITY_USER_DECISION"
+    FORMALIZATION_CANDIDATE = "FORMALIZATION_CANDIDATE"
+    FORMALIZATION_USER_REVIEW = "FORMALIZATION_USER_REVIEW"
+    ENGINEERING_CONCEPT_CANDIDATE = "ENGINEERING_CONCEPT_CANDIDATE"
+    ENGINEERING_CONCEPT_USER_REVIEW = "ENGINEERING_CONCEPT_USER_REVIEW"
+    NOVELTY_REVIEWING = "NOVELTY_REVIEWING"
+    NOVELTY_QUALIFIED = "NOVELTY_QUALIFIED"
+    ENGINEERING_NOVELTY_QUALIFIED = "ENGINEERING_NOVELTY_QUALIFIED"
+    NOVELTY_RESEARCH_REQUIRED = "NOVELTY_RESEARCH_REQUIRED"
+    USER_OVERRIDDEN_BELOW_THRESHOLD = "USER_OVERRIDDEN_BELOW_THRESHOLD"
+    INCONCLUSIVE = "INCONCLUSIVE"
+    NEEDS_REQUALIFICATION = "NEEDS_REQUALIFICATION"
+
+
+class QualificationGateType(StrictStrEnum):
+    """Early-qualification Human Gate types (blueprint 08, section 15)."""
+
+    ENGINEERING_ROUTE_DECISION = "ENGINEERING_ROUTE_DECISION"
+    FORMALIZATION_FEASIBILITY_DECISION = "FORMALIZATION_FEASIBILITY_DECISION"
+    EARLY_FORMALIZATION_REVIEW = "EARLY_FORMALIZATION_REVIEW"
+    EARLY_ENGINEERING_CONCEPT_REVIEW = "EARLY_ENGINEERING_CONCEPT_REVIEW"
+    LOW_NOVELTY_RESEARCH_DECISION = "LOW_NOVELTY_RESEARCH_DECISION"
+
+
+class GateStatus(StrictStrEnum):
+    """Human Gate status (M2.3 WorkUnitContract GAP-4 conservative mapping)."""
+
+    OPEN = "OPEN"
+    RESOLVED = "RESOLVED"
+    SUPERSEDED = "SUPERSEDED"
+
+
+class QualifiedNextTarget(StrictStrEnum):
+    """Legal downstream target after a passing early-qualification route."""
+
+    S5 = "S5"
+    ENG0 = "ENG0"
+
+
+class FormulaOrigin(StrictStrEnum):
+    """Origin of a FormulaItem (03A, section 5.3)."""
+
+    USER = "USER"
+    DERIVED = "DERIVED"
+    PRIOR_WORK = "PRIOR_WORK"
+    MODEL_PROPOSAL = "MODEL_PROPOSAL"
+
+
+class NoveltyScoreComponent(StrictStrEnum):
+    """Score components used by the two route-specific novelty policies."""
+
+    THEORY = "THEORY"
+    APPLICATION = "APPLICATION"
+    ENGINEERING = "ENGINEERING"
+    ENGINEERING_APPLICATION = "ENGINEERING_APPLICATION"
