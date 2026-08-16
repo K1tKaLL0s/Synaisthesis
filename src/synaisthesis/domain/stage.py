@@ -140,6 +140,123 @@ S1_STAGE_CONTRACT = StageContract(
 )
 
 
+S2_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S2,
+    objective="把 S1 的自然语言定义扩展为机制草图，不把相关性自动写成因果。",
+    required_inputs=("NaturalLanguageSpec",),
+    output_artifact_type="MechanismSketch",
+    required_fields=(
+        "inputs",
+        "state_change",
+        "outputs",
+        "invariants",
+        "failure_conditions",
+        "causal_claims",
+        "merely_descriptive_relations",
+        "uncertainty_register",
+    ),
+    validators=("validate_mechanism_sketch",),
+    tool_requirements=(),
+    human_gate_policy="无强制确认；用户修改产生新版本。",
+    pass_criteria=(
+        "输入、变化、输出齐全",
+        "至少一个不变量",
+        "至少一个失败条件",
+        "不把相关性自动写成因果",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 MechanismSketch",),
+    allowed_next_stages=(StageId.S3,),
+    rollback_targets=(),
+    prompt_version="1.0.0",
+)
+
+S3_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S3,
+    objective="把机制草图映射到可追溯的相关研究，学术与工程查询种子同时生成。",
+    required_inputs=("MechanismSketch",),
+    output_artifact_type="PriorWorkMap",
+    required_fields=(
+        "search_queries",
+        "sources",
+        "nearest_theories",
+        "same_object_different_method",
+        "same_method_different_object",
+        "conflicts",
+        "terminology_candidates",
+        "retrieval_scope",
+        "unsearched_areas",
+        "literature_hits",
+        "mature_engineering_projects",
+        "engineering_maturity_evidence",
+        "function_application_neighbors",
+        "metadata_verified",
+    ),
+    validators=("validate_prior_work_map",),
+    tool_requirements=(),
+    human_gate_policy="无强制确认；检索状态由后续 RQ1 与 Gate 承接。",
+    pass_criteria=(
+        "查询和来源可追溯",
+        "区分未发现与不存在",
+        "至少给出最近邻类别",
+        "文献元数据被外部源验证",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 PriorWorkMap",),
+    allowed_next_stages=(StageId.S4,),
+    rollback_targets=(),
+    prompt_version="1.0.0",
+)
+
+S4_STAGE_CONTRACT = StageContract(
+    stage_id=StageId.S4,
+    objective="在 S1–S3 基础上再规范研究方向，形成可冻结的 ResearchScopeSpec。",
+    required_inputs=("PriorWorkMap",),
+    output_artifact_type="ResearchScopeSpec",
+    required_fields=(
+        "main_question",
+        "object_domain",
+        "non_goals",
+        "nearest_neighbor_difference",
+        "central_claims",
+        "evidence_requirements",
+        "failure_learning_plan",
+        "engineering_relevance",
+        "stop_conditions",
+        "user_confirmed_scope",
+    ),
+    validators=("validate_research_scope_spec",),
+    tool_requirements=(),
+    human_gate_policy=(
+        "PASS 不要求用户确认；NATURAL_LANGUAGE_DESIGN_READY 要求用户确认且模型不能代替。"
+    ),
+    pass_criteria=(
+        "主问题唯一",
+        "对象域明确",
+        "非目标明确",
+        "每个中心主张有证据需求",
+        "失败也有可学习输出",
+    ),
+    partial_criteria=("任一验证器 issue 存在",),
+    blocked_criteria=("输出类型不是 ResearchScopeSpec",),
+    allowed_next_stages=(),
+    rollback_targets=(StageId.S1, StageId.S3),
+    prompt_version="1.0.0",
+)
+
+
+def _non_empty_str(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
+def _non_empty_str_list(value: Any) -> bool:
+    return (
+        isinstance(value, (list, tuple))
+        and len(value) >= 1
+        and all(_non_empty_str(item) for item in value)
+    )
+
+
 def validate_seed_record(record: Any) -> tuple[str, ...]:
     """Return the business-rule issues of an S0 SeedRecord (empty = clean).
 
@@ -186,4 +303,108 @@ def validate_natural_language_spec(spec: Any) -> tuple[str, ...]:
         values = getattr(spec, field, None)
         if not isinstance(values, (list, tuple)) or len(values) < 1:
             issues.append(f"至少一个{label}")
+    return tuple(issues)
+
+
+def validate_mechanism_sketch(sketch: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S2 MechanismSketch.
+
+    Blueprint 03 S2 PASS conditions: inputs/state change/outputs all present,
+    at least one invariant, at least one failure condition, and a relation
+    must not be listed as both causal and merely descriptive.
+    """
+    issues: list[str] = []
+    if not _non_empty_str_list(getattr(sketch, "inputs", None)):
+        issues.append("inputs 至少包含一个输入")
+    if not _non_empty_str(getattr(sketch, "state_change", None)):
+        issues.append("state_change 不能为空")
+    if not _non_empty_str_list(getattr(sketch, "outputs", None)):
+        issues.append("outputs 至少包含一个输出")
+    if not _non_empty_str_list(getattr(sketch, "invariants", None)):
+        issues.append("至少一个不变量")
+    if not _non_empty_str_list(getattr(sketch, "failure_conditions", None)):
+        issues.append("至少一个失败条件")
+    causal = {item.strip() for item in getattr(sketch, "causal_claims", ()) if _non_empty_str(item)}
+    descriptive = {
+        item.strip()
+        for item in getattr(sketch, "merely_descriptive_relations", ())
+        if _non_empty_str(item)
+    }
+    if causal & descriptive:
+        issues.append("同一关系不得同时列为 causal_claims 与 merely_descriptive_relations")
+    return tuple(issues)
+
+
+def validate_prior_work_map(prior_work: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S3 PriorWorkMap.
+
+    Blueprint 03 S3 PASS conditions plus the M2.2 acceptance clause: queries
+    and sources must be traceable, academic and engineering query seeds must
+    both exist, "not found" must be separated from "does not exist", at least
+    one nearest-neighbor category must be given, and literature metadata must
+    be externally verified.
+    """
+    issues: list[str] = []
+    queries = getattr(prior_work, "search_queries", None)
+    academic = queries.get("academic", ()) if isinstance(queries, dict) else ()
+    engineering = queries.get("engineering", ()) if isinstance(queries, dict) else ()
+    if not _non_empty_str_list(academic):
+        issues.append("search_queries.academic 至少包含一个学术查询种子")
+    if not _non_empty_str_list(engineering):
+        issues.append("search_queries.engineering 至少包含一个工程查询种子")
+    if not _non_empty_str_list(getattr(prior_work, "sources", None)):
+        issues.append("sources 至少包含一个可追溯来源")
+    if not _non_empty_str(getattr(prior_work, "retrieval_scope", None)):
+        issues.append("retrieval_scope 不能为空")
+    neighbor_fields = (
+        "nearest_theories",
+        "same_object_different_method",
+        "same_method_different_object",
+        "function_application_neighbors",
+    )
+    if not any(_non_empty_str_list(getattr(prior_work, field, None)) for field in neighbor_fields):
+        issues.append("至少给出一个最近邻类别")
+    if not getattr(prior_work, "metadata_verified", False):
+        issues.append("metadata_verified 必须为 true（文献元数据须由外部源验证）")
+    literature_hits = getattr(prior_work, "literature_hits", None)
+    unsearched_areas = getattr(prior_work, "unsearched_areas", None)
+    if not _non_empty_str_list(literature_hits) and not _non_empty_str_list(unsearched_areas):
+        issues.append("literature_hits 为空时必须列出 unsearched_areas，以区分未发现与不存在")
+    return tuple(issues)
+
+
+def validate_research_scope_spec(scope: Any) -> tuple[str, ...]:
+    """Return the business-rule issues of an S4 ResearchScopeSpec.
+
+    Blueprint 03 S4 PASS conditions: a single main question, an explicit
+    object domain and non-goals, one evidence requirement per central claim,
+    and a learnable output even on failure. Confirmation of the scope is
+    gate-level (NATURAL_LANGUAGE_DESIGN_READY), not a validator.
+    """
+    issues: list[str] = []
+    for field, label in (
+        ("main_question", "main_question"),
+        ("object_domain", "object_domain"),
+        ("nearest_neighbor_difference", "nearest_neighbor_difference"),
+        ("failure_learning_plan", "failure_learning_plan"),
+        ("engineering_relevance", "engineering_relevance"),
+    ):
+        if not _non_empty_str(getattr(scope, field, None)):
+            issues.append(f"{label} 不能为空")
+    if not _non_empty_str_list(getattr(scope, "non_goals", None)):
+        issues.append("non_goals 至少包含一个明确非目标")
+    central_claims = getattr(scope, "central_claims", None)
+    evidence_requirements = getattr(scope, "evidence_requirements", None)
+    if not _non_empty_str_list(central_claims):
+        issues.append("central_claims 至少包含一个中心主张")
+    if not _non_empty_str_list(evidence_requirements):
+        issues.append("evidence_requirements 至少包含一条证据需求")
+    if (
+        isinstance(central_claims, (list, tuple))
+        and isinstance(evidence_requirements, (list, tuple))
+        and len(central_claims) != len(evidence_requirements)
+    ):
+        issues.append("每个中心主张必须有对应证据需求（数量一致）")
+    if not _non_empty_str_list(getattr(scope, "stop_conditions", None)):
+        issues.append("stop_conditions 至少包含一个停止条件")
     return tuple(issues)

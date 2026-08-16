@@ -49,3 +49,64 @@ class NaturalLanguageSpec(BaseModel):
     success_metrics: list[str]
     assistant_proposed: bool = False
     user_confirmed: bool = False
+
+
+class MechanismSketch(BaseModel):
+    """S2 output: mechanism sketch without correlation-as-causation (03, S2)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    inputs: list[str]
+    state_change: str = Field(min_length=1)
+    outputs: list[str]
+    invariants: list[str]
+    failure_conditions: list[str]
+    causal_claims: list[str]
+    merely_descriptive_relations: list[str]
+    uncertainty_register: list[str]
+
+
+class PriorWorkMap(BaseModel):
+    """S3 output: traceable prior-work map with academic and engineering seeds.
+
+    search_queries uses the stable keys "academic" and "engineering" (M2.2
+    WorkUnitContract GAP-1); no additional status field is invented (GAP-5).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    search_queries: dict[str, list[str]]
+    sources: list[str]
+    nearest_theories: list[str]
+    same_object_different_method: list[str]
+    same_method_different_object: list[str]
+    conflicts: list[str]
+    terminology_candidates: list[str]
+    retrieval_scope: str = Field(min_length=1)
+    unsearched_areas: list[str]
+    literature_hits: list[str]
+    mature_engineering_projects: list[str]
+    engineering_maturity_evidence: list[str]
+    function_application_neighbors: list[str]
+    metadata_verified: bool
+
+
+class ResearchScopeSpec(BaseModel):
+    """S4 output: re-normalized research scope (03, S4).
+
+    user_confirmed_scope may only become True through the real-user-event
+    confirmation path in the incubation service.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    main_question: str = Field(min_length=1)
+    object_domain: str = Field(min_length=1)
+    non_goals: list[str]
+    nearest_neighbor_difference: str = Field(min_length=1)
+    central_claims: list[str]
+    evidence_requirements: list[str]
+    failure_learning_plan: str = Field(min_length=1)
+    engineering_relevance: str = Field(min_length=1)
+    stop_conditions: list[str]
+    user_confirmed_scope: bool = False

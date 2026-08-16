@@ -11,14 +11,14 @@
 - [x] M1.3 — 持久化底座：init_database、append_domain_event（稳定顺序）、save_artifact（内容寻址）、verify_artifact_hash（缺失/篡改可检测）、首个 Alembic migration（可升级/降级）；新增 sqlalchemy + alembic 生产依赖
 - [x] M1.4 — Project 纵向切片（Stage 1 最后一个 Task）：CLI `project create` 产生 Project、Artifact、DomainEvent，`project show`/服务可从有序事件流完整重读；payload 缺失/篡改可检测并 fail closed（8 个集成测试，全套 81 passed）
 - [x] M2.1 — S0–S1 合同（Stage 2 第 1 个 Task）：S0 SeedRecord 原文逐字节保留 + raw_hash 可复算校验；S1 NaturalLanguageSpec 13 必填字段 Schema 强制、验证器判定，确认只接受真实用户事件并落库 provenance；evaluate_stage_gate 按 Schema + 验证器 + 用户确认计算；s0/s1 Prompt Asset（14 个 golden 测试，全套 95 passed）
+- [x] M2.2 — S2–S4 合同与 NATURAL_LANGUAGE_DESIGN_READY 派生（Stage 2 最后一个 Task）：MechanismSketch/PriorWorkMap/ResearchScopeSpec Schema 与验证器；S3 学术+工程双查询种子；S4 真实用户确认并绑定 S1/S4 hash；事件流派生设计完成门并推进 Project 生命周期；s2/s3/s4 Prompt Asset（18 个 golden 测试，全套 113 passed；验收通过，工作区未提交）
 
 ## Next
 
-- [ ] Stage 2（M2.2）— S2–S4 合同与 NATURAL_LANGUAGE_DESIGN_READY 派生（前置 M2.1 已 PASS 且已提交）
+- [ ] M2.3.RQ.DOMAIN — RQ0–RQ4 领域对象、可行性/route、状态、Gate、Event 与两套评分 Schema（前置 M2.2 已验收 PASS；开始前需先处理 M2.2 提交）
 
 ## Backlog
 
-- [ ] Stage 2 — S0–S4 与 NATURAL_LANGUAGE_DESIGN_READY
 - [ ] Stage 2.5 — route-aware RQ0–RQ4、S5/ENG0 前置门与 Fake/外部导入纵向切片
 - [ ] Stage 2.6 — ENG0–ENG10 工程转化、机械蓝图、图示、V&V 与论文交付纵向切片
 - [ ] Stage 3 — S5–S10 与 MATURE_IDEA_READY
