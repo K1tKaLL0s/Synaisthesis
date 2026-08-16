@@ -345,12 +345,37 @@ class EngineeringGate:
         return _canonical_payload(asdict(self))
 
 
+# ---------------------------------------------------------------------------
+# Claim acceptance (08, section 15: CLAIM_ACCEPTANCE; M4.2)
+# ---------------------------------------------------------------------------
+
+CLAIM_ACCEPTANCE_DECISIONS: tuple[str, ...] = ("ACCEPT", "REJECT", "PAUSE")
+
+
+def claim_acceptance_allowed_decisions() -> tuple[str, ...]:
+    """Legal CLAIM_ACCEPTANCE decisions (08, section 15)."""
+    return CLAIM_ACCEPTANCE_DECISIONS
+
+
+def assert_claim_acceptance_decision(decision: str) -> None:
+    """Fail closed on an illegal claim-acceptance decision."""
+    if decision not in CLAIM_ACCEPTANCE_DECISIONS:
+        raise DomainError(
+            f"decision {decision!r} is not legal for CLAIM_ACCEPTANCE; "
+            f"allowed: {', '.join(CLAIM_ACCEPTANCE_DECISIONS)}",
+            error_code="INVALID_GATE_DECISION",
+        )
+
+
 __all__ = [
+    "CLAIM_ACCEPTANCE_DECISIONS",
     "EngineeringGate",
     "EngineeringGateBinding",
     "Gate",
     "GateBinding",
     "allowed_decisions_for_gate",
+    "assert_claim_acceptance_decision",
+    "claim_acceptance_allowed_decisions",
     "engineering_allowed_decisions_for_gate",
     "qualification_next_target",
 ]

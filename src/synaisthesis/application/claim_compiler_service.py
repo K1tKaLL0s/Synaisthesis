@@ -11,12 +11,22 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Sequence
+from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from sqlalchemy.orm import Session
 
 from synaisthesis.agents.schemas import ClaimCandidate
 from synaisthesis.domain.claim import Claim, ClaimClass
+from synaisthesis.domain.claim_contract import (
+    CLAIM_CONTRACT_AGGREGATE_TYPE,
+    EVENT_CLAIM_CONTRACT_FROZEN,
+    EVENT_CLAIM_CONTRACT_REVISED,
+    ClaimContract,
+    claim_contract_blockers,
+)
+from synaisthesis.domain.enums import ProvenanceType
 from synaisthesis.domain.errors import DomainError
 from synaisthesis.domain.event import sha256_hex
 from synaisthesis.storage.repositories.claim_repository import (
@@ -219,11 +229,247 @@ def save_compiled_claims(
     )
 
 
+# ---------------------------------------------------------------------------
+# M4.2 — claim contract freeze and revision (04 section 2)
+# ---------------------------------------------------------------------------
+
+
+def _claim_hashes(claim: Claim) -> tuple[str, str]:
+    natural_language_hash = sha256_hex({"statement": claim.natural_language_statement})
+    formal_statement_hash = sha256_hex({"formal": claim.formal_statement_candidate or ""})
+    return natural_language_hash, formal_statement_hash
+
+
+def _persist_claim_contract_event(
+    session: Session,
+    *,
+    event_type: str,
+    contract: ClaimContract,
+    project_id: str,
+    artifact_root: Path,
+    sequence: int,
+) -> None:
+    from synaisthesis.domain.claim_contract import build_claim_contract_event
+    from synaisthesis.storage.repositories.event_repository import append_domain_event
+
+    event = build_claim_contract_event(
+        event_type,
+        aggregate_type=CLAIM_CONTRACT_AGGREGATE_TYPE,
+        aggregate_id=contract.contract_id,
+        payload={"claim_contract": contract.to_event_payload()},
+        sequence=sequence,
+    )
+    append_domain_event(session, event, project_id=project_id, artifact_root=artifact_root)
+
+
+def _claim_contract_stream(session: Session, contract_id: str) -> list[Any]:
+    from sqlalchemy import select
+
+    from synaisthesis.storage.repositories.event_repository import DomainEventRecord
+
+    return list(
+        session.execute(
+            select(DomainEventRecord)
+            .where(
+                DomainEventRecord.aggregate_type == CLAIM_CONTRACT_AGGREGATE_TYPE,
+                DomainEventRecord.aggregate_id == contract_id,
+            )
+            .order_by(DomainEventRecord.id)
+        )
+        .scalars()
+        .all()
+    )
+
+
+def freeze_claim_contract(
+    session: Session,
+    *,
+    project_id: str,
+    claim: Claim,
+    tool_plan: tuple[str, ...],
+    network_policy: str,
+    data_policy: str,
+    budget_policy: str,
+    allowed_semantic_delta: str,
+    approval_policy: str,
+    model_role_assignments: tuple[str, ...],
+    actor: ProvenanceType,
+    user_event_id: str,
+    at: datetime,
+    artifact_root: Path,
+    contract_id: str | None = None,
+    stop_conditions: tuple[str, ...] = (),
+    output_scope: str = "",
+    baseline_snapshot: str = "",
+) -> ClaimContract:
+    """Freeze an atomic claim into an immutable ClaimContract (04 section 2).
+
+    Only a real user event may confirm the freeze; the contract_hash covers
+    semantics, tool plan, budget and policies.  The claim itself must already
+    be atomic (the Claim constructor enforces this).
+    """
+    from synaisthesis.domain.claim_contract import (
+        ClaimContract,
+    )
+    from synaisthesis.domain.gate import assert_claim_acceptance_decision
+    from synaisthesis.domain.qualification import is_user_actor
+
+    if not is_user_actor(actor):
+        raise DomainError(
+            "冻结 ClaimContract 需要真实用户事件",
+            error_code="CLAIM_FREEZE_REQUIRES_USER_EVENT",
+        )
+    assert_claim_acceptance_decision("ACCEPT")
+    natural_language_hash, formal_statement_hash = _claim_hashes(claim)
+    contract = ClaimContract(
+        contract_id=contract_id or f"cc-{uuid.uuid4().hex[:12]}",
+        claim_id=claim.claim_id,
+        claim_revision_id=claim.claim_id,
+        version=1,
+        natural_language_hash=natural_language_hash,
+        formal_statement_hash=formal_statement_hash,
+        object_domain_snapshot=claim.object_domain,
+        assumption_snapshot=claim.assumptions,
+        conclusion_snapshot=claim.conclusion or claim.natural_language_statement,
+        baseline_snapshot=baseline_snapshot,
+        stop_conditions=stop_conditions,
+        output_scope=output_scope,
+        tool_plan=tool_plan,
+        network_policy=network_policy,
+        data_policy=data_policy,
+        budget_policy=budget_policy,
+        allowed_semantic_delta=allowed_semantic_delta,
+        approval_policy=approval_policy,
+        artifact_manifest_hash=claim.artifact_hash or "",
+        model_role_assignments=model_role_assignments,
+        user_confirmed=True,
+        frozen_at=at,
+        created_at=at,
+    )
+    blockers = claim_contract_blockers(contract)
+    if blockers:
+        raise DomainError(
+            "CLAIM_CONTRACT_INVALID: " + "; ".join(blockers),
+            error_code="CLAIM_CONTRACT_INVALID",
+        )
+    _persist_claim_contract_event(
+        session,
+        event_type=EVENT_CLAIM_CONTRACT_FROZEN,
+        contract=contract,
+        project_id=project_id,
+        artifact_root=artifact_root,
+        sequence=len(_claim_contract_stream(session, contract.contract_id)) + 1,
+    )
+    return contract
+
+
+def revise_claim_contract(
+    session: Session,
+    *,
+    project_id: str,
+    current: ClaimContract,
+    actor: ProvenanceType,
+    user_event_id: str,
+    at: datetime,
+    artifact_root: Path,
+    **changes: Any,
+) -> ClaimContract:
+    """Create a new frozen version; the old contract is never modified (04 §2)."""
+    import dataclasses
+
+    from synaisthesis.domain.qualification import is_user_actor
+
+    if not is_user_actor(actor):
+        raise DomainError(
+            "修订 ClaimContract 需要真实用户事件",
+            error_code="CLAIM_FREEZE_REQUIRES_USER_EVENT",
+        )
+    immutable_fields = {"contract_id", "claim_id", "claim_revision_id", "version"}
+    touched = immutable_fields & set(changes)
+    if touched:
+        raise DomainError(
+            f"不得修改不可变字段：{', '.join(sorted(touched))}",
+            error_code="CLAIM_CONTRACT_FROZEN",
+        )
+    revised = dataclasses.replace(
+        current,
+        version=current.version + 1,
+        supersedes_id=current.contract_id,
+        contract_hash=None,
+        frozen_at=at,
+        created_at=at,
+        **changes,
+    )
+    _persist_claim_contract_event(
+        session,
+        event_type=EVENT_CLAIM_CONTRACT_REVISED,
+        contract=revised,
+        project_id=project_id,
+        artifact_root=artifact_root,
+        sequence=len(_claim_contract_stream(session, revised.contract_id)) + 1,
+    )
+    return revised
+
+
+def load_claim_contract(
+    session: Session, contract_id: str, *, artifact_root: Path
+) -> ClaimContract:
+    """Replay a ClaimContract from its hash-verified event payload."""
+    import json
+
+    from synaisthesis.domain.claim_contract import (
+        ClaimContract,
+    )
+    from synaisthesis.storage.artifact_store import ArtifactRecord
+    from synaisthesis.storage.hashing import verify_artifact_hash
+
+    records = _claim_contract_stream(session, contract_id)
+    if not records:
+        raise DomainError(
+            f"claim contract {contract_id!r} has no events",
+            error_code="PROJECT_NOT_FOUND",
+        )
+    contract: ClaimContract | None = None
+    for record in records:
+        if record.event_payload_artifact_id is None:
+            raise DomainError(
+                f"event {record.id} has no payload artifact; state unrecoverable",
+                error_code="ARTIFACT_HASH_MISMATCH",
+            )
+        artifact = session.get(ArtifactRecord, record.event_payload_artifact_id)
+        if artifact is None:
+            raise DomainError(
+                f"payload artifact of event {record.id} is missing; state unrecoverable",
+                error_code="ARTIFACT_HASH_MISMATCH",
+            )
+        path = artifact_root / artifact.relative_path
+        if not verify_artifact_hash(path, artifact.sha256):
+            raise DomainError(
+                f"payload artifact of event {record.id} is missing or "
+                "tampered; state unrecoverable",
+                error_code="ARTIFACT_HASH_MISMATCH",
+            )
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if record.event_type in {EVENT_CLAIM_CONTRACT_FROZEN, EVENT_CLAIM_CONTRACT_REVISED}:
+            from synaisthesis.application.engineering_design_service import rebuild_dataclass
+
+            contract = rebuild_dataclass(ClaimContract, payload["claim_contract"])
+    if contract is None:
+        raise DomainError(
+            f"state of {contract_id!r} is unrecoverable",
+            error_code="PROJECT_STATE_UNRECOVERABLE",
+        )
+    return contract
+
+
 __all__ = [
     "classify_claim",
     "compile_claims",
+    "freeze_claim_contract",
     "is_mixed_statement",
     "load_claim",
+    "load_claim_contract",
+    "revise_claim_contract",
     "save_compiled_claims",
     "split_claim_into_atomic_units",
     "split_propositions",

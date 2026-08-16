@@ -25,10 +25,12 @@
 - [x] M2.11 — 工程论文与交付（Stage 2.6 第 4 个 Task，提交 `3f88f46`）：ENG8 母稿服务（BLUEPRINT_ONLY 不产生完成态结果、claim 真实回执、作者输入 NEEDS_AUTHOR_INPUT）、独立母稿审计（不得审自己初稿、Major/Critical 阻断）、FORMAL_MANUSCRIPT_DECISION Gate（先审计交付后打开、仅用户决议、KEEP_MASTER_ONLY 完整合法）、ENG9 Profile Registry（8 个内置工程 Profile、profile_hash 内容绑定、freshness、scope-fit、arXiv 恒为 PREPRINT_REPOSITORY、JOSS 软件门、ComplianceMatrix）、ENG10 独立交付审计 + ENGINEERING_DELIVERY_ACCEPTANCE（manifest hash 绑定、变更即失效）+ 03B §13.3 readiness 全条件、导出包 role/checksums 扩展、eng8/eng10 prompt assets（31 个测试，全套 339 passed）
 - [x] M3.1 — 理论路线 S6/S7（Stage 3 第 1 个 Task，提交 `275c9f9`）：S6 TheoryKernel（比较替代理论、保留反例、预测/解释分栏、核心概念变化回 S1/S4）、S7 FormalizationPlan（每个 Claim 有对象域/量词/证伪见证、依赖图无环或显式递归、工具或 NOT_APPLICABLE、消费已批准 RQ2M 公式但生成独立计划、S1/S4 hash 变化 → SEMANTIC_REGRESSION_REQUIRED 回退、AI 证明先标 PROOF_CANDIDATE 禁止 Tool-verified）、S6/S7 StageContract 与 prompt assets（16 个测试，全套 355 passed）
 - [x] M3.2 — S8–S10 交接（Stage 3 第 2 个 Task，提交 `b50cd3b`）：S8 PreFreezeAttackReport（1–2 轮攻击强制、禁止正式十轮 Council、内部+独立外部攻击、Critical 已解决或明确阻断）、S9 OpenQuestionRegistry（来源标记 USER/AI_GENERATED/DERIVED/LITERATURE/TOOL_FAILURE 强制、AI_GENERATED 保留）、S10 ResearchHandoffBundle（无未归属证据、每任务有 input/output/threshold、成熟门检查理论 RQ4M）、s8/s9/s10 节点与 prompt assets（15 个测试，全套 370 passed）
+- [x] M4.1 — Claim Compiler（Stage 4 第 1 个 Task，提交 `2de344d`，由并行子 agent 实现）：ClaimClass 七类（02 §8）、ClaimVerifier（NONE 必须显式 unverified）、MIXED 主张括号深度感知拆分（split_propositions）、原子 Claim 构造即拒绝 MIXED、对象域/量词/证伪见证/verifier 强制、ClaimUnit 字段（04 §1）、claim_repository 事件溯源 + hash 篡改检测（16 个测试；GAP：intended_verifiers 复数与 baseline/evidence_standard 延后）
+- [x] M4.2 — Claim 冻结（Stage 4 第 2 个 Task）：ClaimContract 不可变对象（04 §2 全字段）、contract_hash 覆盖语义/工具/预算/策略、仅真实用户事件可冻结（CLAIM_FREEZE_REQUIRES_USER_EVENT）、修订只生成新版本（旧版保留、SUPERSEDES 链）、gate.py 增 CLAIM_ACCEPTANCE 决策（ACCEPT/REJECT/PAUSE）（7 个测试，全套 437 passed）
 
 ## Next
 
-- [ ] M4.1.CLAIM.COMPILER — Claim Compiler：MIXED 拆分、每个 Claim 有对象域/量词/证伪见证/verifier（前置 M3.2）
+- [ ] M5.1.GATE.ACTION.POLICY — ActionBroker/Gate：A0–A3 委托 × R0–R6 风险的自动/Gate/拒绝路由、模型不能批准、ExecutionReceipt 缺 hash 失败（前置 M4.2）
 
 ## Backlog
 
