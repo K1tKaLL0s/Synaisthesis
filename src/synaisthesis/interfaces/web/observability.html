@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Synaisthesis Observability</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; color: #1a1a1a; }
+    h1 { font-size: 1.4rem; }
+    .page { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .page h2 { font-size: 1.1rem; margin-top: 0; }
+    .status { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.8rem; }
+    .status.READY { background: #d9f2d9; color: #1a5c1a; }
+    .status.IN_PROGRESS { background: #fdf0d0; color: #7a5a00; }
+    .status.NOT_STARTED { background: #eee; color: #555; }
+    .field { font-size: 0.85rem; color: #444; }
+    pre { background: #f6f6f6; padding: 0.6rem; overflow: auto; font-size: 0.75rem; }
+    .error { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>Synaisthesis Observability</h1>
+  <p class="field">本页面只渲染 API 载荷中的既有字段，不自行派生任何状态。</p>
+  <label for="project-id">project_id</label>
+  <input id="project-id" type="text" value="" placeholder="p-..." />
+  <button id="load" type="button">加载</button>
+  <p id="error" class="error"></p>
+  <div id="pages"></div>
+  <script src="observability.js"></script>
+</body>
+</html>

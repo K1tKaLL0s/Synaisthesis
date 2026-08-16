@@ -26,6 +26,7 @@ TOOL_GET_PROJECT_STATE = "research_get_project_state"
 TOOL_GET_PENDING_GATES = "research_get_pending_gates"
 TOOL_GET_COMMAND_RECEIPT = "research_get_command_receipt"
 TOOL_QUALIFY_DESIGN = "research_qualify_design"
+TOOL_GET_OBSERVABILITY = "research_get_observability"
 TOOL_PREPARE_COMMAND = "research_prepare_command"
 TOOL_COMMIT_COMMAND = "research_commit_command"
 TOOL_CANCEL_PREPARED_COMMAND = "research_cancel_prepared_command"
@@ -35,6 +36,7 @@ READ_ONLY_TOOLS: tuple[str, ...] = (
     TOOL_GET_PENDING_GATES,
     TOOL_GET_COMMAND_RECEIPT,
     TOOL_QUALIFY_DESIGN,
+    TOOL_GET_OBSERVABILITY,
 )
 
 MUTATION_TOOLS: tuple[str, ...] = (
@@ -91,6 +93,15 @@ TOOL_DEFINITIONS: tuple[dict[str, Any], ...] = (
         },
     },
     {
+        "name": TOOL_GET_OBSERVABILITY,
+        "description": "Read-only project observability payload (19 §5 M14)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project_id": {"type": "string"}},
+            "required": ["project_id"],
+        },
+    },
+    {
         "name": TOOL_PREPARE_COMMAND,
         "description": "Mutation: prepare a command through the Fidelity Gateway (05A 18.2)",
         "inputSchema": {"type": "object", "properties": {}},
@@ -141,6 +152,16 @@ def _call_read_only(
         return receipt.to_event_payload()
     if tool_name == TOOL_QUALIFY_DESIGN:
         return _qualify_design(arguments)
+    if tool_name == TOOL_GET_OBSERVABILITY:
+        from synaisthesis.application.observability_service import (
+            project_observability_payload,
+        )
+
+        return project_observability_payload(
+            session,
+            project_id=arguments.get("project_id", ""),
+            artifact_root=artifact_root,
+        )
     raise DomainError(f"unknown read-only tool {tool_name!r}", error_code="MCP_METHOD_NOT_FOUND")
 
 
@@ -400,6 +421,7 @@ __all__ = [
     "TOOL_CANCEL_PREPARED_COMMAND",
     "TOOL_COMMIT_COMMAND",
     "TOOL_GET_COMMAND_RECEIPT",
+    "TOOL_GET_OBSERVABILITY",
     "TOOL_GET_PENDING_GATES",
     "TOOL_GET_PROJECT_STATE",
     "TOOL_PREPARE_COMMAND",

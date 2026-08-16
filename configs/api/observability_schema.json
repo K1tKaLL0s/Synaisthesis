@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "frozen_at": "2026-08-17T00:00:00+00:00",
+  "title": "Synaisthesis Web Observability API (M14.WEB.OBSERVABILITY)",
+  "description": "Frozen API schema for observability pages. The UI renders only fields present in this payload and never derives state itself; every artifact_hash, route, score, trace, gap, evidence tier and compliance status is read verbatim from the event-sourced store.",
+  "type": "object",
+  "properties": {
+    "project_id": { "type": "string" },
+    "schema_version": { "const": "1.0.0" },
+    "rendered_from_store": { "const": true },
+    "pages": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/page" }
+    }
+  },
+  "required": ["project_id", "schema_version", "rendered_from_store", "pages"],
+  "$defs": {
+    "page": {
+      "type": "object",
+      "properties": {
+        "page_id": { "type": "string" },
+        "title": { "type": "string" },
+        "status": { "enum": ["NOT_STARTED", "IN_PROGRESS", "READY"] },
+        "route": { "type": ["string", "null"] },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/stored_artifact" } },
+        "artifacts": { "type": "array", "items": { "$ref": "#/$defs/stored_artifact" } },
+        "gates": { "type": "array", "items": { "$ref": "#/$defs/stored_gate" } },
+        "rendered_from_store": { "const": true }
+      },
+      "required": ["page_id", "title", "status", "route", "inputs", "artifacts", "gates", "rendered_from_store"]
+    },
+    "stored_artifact": {
+      "type": "object",
+      "properties": {
+        "aggregate_type": { "type": "string" },
+        "aggregate_id": { "type": "string" },
+        "event_type": { "type": "string" },
+        "artifact": { "type": ["object", "null"] }
+      },
+      "required": ["aggregate_type", "aggregate_id", "event_type", "artifact"]
+    },
+    "stored_gate": {
+      "type": "object",
+      "properties": {
+        "gate_id": { "type": "string" },
+        "gate_type": { "type": "string" },
+        "status": { "type": "string" },
+        "binding": { "type": ["object", "null"] }
+      },
+      "required": ["gate_id", "gate_type", "status", "binding"]
+    }
+  }
+}
