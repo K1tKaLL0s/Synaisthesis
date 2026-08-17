@@ -13,6 +13,8 @@ import re
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
+
 from synaisthesis.agents.auditor import NoveltyAuditor
 from synaisthesis.agents.novelty_reviewer import NoveltyReviewer
 from synaisthesis.agents.schemas import MechanismSketch, NaturalLanguageSpec, ResearchScopeSpec
@@ -34,7 +36,7 @@ from synaisthesis.providers.prior_art.fake import (
     fake_academic_providers,
     fake_engineering_providers,
 )
-from synaisthesis.verifiers.lean.adapter import lean_evidence_ok, run_lean
+from synaisthesis.verifiers.lean.adapter import find_lean_binary, lean_evidence_ok, run_lean
 
 NOW = datetime(2026, 8, 17, 5, 0, 0, tzinfo=UTC)
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,12 +44,26 @@ CASE_ROOT = ROOT / "examples" / "real_project_case_study"
 EVAL_ROOT = ROOT / "evals" / "case_study_eval"
 
 THEORY_70 = {
-    "T1": 4, "T2": 4, "T3": 4, "T4": 4,
-    "A1": 3, "A2": 3, "A3": 3, "A4": 3, "A5": 3,
+    "T1": 4,
+    "T2": 4,
+    "T3": 4,
+    "T4": 4,
+    "A1": 3,
+    "A2": 3,
+    "A3": 3,
+    "A4": 3,
+    "A5": 3,
 }
 ENGINEERING_70 = {
-    "E1": 4, "E2": 4, "E3": 3, "E4": 3, "E5": 4,
-    "EA1": 3, "EA2": 3, "EA3": 3, "EA4": 4,
+    "E1": 4,
+    "E2": 4,
+    "E3": 3,
+    "E4": 3,
+    "E5": 4,
+    "EA1": 3,
+    "EA2": 3,
+    "EA3": 3,
+    "EA4": 4,
 }
 
 
@@ -171,9 +187,7 @@ def _recompute(
 
 def _assert_export_matches(frozen_path: Path, recomputed: dict) -> None:
     frozen = json.loads(frozen_path.read_text(encoding="utf-8"))
-    assert frozen == recomputed, (
-        f"{frozen_path.name} 复算结果与冻结导出不一致；Bundle 不可复算"
-    )
+    assert frozen == recomputed, f"{frozen_path.name} 复算结果与冻结导出不一致；Bundle 不可复算"
 
 
 # ---------------------------------------------------------------------------
@@ -205,10 +219,12 @@ def test_theory_case_phase2_approved_export_recomputes() -> None:
     assert export["scores"]["novelty_total"] == 70
 
 
+@pytest.mark.skipif(
+    find_lean_binary() is None,
+    reason="no runnable Lean binary (SYNAISTHESIS_LEAN_BINARY or ~/.elan missing)",
+)
 def test_theory_case_real_lean_tool() -> None:
-    source = (
-        CASE_ROOT / "theory_case" / "lean" / "trace_cyclic.lean"
-    ).read_text(encoding="utf-8")
+    source = (CASE_ROOT / "theory_case" / "lean" / "trace_cyclic.lean").read_text(encoding="utf-8")
     result = run_lean(source)
     assert result.exit_code == 0, result.stderr
     assert lean_evidence_ok(result)
@@ -252,10 +268,7 @@ def test_engineering_case_export_recomputes() -> None:
     assert export["route"] == "ENGINEERING"
     assert export["next_target"] == "ENG0"
     assert export["scores"]["novelty_total"] == 70
-    assert (
-        export["feasibility_matrix"]["route_classification"]
-        == "ENGINEERING_PROJECT_CANDIDATE"
-    )
+    assert export["feasibility_matrix"]["route_classification"] == "ENGINEERING_PROJECT_CANDIDATE"
 
 
 def test_engineering_case_story_has_user_split_and_blueprint_only() -> None:
@@ -298,9 +311,7 @@ def test_dataset_json_matches_case_files() -> None:
     for relative in expected_files:
         assert (ROOT / relative).exists(), relative
     for case_dir in ("theory_case", "engineering_case"):
-        design = json.loads(
-            (CASE_ROOT / case_dir / "design.json").read_text(encoding="utf-8")
-        )
+        design = json.loads((CASE_ROOT / case_dir / "design.json").read_text(encoding="utf-8"))
         assert design["spec"]["core_definition"]
         assert design["mechanism"]["inputs"]
         assert design["scope"]["main_question"]

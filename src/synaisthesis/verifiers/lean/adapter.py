@@ -151,9 +151,7 @@ def run_lean(
     except subprocess.TimeoutExpired as exc:
         raw_stdout = exc.stdout or b""
         if isinstance(raw_stdout, bytes):
-            output = raw_stdout.decode("utf-8", errors="replace").replace(
-                path, "<source>"
-            )
+            output = raw_stdout.decode("utf-8", errors="replace").replace(path, "<source>")
         else:
             output = raw_stdout.replace(path, "<source>")
         return LeanResult(

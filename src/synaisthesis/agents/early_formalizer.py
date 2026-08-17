@@ -516,9 +516,7 @@ def build_formula_items_from_llm(
                 source_spec_fields=tuple(raw.get("source_spec_fields", ())),
                 assumption_formula_ids=tuple(raw.get("assumption_formula_ids", ())),
                 neighbor_refs=tuple(raw.get("neighbor_refs", ())),
-                origin=FormulaOrigin(
-                    raw.get("origin", "MODEL_PROPOSAL")
-                ),
+                origin=FormulaOrigin(raw.get("origin", "MODEL_PROPOSAL")),
                 confidence=raw.get("confidence"),
                 known_ambiguities=tuple(raw.get("known_ambiguities", ())),
                 falsification_or_failure_formula_id=str(
