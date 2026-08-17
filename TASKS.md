@@ -51,7 +51,7 @@
 
 ## Next
 
-- [x] M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION — 本轮维护增强（待提交）：ruff format 修复 3 个文件（`eval/case_study_eval` 测试、`early_formalizer.py`、`lean/adapter.py`）、CI 增加 M15 eval 测试、eval 真实 Lean 测试在无 Lean 环境显式 skip（与 M8.3 外部测试策略一致）、README/IMPLEMENTATION_STATUS/TASKS 状态校准；Docker 7 项 smoke 因本机 daemon 调度问题 SKIPPED，用户决定暂不处理。
+- [x] M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION — 本轮维护增强（提交 `52549ee` + 状态记录 `4da523d`）：ruff format 修复 3 个文件（`eval/case_study_eval` 测试、`early_formalizer.py`、`lean/adapter.py`）、CI 增加 M15 eval 测试、eval 真实 Lean 测试在无 Lean 环境显式 skip（与 M8.3 外部测试策略一致）、README/IMPLEMENTATION_STATUS/TASKS 状态校准；Docker 7 项 smoke 因本机 daemon 调度问题 SKIPPED，用户决定暂不处理。
 
 ## Backlog
 

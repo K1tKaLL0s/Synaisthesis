@@ -4,16 +4,16 @@
 `M15`（强制里程碑 M0–M15 已完成；后续仅可选 `M16.ENHANCEMENT.<NAME>`）
 
 ## Current task
-`NOT_STARTED`（上一工作单元 `M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION` 已完成验证，见 Verified；工作树待提交）
+`NOT_STARTED`（`M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION` 已完成并提交：`52549ee` + 状态记录 `4da523d`）
 
 ## Last verified commit
-`c8d92d0`（M15 已提交；本状态校准基于未提交工作树验证，待提交后回填新 commit hash）
+`52549ee`（M16 代码/CI 已提交；状态校准提交 `4da523d`）
 
 ## Blueprint baseline
 正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线记录蓝图语义；产品功能按里程碑增量实现，截至 M15 已覆盖本轮强制目标（详见 TASKS.md）。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- 无（`M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION` 已完成验证；提交后回填 hash）
+- 无（`M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION` 已完成并提交）
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -58,7 +58,7 @@
 
 ## Verified
 
-- M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION（未提交工作树，lock-pinned ruff 0.16.2 / pytest 9.1.1 / basedpyright 1.39.9）：`ruff format --check .` 通过（271 files already formatted）；`ruff check .` 通过；干净 CI 模拟 `uv run basedpyright` 0 errors/0 warnings；Python 3.14.4 与 3.11.15 的默认 `pytest` 均为 600 passed + 7 skipped（Docker smoke 环境性 skip），exit 0；`pytest evals/case_study_eval/test_case_study_eval.py` 在两版本均为 8 passed，无 Lean 模拟环境为 7 passed + 1 skipped（真实 Lean 测试显式 skip），exit 0；CI YAML 解析通过；`git diff --check` 通过。
+- M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION（提交 `52549ee` + `4da523d`，lock-pinned ruff 0.16.2 / pytest 9.1.1 / basedpyright 1.39.9）：`ruff format --check .` 通过（271 files already formatted）；`ruff check .` 通过；干净 CI 模拟 `uv run basedpyright` 0 errors/0 warnings；Python 3.14.4 与 3.11.15 的默认 `pytest` 均为 600 passed + 7 skipped（Docker smoke 环境性 skip），exit 0；`pytest evals/case_study_eval/test_case_study_eval.py` 在两版本均为 8 passed，无 Lean 模拟环境为 7 passed + 1 skipped（真实 Lean 测试显式 skip），exit 0；CI YAML 解析通过；`git diff --check` 通过。
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
 - `uv run ruff check .`：通过；`uv run ruff format --check .`：通过
 - `uv run basedpyright`：0 errors, 0 warnings
