@@ -1,22 +1,19 @@
 # Synaisthesis Implementation Status
 
 ## Current milestone
-`M2`（Stage 2.6 进行中：M2.10 已提交 PASS，M2.11 待推进）
+`M15`（强制里程碑 M0–M15 已完成；后续仅可选 `M16.ENHANCEMENT.<NAME>`）
 
 ## Current task
-`M2.10.ENGINEERING.MECHANICAL_BLUEPRINT`
+`NOT_STARTED`（上一工作单元 `M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION` 已完成验证，见 Verified；工作树待提交）
 
 ## Last verified commit
-`3070c49`（M2.10 已提交）
+`c8d92d0`（M15 已提交；本状态校准基于未提交工作树验证，待提交后回填新 commit hash）
 
 ## Blueprint baseline
-正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线只表示文档语义，不表示相关产品功能已实现。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
+正式文档基线为 `V2.4`（2026-08-14）：用户已整体采纳 V2.3 的 RQ2F 理论/工程可行性分流、强制工程路线决定、工程概念/新颖性审验及 ENG0–ENG10 设计；V2.4 进一步加入纯理论论文固定交付、双路线母稿独立审计、母稿交付后的正式稿决策，以及理论四刊、工程四刊和双路线 arXiv Profile。该基线记录蓝图语义；产品功能按里程碑增量实现，截至 M15 已覆盖本轮强制目标（详见 TASKS.md）。V2.4 已追加一处补丁：定义 `evidence.status` 枚举值 `ACTIVE`/`REVOKED`（`revoked_at` 为权威标记），并重建汇编版与 manifest。
 
 ## Active work unit
-- Stable Task ID: `M12.CODEX.RECURSION_GUARD`
-- Milestone: `M12`（Stage 12 第 1 个 Task：双向递归防护）
-- WorkUnitContract: `workspace/workunit-contracts/M12.CODEX.RECURSION_GUARD.md`
-- 交付：OriginChain 验证 + REENTRANCY_BLOCKED + MCP mutation origin 注解。
+- 无（`M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION` 已完成验证；提交后回填 hash）
 
 ## Environment
 - Project root: `E:\Synaisthesis`
@@ -25,9 +22,9 @@
 - Python: 3.14.4（WSL2）；兼容目标 >=3.11，已在 3.11.15 实测通过
 - uv: 0.12.3
 - Git: 2.53.0
-- Docker: 29.7.2
-- Z3: 5.0.0（M0 未使用，仅记录）
-- Lean: 4.32.2（Lake 5.0.0，M0 未使用，仅记录）
+- Docker: 已安装（此前记录 29.7.2）；当前 WSL daemon 调度异常，`tests/external/test_python_sandbox.py` 7 项 SKIPPED（用户决定暂不处理）
+- Z3: 5.0.0（M8.1 真实适配器已使用）
+- Lean: 4.32.2（Lake 5.0.0；M8.3/M9.1/M15 真实适配器已使用）
 - Node.js: WSL 全局 `NOT_FOUND`（项目仍使用 basedpyright）；DSH 使用 E 盘隔离 Linux Node.js 24.19.0
 - venv: `/home/chaos/.venvs/synaisthesis`（WSL ext4）；仓库内 `.venv` 为符号链接
 - SQLAlchemy: 2.0.52（M1.3 新增生产依赖）；Alembic: 1.19.1（M1.3 新增生产依赖）
@@ -56,7 +53,12 @@
 - M2.7 S5 纵切片：`agents/schemas.py`（MinimalCaseBundle）；`application/incubation_service.py`（propose/load_minimal_case_bundle、MinimalCaseProposed）；`orchestration/nodes/incubator_nodes.py`（s5_qualification_node）；`prompts/incubator/s5_minimal_case.md`
 - M2.8 工程工作流领域：`domain/engineering.py`（EngineeringStageId ENG0–ENG10、EngineeringArtifactStatus、EngineeringDeliveryMode、EngineeringDeliveryStatus 全表 32 值、EngineeringChangeKind、EngineeringGateType 与四组工程 Gate 决策枚举、ENGINEERING_EVENT_TYPES + build_engineering_event、finalize_artifact_hash/superseded、eng0_entry_blockers 03B §1.1 结构化 Blocker、EngineeringMissionCharter（proposed_additions 分离 + ENGINEERING_SCOPE_CHANGE）、OperationalConceptBundle + conops_blockers、EngineeringReferenceSet/OptionTradeStudy（Σw=1、Critical 硬淘汰、eligible_ranking）/TechnologySelectionRecord/RejectedOptionLog、MechanicalEngineeringBlueprint + EngineeringWorkUnitContract（模糊措辞拒绝）+ blueprint_completeness_blockers、ApplicationDirectionPortfolio/ExtensionRoadmap、engineering_regression_check 03B §14 确定性最早回退 + artifact_needs_regression）；`domain/requirements.py`（RequirementType/VerificationMethod/RequirementPriority、EngineeringRequirement（无阈值形容词拒绝/UNRESOLVED_THRESHOLD）、RequirementsBaseline + requirements_baseline_blockers 03B §5.4、AcceptanceCriteriaCatalog、QualityAttributeScenarioSet、SecurityPrivacyComplianceObligationSet（AI 义务六字段）、UnresolvedDecisionRegister）；`domain/architecture.py`（ArchitectureComponent 稳定 ID、ArchitectureDiagram（源/SVG hash + 渲染回执 + 断链拒绝）、InterfaceContractSet/DataContractSet/StateAndFailureModel/ThreatModel/DeploymentAndOperationsDesign、ArchitectureBaseline、ArchitectureReviewBinding 三 hash）；`domain/traceability.py`（RequirementsTraceabilityMatrix + traceability_coverage、VerificationPlan/ValidationPlan/VerificationReport/ValidationReport（PASS 必须真实回执））；`domain/publication.py`（EngineeringEvidenceTier/EngineeringPaperType + paper_type_allowed_by_evidence 03B §11.1、ClaimEvidenceMatrix（SUPPORTED 必须回执）、EngineeringMasterManuscript（author 字段 NEEDS_AUTHOR_INPUT/USER_PROVIDED 强制、master_hash 内容绑定）、VenueComplianceStatus PASS/FAIL/NEEDS_AUTHOR_INPUT/NOT_APPLICABLE/STALE_GUIDANCE）；`domain/gate.py`（EngineeringGateBinding + EngineeringGate + engineering_allowed_decisions_for_gate，仅真实用户事件可决议）；`domain/__init__.py` 导出；migration 0004（engineering_workflow_runs/engineering_requirements/engineering_trace_edges/engineering_manuscripts，按 06 §）；`.gitignore` 追加 `.dsh-upstream/`（DSH 环境本会话在仓库内创建的未跟踪目录，避免误提交与本地门禁污染）
 
+- M2.9–M15（已实现并提交；逐条细节见 TASKS.md `## Done`，验证结果见本文件 `## Verified`）：M2.9 需求与架构设计服务、M2.10 机械工程蓝图、M2.11 工程论文与交付、M3.1–M3.2 理论路线 S6–S10、M4.1–M4.2 Claim Compiler/冻结、M5.1 ActionBroker/Gate 策略、M0.5 Codex 指令忠实通道、M6.1–M6.3 LLM Provider/角色隔离/模型路由、M7.1 Fake Council 状态图、M8.1–M8.3 真实 Z3/Python 沙箱/Lean 适配器、M9.1–M9.2 真实 Council/理论论文交付、M10–M12 Codex 入站 MCP/出站/递归防护、M13.1–M13.4 学术与工程生产 Provider/RQ E2E/双路线参考集与出版 Profile、M14 Web 可观测性、M15 真实项目案例研究。
+- M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION（本次维护增强）：ruff format 修复 3 个文件；README/IMPLEMENTATION_STATUS/TASKS 状态校准；CI 增加 M15 eval 测试；eval 真实 Lean 测试在无 Lean 环境显式 skip（与 M8.3 外部测试策略一致）。
+
 ## Verified
+
+- M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION（未提交工作树，lock-pinned ruff 0.16.2 / pytest 9.1.1 / basedpyright 1.39.9）：`ruff format --check .` 通过（271 files already formatted）；`ruff check .` 通过；干净 CI 模拟 `uv run basedpyright` 0 errors/0 warnings；Python 3.14.4 与 3.11.15 的默认 `pytest` 均为 600 passed + 7 skipped（Docker smoke 环境性 skip），exit 0；`pytest evals/case_study_eval/test_case_study_eval.py` 在两版本均为 8 passed，无 Lean 模拟环境为 7 passed + 1 skipped（真实 Lean 测试显式 skip），exit 0；CI YAML 解析通过；`git diff --check` 通过。
 - `uv run pytest`：11 passed（Python 3.14.4 与 3.11.15 均通过）
 - `uv run ruff check .`：通过；`uv run ruff format --check .`：通过
 - `uv run basedpyright`：0 errors, 0 warnings
@@ -113,14 +115,15 @@
 - M0.5（并入 d6dbfbe）：`workspace/.venv-m13/bin/python -m pytest tests/security/test_codex_fidelity.py tests/integration/test_prepare_commit.py` 29 passed；`ruff check --no-cache src/synaisthesis/fidelity/ src/synaisthesis/application/fidelity_service.py` 通过；format 通过
 
 ## Known failures
-- 当前无安装阻断。原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
+- Docker 外部 smoke：Docker 已安装但当前 WSL daemon 调度异常，`tests/external/test_python_sandbox.py` 7 项按设计 SKIPPED（真实适配器不做 Fake 替代）；用户已明确暂不处理。
+- Computer Use：原先以隐藏 PowerShell 为目标的 `C:\Users\27499\Desktop\DeepSeek Harness.lnk` 会被外部环境自动移除；本轮改为直接调用 `C:\Windows\System32\wsl.exe` 与现有 WSL runner 后，快捷方式字段回读一致且连续 30 秒存在。Computer Use 仍因 Codex 本地目录 `EPERM` 不可用，因此未执行真实桌面双击。
 
 ## Pending Human Gates
-- 无（「M0 人工确认」已于本轮由用户确认通过）。
+- 无（「M0 人工确认」已由用户确认通过；本维护增强无核心语义变化，无新增 Human Gate）。
 
 ## Next allowed task
 - 文档方面：V2.4 已冻结；后续只有新需求或实现中发现 `BLUEPRINT_GAP/CONFLICT` 时再变更。
-- 代码方面：`M16.ENHANCEMENT.<NAME>`（前置：v1.0 之前的稳定性门按 `13`；每个增强单独 ADR/Task；验收：不破坏 Provider 抽象、Evidence Scope、Semantic Gate、RQ 门和旧 Bundle reader；停止：跨越多个独立增强或需要不可逆迁移）。本轮目标清单（19 §9）全部 [x] 已完成：S0–S10、RQ0–RQ4 双路线分流与 70/69 路由、ENG0–ENG10 机械蓝图、双路线母稿/审计/Profile、arXiv 预印本定位。剩余仅可选增强项，无强制 M 里程碑。
+- 代码方面：`M16.ENHANCEMENT.<NAME>`（前置：v1.0 之前的稳定性门按 `13`；每个增强单独 ADR/Task；验收：不破坏 Provider 抽象、Evidence Scope、Semantic Gate、RQ 门和旧 Bundle reader；停止：跨越多个独立增强或需要不可逆迁移）。本轮目标清单（19 §9）全部 [x] 已完成；`M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION` 为本轮唯一维护增强。剩余仅可选增强项，无强制 M 里程碑。
 
 ## Notes
 - 原计划 Pyright（npm 版）在无 Node 的 WSL 环境中安装失败且极慢，按蓝图「Pyright 或 mypy」改用 basedpyright（Pyright 兼容实现）；检查命令为 `uv run basedpyright`。
@@ -191,3 +194,4 @@
 - M2.8/M2.9 本会话期间 DSH 环境在仓库内创建未跟踪目录 `.dsh-upstream/` 与 `.dsh-probe/`（modeltest 检查点），已在 `.gitignore` 追加忽略，避免误提交与本地 ruff 门禁污染；CI 全新检出不受影响。
 - DOC-V2.4 只改文档与生成型蓝图资产，未修改 Python、运行配置或 CI，因此未重复运行代码测试、类型检查和构建；上面的 M0 代码验证记录保持历史事实，不视为本轮重跑。
 - DSH 位于 `/mnt/e` drvfs；依赖安装约 13 分钟，Web profile 每次冷启动实测约 2 分 49 秒。启动器使用 240 秒有界健康等待；若后续体验不可接受，应另建迁移到 WSL ext4/VHDX 的独立 WorkUnit，不得静默移动到 C 盘或 N 盘。
+- M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION 记录：本轮为维护增强，不修改蓝图/manifest/依赖/公开接口；`19 §5 M16` 引用 `13` 的“稳定性门”未找到形式化清单，本轮采用保守替代门（3.11+3.14 全量检查、零语义/依赖变更）并记录该 BLUEPRINT_GAP。

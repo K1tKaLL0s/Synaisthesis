@@ -26,9 +26,9 @@ Versioned Research Bundle
 
 ## Status
 
-`M0` — repository skeleton and quality base. No research functionality yet.
+`M15` — mandatory milestones M0–M15 are implemented and verified. Remaining work is optional `M16.ENHANCEMENT.<NAME>` items, one ADR/Task at a time. See `IMPLEMENTATION_STATUS.md` and `TASKS.md` for the exact verified state.
 
-Blueprint baseline: `V2.4` (2026-08-14) — freezes route-aware formalization feasibility, the mandatory engineering-route decision, ENG0–ENG10 mechanical-blueprint delivery, and dual-track audited paper masters with optional journal/arXiv adaptation after a user decision. This is documentation only; the corresponding product functionality is not implemented yet.
+Blueprint baseline: `V2.4` (2026-08-14) — freezes route-aware formalization feasibility, the mandatory engineering-route decision, ENG0–ENG10 mechanical-blueprint delivery, and dual-track audited paper masters with optional journal/arXiv adaptation after a user decision. The baseline records blueprint semantics; product functionality is implemented incrementally milestone-by-milestone through M15, not as one big-bang release.
 
 ## Development
 

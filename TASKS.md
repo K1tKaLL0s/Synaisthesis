@@ -43,31 +43,19 @@
 - [x] M11 — Codex 出站（Stage 11 第 1 个 Task，提交 `7f6ae23`）：isolated git worktree（真实 `git worktree add`，worker 永不写主工作区）、受控文件校验（仅校验 base_ref...branch 实际变更文件；禁止文件/未授权文件 → CODEX_WORKER_VIOLATION）、真实 diff 捕获（`git diff base...branch`）、WorkerExecutionReceipt（内容绑定 receipt_hash）、适配器重验（receipt 必须绑定真实 diff hash，自声称 PASS 拒绝）、delegate/receive 节点、事件溯源持久化（DelegationStarted/ReceiptRecorded）（5 个测试，全套 540 passed；SDK 安装为单独依赖 Human Gate，本任务零新依赖）
 - [x] M12 — 双向递归防护（Stage 12 第 1 个 Task，提交 `b253b19`）：OriginChain/OriginHop（OPERATOR→PLATFORM→WORKER→PLATFORM 交替验证、WORKER 只能由 PLATFORM 派生、非首跳 OPERATOR 即回环、delegation depth 上限（默认 3）、WORKER 重复 delegation 即循环）、REENTRANCY_BLOCKED fail-closed、MCP mutation 工具强制 origin_chain 注解（缺失/非法 → 阻断）、chain_hash 可验证（7 个测试，全套 547 passed）
 
-## Next
-
 - [x] M13.2.ENGINEERING.PROVIDERS — 工程近邻生产 Provider（提交见下）：`engineering_base.py`（EngineeringNeighborHit/Query/Provider、特征证据引用强制、POPULARITY_MARKERS）、`repository_registry.py`/`package_registry.py`/`official_docs.py`（可注入 fixture 语料、每个 hit 3 项成熟度证据、popularity 只进 untrusted 隔离区）、`maturity.py`（成熟度 ≥2 项证据、popularity 单独不足 → MATURITY_EVIDENCE_INSUFFICIENT；功能/应用加权排序每分有来源 → NEIGHBOR_RANK_UNSOURCED；跨 Provider 去重、外部文本隔离收集）；14 个 focused 测试；全套 561 passed
 - [x] M13.3.RQ.PRODUCTION_E2E — route-aware RQ0–RQ4 生产编排（提交见下）：`qualification_service.run_qualification_pipeline`（RQ0 CAPABILITY_READY→RQ1 COMPLETE→RQ2F 固定分类→RQ2M/RQ2E→RQ3 审查→RQ4 固定路由：70 自动进 S5/ENG0、<70 或未决 Gate 交还用户；PARTIAL 覆盖 fail-closed RQ1_COVERAGE_INCOMPLETE）、`novelty_service.novelty_next_target`、`qualification_nodes.qualification_pipeline_node`、CLI `qualify` 命令与 MCP 只读工具 `research_qualify_design`（intent 适配器）、`qualification_export_payload`（来源/可行性矩阵/route/形式化/评分/Gate）；8 个 E2E 测试；全套 570 tests passed
 - [x] M13.4.DUAL_TRACK.REFERENCE_AND_PUBLICATION_PROFILES — 双路线参考集与出版 Profile（提交见下）：`standards.py`（标准/参考架构/政府指南证据 + ENG3 参考集组装，仓库/标准/参考架构各至少一项、逐条可追溯、不完整 fail-closed）、`official_guide_fetcher.py`（内容寻址快照 + 模板 SHA-256 改变/不可达/窗口过期 → STALE_GUIDANCE）、`profile_registry.py`（route 锁 PROFILE_ROUTE_MISMATCH、scope 候选排除、arXiv 双路线 PREPRINT 强制）、`profile_provider.py`（scope/freshness 裁决，SCOPE_MISMATCH 或 STALE 永不适配）、`venue_adapters.py`（arXiv metadata 结构化检查 + 状态只允许 ARXIV_PACKAGE_READY）、`configs/publication_profiles/*.json` 冻结 fixture（13 Profile 全字段+hash）；29 个 focused 合同测试；全套 599 tests passed
 - [x] M14.WEB.OBSERVABILITY — Web 可观测性（提交见下）：先冻结 `configs/api/observability_schema.json`（6 页面：design/feasibility_route_gate/formula_concept_review/novelty_score_gate/engineering_trace_blueprint/publication）；`observability_service`（只读、事件流 hash 校验、原样呈现 route/hash/分数/追踪/缺口/证据等级/合规状态，篡改 fail-closed）、API handler + 结构校验、静态 Web 渲染页（不派生状态）、MCP 只读工具 `research_get_observability`；8 个 focused 合同测试；全套 607 tests passed
 - [x] M15.CASE_STUDY.EVAL — 真实项目案例研究（提交见下）：`examples/real_project_case_study/theory_case`（设计输入 + 失败阶段导出（RQ3M REQUEST_REVISION）+ 修复阶段导出（APPROVE → RQ4M 70 → S5）+ 真实 Lean 定理 `trace_cyclic.lean` + story：失败/修复/Gate/真实工具/RQ0–RQ4）、`engineering_case`（用户分流 TRY_ENGINEERING_PROJECT → RQ4E 70 → ENG0 + ENG0–ENG10 BLUEPRINT_ONLY 无虚构结果 story）、`evals/case_study_eval/`（dataset/report/8 个复算测试：两 Bundle 逐字段重算比对、真实 Lean exit 0、故事要素与无虚构断言）；另修复 `qualification_service` route_selection_id 确定性（run_id 派生，替代 uuid4，保证 Bundle 可复算）；全套 607 tests passed
 
+## Next
+
+- [x] M16.ENHANCEMENT.STATUS_AND_CI_CALIBRATION — 本轮维护增强（待提交）：ruff format 修复 3 个文件（`eval/case_study_eval` 测试、`early_formalizer.py`、`lean/adapter.py`）、CI 增加 M15 eval 测试、eval 真实 Lean 测试在无 Lean 环境显式 skip（与 M8.3 外部测试策略一致）、README/IMPLEMENTATION_STATUS/TASKS 状态校准；Docker 7 项 smoke 因本机 daemon 调度问题 SKIPPED，用户决定暂不处理。
+
 ## Backlog
 
-- [ ] Stage 2.5 — route-aware RQ0–RQ4、S5/ENG0 前置门与 Fake/外部导入纵向切片
-- [ ] Stage 2.6 — ENG0–ENG10 工程转化、机械蓝图、图示、V&V 与论文交付纵向切片
-- [ ] Stage 3 — S5–S10 与 MATURE_IDEA_READY
-- [ ] Stage 4 — Claim Compiler 与 FrozenClaim
-- [ ] Stage 5 — ActionBroker、Gate、A0–A3
-- [ ] Stage 6 — 双模型 Provider 与真实隔离
-- [ ] Stage 7 — Fake Council 十轮
-- [ ] Stage 8 — Z3、Python Sandbox、Lean Compiler
-- [ ] Stage 9 — 真实 Council
-- [ ] Stage 9.2 — 理论论文母稿、独立审计、用户正式稿决策与可选 Profile 适配
-- [ ] Stage 0.5 — Codex 指令忠实通道（CIFL；M1 后可实施，必须先于 Stage 10 的任何外部 mutation）
-- [ ] Stage 10 — Codex 入站（MCP）
-- [ ] Stage 11 — Codex 出站
-- [ ] Stage 12 — 双向递归防护
-- [ ] Stage 13 — 生产级学术/成熟工程近邻检索与新颖性
-- [ ] Stage 14 — Web UI
-- [ ] Stage 15 — 评估与真实 Case Study
-- [ ] Stage 16 — 后期增强
+- [ ] 可选 `M16.ENHANCEMENT.<NAME>`：每个增强单独 ADR/Task；本轮仅完成 `STATUS_AND_CI_CALIBRATION`。
+- [ ] v0.8 Web UI and First Real Case Study：Dashboard、Stage Timeline、Council Run、Evidence Ledger、Gate、Codex Task Diff、真实案例、Demo（`docs/blueprint/13_ROADMAP_AND_PORTFOLIO.md`）。
+- [ ] v0.9 Interactive Lean and Branch Search：LeanDojo-v2/Pantograph、proof state、顺序 tactic、有限修复分支搜索、branch scoring/pruning（`docs/blueprint/13_ROADMAP_AND_PORTFOLIO.md`）。
+- [ ] v1.0 Stable Local Research Workbench：Schema 稳定、跨版本迁移、Windows/WSL2 安装文档、至少两个真实案例、可靠 pause/resume、安全审计、完整插件发行流程、limitation 文档（`docs/blueprint/13_ROADMAP_AND_PORTFOLIO.md`）。
